@@ -166,7 +166,8 @@ function SW.BuildingTooltipsInit()
 end
 function SW.BuildingTooltipsChangeGUI()
 	--Start with building tech tree
-	SW.BuildingTooltips.GUITooltip_ConstructBuilding = function GUITooltip_ConstructBuilding( _uc, _tooltipStringNormal, _tooltipStringDisabled, _tech, _keyBindingString)
+	SW.BuildingTooltips.GUITooltip_ConstructBuilding = GUITooltip_ConstructBuilding
+	GUITooltip_ConstructBuilding = function ( _uc, _tooltipStringNormal, _tooltipStringDisabled, _tech, _keyBindingString)
 		if Logic.GetTechnologyState(GUI.GetPlayerID, _tech) == 4 then --Already teched, use original function
 			SW.BuildingTooltips.GUITooltip_ConstructBuilding( _uc, _tooltipStringNormal, _tooltipStringDisabled, _tech, _keyBindingString)
 			return
