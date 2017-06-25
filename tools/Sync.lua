@@ -6,6 +6,8 @@ function Sync.Init()
 	Sync.KeyPrep_Length = string.len(Sync.KeyPrep);
 	Sync.KeyAck = Sync.Key .. "_Acknowledge";
 	Sync.KeyAck_Length = string.len(Sync.KeyAck);
+	Sync.KeyNoSyncCall = "_NoSync";
+	Sync.KeyNoSyncCall_Length = string.len(Sync.KeyNoSyncCall);
 	Sync.NumOfTributes = 100;
 
 	GameCallback_FulfillTribute = function() return 1 end
@@ -40,7 +42,7 @@ function Sync.Init()
 	
 	Sync.MPGame_ApplicationCallback_ReceivedChatMessage = MPGame_ApplicationCallback_ReceivedChatMessage;
 	MPGame_ApplicationCallback_ReceivedChatMessage = function( _Message, _AlliedOnly, _SenderPlayerID )
-		if string.find(_Message, Sync.KeyPrep , 1, true) then
+		if string.find(_Message, Sync.KeyPrep, 1, true) then
 			local tributPlayer = tonumber(string.sub(_Message, Sync.KeyPrep_Length +1, Sync.KeyPrep_Length +1)); -- ex "2" - 1 digit
 			local indexString = string.sub(_Message, Sync.KeyPrep_Length +2, Sync.KeyPrep_Length +5); -- ex "0010" - 4 digits
 			local tributIndex = tonumber(indexString);
@@ -48,11 +50,18 @@ function Sync.Init()
 			Sync.Tributes[tributPlayer][tributIndex].FunctionString = fs;
 			Sync.Acknowledge(tributPlayer, indexString);
 			return;
-		elseif string.find(_Message, Sync.KeyAck , 1, true) then
+		elseif string.find(_Message, Sync.KeyAck, 1, true) then
 			local tributPlayer = tonumber(string.sub(_Message, Sync.KeyAck_Length +1, Sync.KeyAck_Length +1)); -- ex "2" - 1 digit
 			local tributIndex = tonumber(string.sub(_Message, Sync.KeyAck_Length + 2, Sync.KeyAck_Length + 5)); -- ex "0010" - 4 digits
 			if GUI.GetPlayerID() == tributPlayer then
 				Sync.Complete(tributPlayer, tributIndex, _SenderPlayerID);
+			end
+			return;
+		elseif string.find(_Message, Sync.KeyNoSyncCall, 1, true) then
+			local sendingPlayer = tonumber(string.sub(_Message, Sync.KeyNoSyncCall_Length +1, Sync.KeyNoSyncCall_Length +1)); -- ex "2" - 1 digit
+			local fs = string.sub(_Message, Sync.KeyNoSyncCall + 2); -- start after player
+			if GUI.GetPlayerID() ~= sendingPlayer then
+				Sync.ExecuteFunctionByString(fs);
 			end
 			return;
 		end
@@ -103,6 +112,15 @@ function Sync.Call( _func, ...)
 		end
 	end
 	Message("ERROR: Cant Sync - used more than " .. Sync.NumOfTributes .. " tributes");
+end
+
+function Sync.CallNoSync( _func, ...)
+	local fs = Sync.ConvertFunctionToString( _func, unpack(arg));
+	Sync.Send(
+			Sync.KeyNoSyncCall .. GUI.GetPlayerID() .. fs
+		);
+	-- call local directly
+	Sync.ExecuteFunctionByString(fs);
 end
 
 function table.contains(_table, _value)
