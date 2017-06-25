@@ -206,7 +206,7 @@ end
 
 function SW.EnableOutpostVCs()
 	-- load in archive while developing *-* --
-	S5Hook.AddArchive("extra2/shr/maps/user/scripts/archive.bba");
+	S5Hook.AddArchive("extra2/shr/maps/user/speedwar/archive.bba");
 	S5Hook.ReloadEntities();
 	S5Hook.RemoveArchive();
 	--Message("EnableOutpostVCs");
