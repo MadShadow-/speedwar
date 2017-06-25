@@ -1,0 +1,889 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+
+<root>
+
+<!--BUILDINGS -->
+	<!-- The percentage of the original building's cost a player receives when he sells the building -->
+	<CompensationOnBuildingSale>50</CompensationOnBuildingSale>
+
+	<!-- Factor of exploration range of buildings under construction -->
+	<BuildingUnderConstructionExplorationFactor>0.25</BuildingUnderConstructionExplorationFactor>
+
+	<!-- The maximum distance a building will snap from a blocked to a free position during placement -->
+	<BuildingPlacementSnapDistance>900</BuildingPlacementSnapDistance>
+
+	<!-- The factor of health left when a building should be closed (e.g. if this is 0.2, the building will
+	     close if its Health value is less than 20% of its MaxHealth value -->
+	<BuildingClosedHealthFactor>0.2</BuildingClosedHealthFactor>
+
+	<BuildingRecentlyAttackedDuration>10000</BuildingRecentlyAttackedDuration>
+
+    <!-- The percentage of the building's health that a construction site has. i.e a value of
+         0.5 means construction sites will have half as many hit points as the corresponding buildings -->
+	<ConstructionSiteHealthFactor>0.25</ConstructionSiteHealthFactor>
+
+<!--WEATHER -->
+	<!-- Factor for exploration of buildings if raining -->
+	<WeatherExplorationBuildingRainFactor>0.8</WeatherExplorationBuildingRainFactor>
+
+	<!-- Factor for exploration of settlers if raining -->
+	<WeatherExplorationSettlerRainFactor>0.8</WeatherExplorationSettlerRainFactor>
+
+	<!-- Factor for move speed if raining -->
+	<WeatherMoveSpeedRainFactor>1.0</WeatherMoveSpeedRainFactor>
+
+
+	<!-- Factor for exploration of buildings if snowing -->
+	<WeatherExplorationBuildingSnowFactor>1.0</WeatherExplorationBuildingSnowFactor>
+
+	<!-- Factor for exploration of settlers if snowing -->
+	<WeatherExplorationSettlerSnowFactor>1.0</WeatherExplorationSettlerSnowFactor>
+
+	<!-- Factor for move speed if snowing -->
+	<WeatherMoveSpeedSnowFactor>0.85</WeatherMoveSpeedSnowFactor>
+
+	<!-- Miss Chance change (projectiles) (integer %) when it's raining -->
+	<WeatherMissChanceChangeRain>5</WeatherMissChanceChangeRain>
+
+	<!-- Miss Chance change (projectiles) (integer %) when it's snowing -->
+	<WeatherMissChanceChangeSnow>2</WeatherMissChanceChangeSnow>
+
+    <!-- The building animation played at the weather towers when the weather is being changed -->
+    <WeatherTowerAnim>PB_WeatherTower1_turn_600</WeatherTowerAnim>
+
+<!-- BATTLE -->
+	<!-- Range in which enemies are attacked by units on an "attack move" -->
+	<AttackMoveRange>2000</AttackMoveRange>
+
+	<!-- The distance a leader is looking for hostile leaders; in centimeter -->
+	<!--
+	    Note that this is now deprecated.  It may be used for a while when an entity has no valid
+	    auto attack range in it's LeaderBehavior (or derived behavior) properties
+	-->
+	<MilitaryLeaderAutoAttackRange>1800</MilitaryLeaderAutoAttackRange>
+
+	<!-- Factor of entity's normal attack range for buildings -->
+	<MilitaryBuildingAutoAttackRangeFactor>0.8</MilitaryBuildingAutoAttackRangeFactor>
+
+	<!-- Factor of entity's normal attack range for civilians -->
+	<MilitaryCivilianAutoAttackRangeFactor>0.7</MilitaryCivilianAutoAttackRangeFactor>
+
+	<!-- Special range in which once activated defending units follow attackers -->
+	<MilitaryDefendRange>3000</MilitaryDefendRange>
+
+	 <!--
+        The below are guarding distances.  They differ for buildings and other
+        entities.  The distance is checked once a second.  If it is greater
+        than the max distance, the entity will move towards a point that is the
+        move distance away from the guarded entity.
+          Another note: when a non-building entity is inside a building (e.g. a
+        worker), the building is guarded instead, including changing the max
+        and move distance, so guards may "hang back" a little.
+          Of course, move and max distance as upper and lower threshold to avoid
+        constant adjustment are less important for buildings, since buildings
+        have a tendency to stay in one place :)  However, it can have influence
+        when the guards were drawn away during battle.
+    -->
+    <GuardMaxDistanceBuilding>1000.0</GuardMaxDistanceBuilding>
+    <GuardMoveDistanceBuilding>900.0</GuardMoveDistanceBuilding>
+    <GuardMaxDistanceOther>600.0</GuardMaxDistanceOther>
+    <GuardMoveDistanceOther>300.0</GuardMoveDistanceOther>
+
+	<!-- The time (in ms) after an attack an entity counts as 'recently attacked' (hit anim) -->
+	<MilitaryRecentlyAttackedTime>200</MilitaryRecentlyAttackedTime>
+
+	<MilitaryMaxAttackersPerEntity>12</MilitaryMaxAttackersPerEntity>
+
+	<!-- 5 attack damage modifiers for each level of experience -->
+	<!--AttackDamage>
+		1.0
+		1.2
+		1.3
+		1.4
+		1.6
+	</AttackDamage-->
+
+	<CivilianDefenseRadius>10000.0</CivilianDefenseRadius>
+
+	<WorkerFlightDistance>2500</WorkerFlightDistance>
+
+	<MaxExperiencePoints>1000</MaxExperiencePoints>
+
+	<BattleSerfMaxSeconds>-1</BattleSerfMaxSeconds>
+
+
+<!-- TAXES -->
+	<!-- The amount of money the player receives per worker if he levies taxes -->
+	<TaxAmount>5</TaxAmount>
+
+	<!-- The amount of motivation each worker loses as a result of the player levying taxes -->
+	<TaxPenalty>.1</TaxPenalty>
+
+	<!-- Taxation levels -->
+	<InitialTaxLevel>2</InitialTaxLevel>
+    <!-- 0: VERY LOW TAXES-->
+    <TaxationLevel>
+        <RegularTax>0</RegularTax>
+        <MotivationChange>0.2</MotivationChange>
+    </TaxationLevel>
+    <!-- 1: LOW TAXES-->
+    <TaxationLevel>
+        <RegularTax>5</RegularTax>
+        <MotivationChange>0.08</MotivationChange>
+    </TaxationLevel>
+    <!-- 2: NORMAL TAXES-->
+    <TaxationLevel>
+        <RegularTax>10</RegularTax>
+        <MotivationChange>0</MotivationChange>
+    </TaxationLevel>
+    <!-- 3: HIGH TAXES-->
+    <TaxationLevel>
+        <RegularTax>15</RegularTax>
+        <MotivationChange>-0.08</MotivationChange>
+    </TaxationLevel>
+    <!-- 4: VERY HIGH TAXES-->
+    <TaxationLevel>
+        <RegularTax>20</RegularTax>
+        <MotivationChange>-0.12</MotivationChange>
+    </TaxationLevel>
+
+
+<!-- MOTIVATION and WORK TIME -->
+
+    <!-- Motivation threshold between very happy/ecstatic and happy -->
+    <MotivationThresholdHappy>1.5</MotivationThresholdHappy>
+
+    <!-- Motivation threshold between happy and sad -->
+    <MotivationThresholdSad>1.0</MotivationThresholdSad>
+
+    <!-- Motivation threshold between sad and angry -->
+    <MotivationThresholdAngry>0.7</MotivationThresholdAngry>
+
+    <!-- Motivation threshold between angry and leaving -->
+    <MotivationThresholdLeave>0.25</MotivationThresholdLeave>
+
+    <!-- average motivation below which no new workers or soldiers can be attracted -->
+    <AverageMotivationVillageCenterLockThreshold>0.3</AverageMotivationVillageCenterLockThreshold>
+
+    <!-- At game start, i.e. in a village with no "motivational buildings", the initial motivation -->
+    <MotivationGameStartMaxMotivation>1.0</MotivationGameStartMaxMotivation>
+
+    <!--
+        So that people don't just build lots of gardens etc., this is the maximum initial
+        motivation that can be achieved
+    -->
+    <MotivationAbsoluteMaxMotivation>3.0</MotivationAbsoluteMaxMotivation>
+
+    <!-- Always: LeaveMotivation * BaseWorktimeMax bigger WorkTimeThreshold  -->
+
+    <!-- The critical work time at which work is stopped normally -->
+    <WorkTimeThresholdWork>25</WorkTimeThresholdWork>
+
+    <!-- The amount of motivation each worker loses when forced to work -->
+	<ForceToWorkPenalty>0.2</ForceToWorkPenalty>
+
+	<!-- The base work time which is multiplied by the worker's motivation -->
+	<WorkTimeBase>125</WorkTimeBase>
+
+    <!--
+        The following thresholds are in terms of the difference between the worker's
+        maximum work time (already modified by his motivation) and the work time threshold
+        work.
+        Mathematically,
+        AbsoluteValue = WorkTimeThresholdWork
+                      + (WorkTimeMax - WorkTimeThresholdWork) * ValueBelow
+        If you have any question, don't hesitate to think about it, then ask me.
+
+    <WorkTimeThresholdFarm>0.4</WorkTimeThresholdFarm>
+    <WorkTimeThresholdResidence>0.6</WorkTimeThresholdResidence>
+
+        Note that the camp fire replaces both farm and residence.  This means that if one building
+        is missing, the camp fire is visited once, if both are missing, twice.
+
+    <MotivationThresholdCampFire>0.1</MotivationThresholdCampFire>
+    -->
+
+    <!-- Time in milliseconds before a worker will consider leaving settlement due to jobloss -->
+    <MotivationMillisecondsWithoutJob>30000</MotivationMillisecondsWithoutJob>
+
+
+<!-- HERO RESURRECTION -->
+    <!-- The time it takes to resurrect a hero, in ms -->
+    <HeroResurrectionTime>10000</HeroResurrectionTime>
+
+    <!--
+        Hero resurrection slippage is in ms per second - when no friend is near and hero had
+        already been helped, it increases the rest of the time required again, so just
+        "walking past" several times does not necessarily resurrect the hero.  Since this is
+        done per turn (!), the value should be divisible by ten to be accurate.  A value that
+        is less than ten will be the same as zero (no slippage) very high slippage means that
+        you'd really have to resurrect the hero in one go, because any benefits from other
+        friends wear off immediately.
+        The example value of 100 means that one second (1000ms) wears of in 10 seconds of the
+        hero being alone again (i.e. 10% rate).
+    -->
+    <HeroResurrectionSlippage>100</HeroResurrectionSlippage>
+
+    <!-- The radius in which friendlies must be to resurrect the hero -->
+    <HeroResurrectionRadius>800.0</HeroResurrectionRadius>
+
+    <!-- The amount of health the hero has after being resuurected, factor of full health -->
+    <!-- Obviously, this value should be &gt; 0 and &leq; 1 -->
+    <HeroResurrectionHealthFactor>0.5</HeroResurrectionHealthFactor>
+
+    <!-- The amount of action points after resurrection, factor of full AP -->
+    <!-- This value should be &geq; 0 and &leq; 1 -->
+    <HeroResurrectionActionPointFactor>0.75</HeroResurrectionActionPointFactor>
+    
+    <!-- The exploration range of dead/comnatose heroes. -->
+    <!-- Note that this range is in grid points, NOT cm like most other ranges! -->
+    <HeroComatoseExploration>1</HeroComatoseExploration>
+
+<!-- DEFENDABLE BUILDINGS -->
+
+    <DefenderMSPerShot>4000</DefenderMSPerShot>
+    <DefenderMaxRange>3000</DefenderMaxRange>
+    <DefenderProjectileEffectType>FXArrow</DefenderProjectileEffectType>
+    <DefenderProjectileDamage>5</DefenderProjectileDamage>
+    <DefenderProjectileDamageClass>DC_Chaos</DefenderProjectileDamageClass>
+    <DefenderMissChance>8</DefenderMissChance>
+
+<!-- LEADER MOVEMENT -->
+    <!-- These are fairly technical properties which affect specific aspects of leader movement -->
+    <LeaderNudgeCount>3</LeaderNudgeCount>
+    <LeaderApproachRange>200.0</LeaderApproachRange>
+
+
+<!-- BLESSING -->
+	<!-- The amount of tech resource priest one blessing costs -->
+	<BlessingCost>
+    	<Faith>0</Faith>
+	</BlessingCost>
+
+	<!-- The amount by which a workers motivation is increased when blessed -->
+	<BlessingBonus>0.3</BlessingBonus>
+
+	<!-- The amount of seconds the motivation bonus persists for after to settler is blessed -->
+	<BlessingBonusTime>180</BlessingBonusTime>
+
+    <!-- The maximum amount of faith a player can have -->
+    <MaximumFaith>5000</MaximumFaith>
+
+    <!-- ************* The bless categories  ***************** -->
+    <BlessCategory>
+        <Name>Construction</Name>   <!-- The name of the category: In Lua "BlessCategories.Miners" -->
+        <RequiredFaith>5000</RequiredFaith>  <!-- The amount of faith required to bless the units in this category -->
+        <EntityType>PU_Miner</EntityType>   <!-- The EntityType types in this category -->
+        <EntityType>PU_Farmer</EntityType>
+        <EntityType>PU_BrickMaker</EntityType>
+		<EntityType>PU_Sawmillworker</EntityType>
+		<EntityType>PU_Stonecutter</EntityType>
+		<!-- Extra1-->
+		<EntityType>PU_TavernBarkeeper</EntityType>
+    </BlessCategory>
+
+    <BlessCategory>
+        <Name>Research</Name>
+        <RequiredFaith>5000</RequiredFaith>
+        <EntityType>PU_Scholar</EntityType>
+		<EntityType>PU_Priest</EntityType>
+		<EntityType>PU_Engineer</EntityType>
+		<!-- Extra1-->
+		<EntityType>PU_MasterBuilder</EntityType>
+    </BlessCategory>
+
+    <BlessCategory>
+        <Name>Weapons</Name>
+        <RequiredFaith>5000</RequiredFaith>
+        <EntityType>PU_Smith</EntityType>
+		<EntityType>PU_Alchemist</EntityType>
+		<EntityType>PU_Smelter</EntityType>
+		<!-- Extra1-->
+		<EntityType>PU_Gunsmith</EntityType>
+    </BlessCategory>
+
+    <BlessCategory>
+        <Name>Financial</Name>
+        <RequiredFaith>5000</RequiredFaith>
+        <EntityType>PU_Trader</EntityType>
+		<EntityType>PU_Treasurer</EntityType>
+    </BlessCategory>
+
+    <BlessCategory>
+        <Name>Canonisation</Name>
+        <RequiredFaith>5000</RequiredFaith>
+    	<EntityType>PU_Miner</EntityType>
+        <EntityType>PU_Farmer</EntityType>
+        <EntityType>PU_BrickMaker</EntityType>
+		<EntityType>PU_Sawmillworker</EntityType>
+		<EntityType>PU_Stonecutter</EntityType>
+        <EntityType>PU_Scholar</EntityType>
+		<EntityType>PU_Priest</EntityType>
+		<EntityType>PU_Engineer</EntityType>
+        <EntityType>PU_Smith</EntityType>
+		<EntityType>PU_Alchemist</EntityType>
+		<EntityType>PU_Smelter</EntityType>
+        <EntityType>PU_Smith</EntityType>
+		<EntityType>PU_Smelter</EntityType>
+        <EntityType>PU_Trader</EntityType>
+		<EntityType>PU_Treasurer</EntityType>
+		
+		<!-- Extra1-->
+		<EntityType>PU_TavernBarkeeper</EntityType>
+		<EntityType>PU_MasterBuilder</EntityType>
+		<EntityType>PU_Gunsmith</EntityType>
+    </BlessCategory>
+
+
+
+<!-- RESSOURCES -->
+	<!-- Amount of resource at mine triggering user feedback 'running out of...' -->
+	<ResourceDoodadWarnAmount>800</ResourceDoodadWarnAmount>
+
+
+<!-- VOICE FEEDBACK -->
+	<!-- Frequency the EGL feedback system is updated (old messages are removed, ...) -->
+	<FeedbackHandlerUpdateFrequency>10</FeedbackHandlerUpdateFrequency>
+
+	<!-- Time a message stays in feedback handler in seconds -->
+	<FeedbackHandlerTimeStaysInSystem>60</FeedbackHandlerTimeStaysInSystem>
+
+
+<!-- EXPELLING SETTLERS -->
+    <!-- The effect which is spawned when a settler is expelled -->
+    <ExpelEffectID>FXDie</ExpelEffectID>
+
+
+<!-- WEATHER CHANGING -->
+    <!-- The amount of weather energy a player must have in order to change the weather -->
+    <EnergyRequiredForWeatherChange>1000</EnergyRequiredForWeatherChange>
+
+    <!-- The amount of energy deducted from the other players when a player changes the weather
+          with the weather machine -->
+    <EnergyDeductedFromOtherPlayers>300</EnergyDeductedFromOtherPlayers>
+
+
+
+<!-- ***********************************************************************************************
+                                     Trade Properties
+
+ The "IsRelative" tag specifies whether the inflation/deflation values are relative or absolute.
+ Relative means a purchase will increase the current price as follows:
+     NewPrice = CurrentPrice;
+     for(int i = 0; i < PurchasedAmount; ++i) NewPrice = NewPrice + (CurrentPrice * Inflation);
+
+ The same principal applies to deflation.
+-->
+
+<TradeResource>
+    <ResourceType>Gold</ResourceType>
+    <BasePrice>1.0f</BasePrice>       <!-- Relative to gold, so always 1.0 for gold -->
+    <MinPrice>1.0f</MinPrice>
+    <MaxPrice>1.0f</MaxPrice>
+    <Inflation>0.00015f</Inflation>
+    <Deflation>0.00015f</Deflation>
+    <WorkAmount>0.1</WorkAmount>
+</TradeResource>
+
+
+<TradeResource>
+    <ResourceType>Clay</ResourceType>
+    <BasePrice>1.0f</BasePrice>
+    <MinPrice>0.2f</MinPrice>
+    <MaxPrice>2.8f</MaxPrice>
+    <Inflation>0.0001f</Inflation>
+    <Deflation>0.0001f</Deflation>
+    <WorkAmount>0.1</WorkAmount>
+</TradeResource>
+
+<TradeResource>
+    <ResourceType>Wood</ResourceType>
+    <BasePrice>1.4f</BasePrice>
+    <MinPrice>0.2f</MinPrice>
+    <MaxPrice>2.8f</MaxPrice>
+    <Inflation>0.0002f</Inflation>
+    <Deflation>0.0002f</Deflation>
+    <WorkAmount>0.1</WorkAmount>
+</TradeResource>
+
+<TradeResource>
+    <ResourceType>Iron</ResourceType>
+    <BasePrice>1.0f</BasePrice>
+    <MinPrice>0.2f</MinPrice>
+    <MaxPrice>2.8f</MaxPrice>
+    <Inflation>0.0001f</Inflation>
+    <Deflation>0.0001f</Deflation>
+    <WorkAmount>0.1</WorkAmount>
+</TradeResource>
+
+<TradeResource>
+    <ResourceType>Stone</ResourceType>
+    <BasePrice>1.0f</BasePrice>
+    <MinPrice>0.2f</MinPrice>
+    <MaxPrice>2.8f</MaxPrice>
+    <Inflation>0.0001f</Inflation>
+    <Deflation>0.0001f</Deflation>
+    <WorkAmount>0.1</WorkAmount>
+</TradeResource>
+
+<TradeResource>
+    <ResourceType>Sulfur</ResourceType>
+    <BasePrice>0.6f</BasePrice>
+    <MinPrice>0.2f</MinPrice>
+    <MaxPrice>2.8f</MaxPrice>
+    <Inflation>0.0001f</Inflation>
+    <Deflation>0.0001f</Deflation>
+    <WorkAmount>0.1</WorkAmount>
+</TradeResource>
+
+
+<!-- The building upgrade categories are defined by the category name, the first
+    building in that category and the maximum number of scholars that can
+    simultaneously work on an upgrade in that category -->
+<BuildingUpgrade>
+    <Category>Headquarters</Category>
+    <FirstBuilding>PB_Headquarters1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Residence</Category>
+    <FirstBuilding>PB_Residence1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Barracks</Category>
+    <FirstBuilding>PB_Barracks1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Archery</Category>
+    <FirstBuilding>PB_Archery1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Blacksmith</Category>
+    <FirstBuilding>PB_Blacksmith1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Farm</Category>
+    <FirstBuilding>PB_Farm1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>GenericMine</Category>
+    <FirstBuilding>PB_GenericMine</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>StoneMine</Category>
+    <FirstBuilding>PB_StoneMine1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>IronMine</Category>
+    <FirstBuilding>PB_IronMine1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>SulfurMine</Category>
+    <FirstBuilding>PB_SulfurMine1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>ClayMine</Category>
+    <FirstBuilding>PB_ClayMine1</FirstBuilding>
+</BuildingUpgrade>
+
+
+
+<BuildingUpgrade>
+    <Category>Market</Category>
+    <FirstBuilding>PB_Market1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Monastery</Category>
+    <FirstBuilding>PB_Monastery1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>University</Category>
+    <FirstBuilding>PB_University1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>VillageCenter</Category>
+    <FirstBuilding>PB_VillageCenter1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Bank</Category>
+    <FirstBuilding>PB_Bank1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>StoneMason</Category>
+    <FirstBuilding>PB_StoneMason1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Sawmill</Category>
+    <FirstBuilding>PB_Sawmill1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Alchemist</Category>
+    <FirstBuilding>PB_Alchemist1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Brickworks</Category>
+    <FirstBuilding>PB_Brickworks1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Foundry</Category>
+    <FirstBuilding>PB_Foundry1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Stable</Category>
+    <FirstBuilding>PB_Stable1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Tower</Category>
+    <FirstBuilding>PB_Tower1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>DarkTower</Category>
+    <FirstBuilding>PB_DarkTower1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Outpost</Category>
+    <FirstBuilding>PB_Outpost1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Weathermachine</Category>
+    <FirstBuilding>PB_WeatherTower1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>PowerPlant</Category>
+    <FirstBuilding>PB_PowerPlant1</FirstBuilding>
+</BuildingUpgrade>
+
+<!--BuildingUpgrade>
+    <Category>WeatherTower</Category>
+    <FirstBuilding>PB_WeatherTower1</FirstBuilding>
+</BuildingUpgrade-->
+
+
+<BuildingUpgrade>
+    <Category>Beautification01</Category>
+    <FirstBuilding>PB_Beautification01</FirstBuilding>
+</BuildingUpgrade>
+<BuildingUpgrade>
+    <Category>Beautification02</Category>
+    <FirstBuilding>PB_Beautification02</FirstBuilding>
+</BuildingUpgrade>
+<BuildingUpgrade>
+    <Category>Beautification03</Category>
+    <FirstBuilding>PB_Beautification03</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Beautification04</Category>
+    <FirstBuilding>PB_Beautification04</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Beautification05</Category>
+    <FirstBuilding>PB_Beautification05</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Beautification06</Category>
+    <FirstBuilding>PB_Beautification06</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Beautification07</Category>
+    <FirstBuilding>PB_Beautification07</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Beautification08</Category>
+    <FirstBuilding>PB_Beautification08</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Beautification09</Category>
+    <FirstBuilding>PB_Beautification09</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Beautification10</Category>
+    <FirstBuilding>PB_Beautification10</FirstBuilding>
+</BuildingUpgrade>
+
+
+<BuildingUpgrade>
+    <Category>Beautification11</Category>
+    <FirstBuilding>PB_Beautification11</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>Beautification12</Category>
+    <FirstBuilding>PB_Beautification12</FirstBuilding>
+</BuildingUpgrade>
+
+
+
+<BuildingUpgrade>
+    <Category>CB_MonasteryBuildingSite</Category>
+    <FirstBuilding>CB_MonasteryBuildingSite1</FirstBuilding>
+</BuildingUpgrade>
+
+<BuildingUpgrade>
+    <Category>NeutralVillageCenter</Category>
+    <FirstBuilding>XD_VillageCenter</FirstBuilding>
+</BuildingUpgrade>
+
+<!-- The settler upgrade categories are defined by the category name and the first
+    settler in that category -->
+
+<!-- Sword men -->
+	<SettlerUpgrade>
+	    <Category>LeaderSword</Category>
+	    <FirstSettler>PU_LeaderSword1</FirstSettler>
+	</SettlerUpgrade>
+
+	<SettlerUpgrade>
+	    <Category>SoldierSword</Category>
+	    <FirstSettler>PU_SoldierSword1</FirstSettler>
+	</SettlerUpgrade>
+
+<!-- Spear men -->
+	<SettlerUpgrade>
+	    <Category>LeaderPoleArm</Category>
+	    <FirstSettler>PU_LeaderPoleArm1</FirstSettler>
+	</SettlerUpgrade>
+
+	<SettlerUpgrade>
+	    <Category>SoldierPoleArm</Category>
+	    <FirstSettler>PU_SoldierPoleArm1</FirstSettler>
+	</SettlerUpgrade>
+
+<!-- Bow men -->
+	<SettlerUpgrade>
+	    <Category>LeaderBow</Category>
+	    <FirstSettler>PU_LeaderBow1</FirstSettler>
+	</SettlerUpgrade>
+
+	<SettlerUpgrade>
+	    <Category>SoldierBow</Category>
+	    <FirstSettler>PU_SoldierBow1</FirstSettler>
+	</SettlerUpgrade>
+
+<!-- Light Cavalry -->
+	<SettlerUpgrade>
+	    <Category>LeaderCavalry</Category>
+	    <FirstSettler>PU_LeaderCavalry1</FirstSettler>
+	</SettlerUpgrade>
+
+	<SettlerUpgrade>
+	    <Category>SoldierCavalry</Category>
+	    <FirstSettler>PU_SoldierCavalry1</FirstSettler>
+	</SettlerUpgrade>
+
+
+<!-- Heavy Cavalry -->
+	<SettlerUpgrade>
+	    <Category>LeaderHeavyCavalry</Category>
+	    <FirstSettler>PU_LeaderHeavyCavalry1</FirstSettler>
+	</SettlerUpgrade>
+
+	<SettlerUpgrade>
+	    <Category>SoldierHeavyCavalry</Category>
+	    <FirstSettler>PU_SoldierHeavyCavalry1</FirstSettler>
+	</SettlerUpgrade>
+
+<!-- Serf -->
+	<SettlerUpgrade>
+	    <Category>BattleSerf</Category>
+	    <FirstSettler>PU_BattleSerf</FirstSettler>
+	</SettlerUpgrade>
+
+
+	<SettlerUpgrade>
+	    <Category>Serf</Category>
+	    <FirstSettler>PU_Serf</FirstSettler>
+	</SettlerUpgrade>
+
+<!-- Cannon -->
+	<SettlerUpgrade>
+	    <Category>Cannon1</Category>
+	    <FirstSettler>PV_Cannon1</FirstSettler>
+	</SettlerUpgrade>
+
+	<SettlerUpgrade>
+	    <Category>Cannon2</Category>
+	    <FirstSettler>PV_Cannon2</FirstSettler>
+	</SettlerUpgrade>
+
+	<SettlerUpgrade>
+	    <Category>Cannon3</Category>
+	    <FirstSettler>PV_Cannon3</FirstSettler>
+	</SettlerUpgrade>
+
+	<SettlerUpgrade>
+	    <Category>Cannon4</Category>
+	    <FirstSettler>PV_Cannon4</FirstSettler>
+	</SettlerUpgrade>
+
+<!-- Computer Units -->
+	<SettlerUpgrade>
+	    <Category>BlackKnightSoldier</Category>
+	    <FirstSettler>CU_BlackKnight_SoldierSword3</FirstSettler>
+	</SettlerUpgrade>
+
+	<SettlerUpgrade>
+	    <Category>LeaderBandit</Category>
+	    <FirstSettler>CU_BanditLeaderSword1</FirstSettler>
+	</SettlerUpgrade>
+
+	<SettlerUpgrade>
+	    <Category>SoldierBandit</Category>
+	    <FirstSettler>CU_BanditSoldierSword1</FirstSettler>
+	</SettlerUpgrade>
+
+	<SettlerUpgrade>
+	    <Category>LeaderBarbarian</Category>
+	    <FirstSettler>CU_Barbarian_LeaderClub1</FirstSettler>
+	</SettlerUpgrade>
+
+	<SettlerUpgrade>
+	    <Category>SoldierBarbarian</Category>
+	    <FirstSettler>CU_Barbarian_SoldierClub1</FirstSettler>
+	</SettlerUpgrade>
+
+	<SettlerUpgrade>
+	    <Category>BlackKnightLeaderMace1</Category>
+	    <FirstSettler>CU_BlackKnight_LeaderMace1</FirstSettler>
+	</SettlerUpgrade>
+
+	<SettlerUpgrade>
+	    <Category>BlackKnightSoldierMace1</Category>
+	    <FirstSettler>CU_BlackKnight_SoldierMace1</FirstSettler>
+	</SettlerUpgrade>
+	
+	
+	<!-- AddOn 1-->
+	<SettlerUpgrade>
+	    <Category>LeaderRifle</Category>
+	    <FirstSettler>PU_LeaderRifle1</FirstSettler>
+	</SettlerUpgrade>
+	
+	<SettlerUpgrade>
+	    <Category>SoldierRifle</Category>
+	    <FirstSettler>PU_SoldierRifle1</FirstSettler>
+	</SettlerUpgrade>
+
+	<SettlerUpgrade>
+	    <Category>Thief</Category>
+	    <FirstSettler>PU_Thief</FirstSettler>
+	</SettlerUpgrade>
+	
+	<SettlerUpgrade>
+	    <Category>Scout</Category>
+	    <FirstSettler>PU_Scout</FirstSettler>
+	</SettlerUpgrade>
+	
+	
+	<SettlerUpgrade>
+	    <Category>Evil_LeaderBearman</Category>
+	    <FirstSettler>CU_Evil_LeaderBearman1</FirstSettler>
+	</SettlerUpgrade>
+	
+	<SettlerUpgrade>
+	    <Category>Evil_SoldierBearman</Category>
+	    <FirstSettler>CU_Evil_SoldierBearman1</FirstSettler>
+	</SettlerUpgrade>
+	
+	
+	<SettlerUpgrade>
+	    <Category>Evil_LeaderSkirmisher</Category>
+	    <FirstSettler>CU_Evil_LeaderSkirmisher1</FirstSettler>
+	</SettlerUpgrade>
+	
+	<SettlerUpgrade>
+	    <Category>Evil_SoldierSkirmisher</Category>
+	    <FirstSettler>CU_Evil_SoldierSkirmisher1</FirstSettler>
+	</SettlerUpgrade>
+	
+	
+	<SettlerUpgrade>
+	    <Category>LeaderBanditBow</Category>
+	    <FirstSettler>CU_BanditLeaderBow1</FirstSettler>
+	</SettlerUpgrade>
+
+	<SettlerUpgrade>
+	    <Category>SoldierBanditBow</Category>
+	    <FirstSettler>CU_BanditSoldierBow1</FirstSettler>
+	</SettlerUpgrade>
+	
+
+	
+	
+	<BuildingUpgrade>
+    	<Category>Tavern</Category>
+    	<FirstBuilding>PB_Tavern1</FirstBuilding>
+	</BuildingUpgrade>
+	
+	<BuildingUpgrade>
+    	<Category>GunsmithWorkshop</Category>
+    	<FirstBuilding>PB_GunsmithWorkshop1</FirstBuilding>
+	</BuildingUpgrade>
+	
+	<BuildingUpgrade>
+    	<Category>MasterBuilderWorkshop</Category>
+    	<FirstBuilding>PB_MasterBuilderWorkshop</FirstBuilding>
+	</BuildingUpgrade>
+	
+	
+	
+	
+	<BuildingUpgrade>
+    	<Category>GenericBridge</Category>
+    	<FirstBuilding>PB_GenericBridge</FirstBuilding>
+	</BuildingUpgrade>
+	
+	
+	<BuildingUpgrade>
+    	<Category>Bridge1</Category>
+    	<FirstBuilding>PB_Bridge1</FirstBuilding>
+	</BuildingUpgrade>	
+	
+	
+	<BuildingUpgrade>
+    	<Category>Bridge2</Category>
+    	<FirstBuilding>PB_Bridge2</FirstBuilding>
+	</BuildingUpgrade>
+	
+	
+	<BuildingUpgrade>
+    	<Category>Merchant</Category>
+    	<FirstBuilding>CB_Mercenary</FirstBuilding>
+	</BuildingUpgrade>
+
+  <AlarmRechargeTime>180000</AlarmRechargeTime>
+
+  <OvertimeRechargeTimeInMs>240000</OvertimeRechargeTimeInMs>
+
+</root>
