@@ -59,7 +59,7 @@ function Sync.Init()
 			return;
 		elseif string.find(_Message, Sync.KeyNoSyncCall, 1, true) then
 			local sendingPlayer = tonumber(string.sub(_Message, Sync.KeyNoSyncCall_Length +1, Sync.KeyNoSyncCall_Length +1)); -- ex "2" - 1 digit
-			local fs = string.sub(_Message, Sync.KeyNoSyncCall + 2); -- start after player
+			local fs = string.sub(_Message, Sync.KeyNoSyncCall_Length + 2); -- start after player
 			if GUI.GetPlayerID() ~= sendingPlayer then
 				Sync.ExecuteFunctionByString(fs);
 			end
