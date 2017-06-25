@@ -5,9 +5,9 @@ SW = SW or {}
 --The construction & upgrade time for each building is original time * FasterBuildFactor
 SW.FasterBuildFactor = 0.8
 
---If use of general factor is not wished, use this table for exceptions
+--If use of general factor is not wished, use this table for exceptions (= Anzahl Sekunden die 1 Leibi für den Bau benötigt)
 SW.FasterBuildConstruction = {
-	[Entities.PB_Residence1] = 1		--example for valid entry
+	-- [Entities.PB_Residence1] = 1		--example for valid entry
 }
 SW.FasterBuildUpgrade = {
 	[Entities.PB_Residence1] = 1		--example for valid entry

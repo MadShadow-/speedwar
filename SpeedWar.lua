@@ -140,7 +140,7 @@ function SW.Activate(_seed)
 	if SW.MaxPlayers == 0 then
 		SW.MaxPlayers = table.getn(SW.Players)
 	end
-
+	
 	-- village centers shall be removed and replaced by outposts
 	SW.EnableOutpostVCs();
 	-- outpostcosts increase with number of outposts
@@ -149,20 +149,9 @@ function SW.Activate(_seed)
 	SW.TowerIncreaseExploration();
 	-- Entities move faster
 	SW.ApplyMovementspeedBuff();
-	-- Buildings cost less & can be build faster | Example | Get-Functions rdy
-	--local costTable = {			--Old method, needs full table
-		--[ResourceType.Gold] = 0,	--Kept in as list of possible ResourceTypes
-		--[ResourceType.Clay] = 0,
-		--[ResourceType.Wood] = 0,
-		--[ResourceType.Stone] = 0,
-		--[ResourceType.Iron] = 0,
-		--[ResourceType.Sulfur] = 100
-	--};
-	local costTable = {			--New method, doesnt need full table
-		[ResourceType.Sulfur] = 100
-	};
-	SW.SetConstructionCosts( Entities.PB_Residence1, costTable)
-	SW.SetConstructionTime( Entities.PB_Residence1, 5)
+	-- Use SW_BuildingCosts.lua for reduced buildings costs
+	SW.EnableReducedConstructionCosts();
+	--SW.SetConstructionTime( Entities.PB_Residence1, 5)
 	-- Units cost less
 	local costTable_ = {
 		[ResourceType.Wood] = 15
@@ -206,7 +195,7 @@ end
 
 function SW.EnableOutpostVCs()
 	-- load in archive while developing *-* --
-	S5Hook.AddArchive("extra2/shr/maps/user/scripts/archive.bba");
+	S5Hook.AddArchive("extra2/shr/maps/user/speedwar/archive.bba");
 	S5Hook.ReloadEntities();
 	S5Hook.RemoveArchive();
 	--Message("EnableOutpostVCs");
@@ -470,6 +459,12 @@ function SW_DestroySafe(_entityID)
 		StartSimpleHiResJob("SW_DestroyJob");
 	end
 end;
+
+function SW.EnableReducedConstructionCosts()
+	for buildingType, costTable in pairs(SW.BuildingCosts) do
+		SW.SetConstructionCosts( Entities[buildingType], costTable);
+	end
+end
 
 function SW.CallbackHacks()
 	SW.GameCallback_GUI_SelectionChanged = GameCallback_GUI_SelectionChanged;
