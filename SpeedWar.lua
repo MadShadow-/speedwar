@@ -48,6 +48,7 @@ function GameCallback_OnGameStart()
 	else
 		SW.Players = {1};
 	end
+	SW.NrOfPlayers = table.getn(SW.Players);
 
 
 	-- Create HQs and redirect keybindings
@@ -68,16 +69,40 @@ function GameCallback_OnGameStart()
 	if (ret) then
 		SW.OnS5HookLoaded();
 	end;
-
 	
-	if GUI.GetPlayerID() == 1 then
-		function SW_Iks()
-			if Counter.Tick2("SW_Iks", 2) then
-		    	Sync.Call("SW.Activate", XGUIEng.GetSystemTime());
-			return true;
-		    end
+	SW.IsActivated = false;
+	
+	if SW.NrOfPlayers == 1 then
+		-- playing alone - no sync needed
+		SW.Activate(XGUIEng.GetSystemTime());
+	else
+		-- try message sync
+		-- every player notifies the other about his "arrival"
+		-- first player ingame counts nr of "arrivals" and as soon
+		SW.NotifiedPlayers = 1;
+		-- NotifyingDone determines whether Activate call has been made
+		SW.NotifyingDone = false;
+		function SW.NotifyPlayer()
+			SW.NotifiedPlayers = SW.NotifiedPlayers + 1;
+			if SW.NotifiedPlayers == SW.NrOfPlayers and not SW.NotifyingDone then
+				SW.NotifyingDone = true;
+				Sync.Call("SW.Activate", XGUIEng.GetSystemTime());
+			end
 		end
-		StartSimpleJob("SW_Iks");
+		Sync.CallNoSync("SW.NotifyPlayer");
+		
+		-- fallbacksystem: if notify player messages fail - use this
+		if GUI.GetPlayerID() == 1 then
+			function SW_Iks()
+				if Counter.Tick2("SW_Iks", 2) and not SW.NotifyingDone then
+					SW.NotifyingDone = true;
+					Message("used job for activating"); -- remove msg!
+					Sync.Call("SW.Activate", XGUIEng.GetSystemTime());
+					return true;
+				end
+			end
+			StartSimpleJob("SW_Iks");
+		end
 	end
 end
 
@@ -102,7 +127,6 @@ end
 
 SW = SW or {};
 
-
 -------------------------------------------------------
 -- ################################################# --
 -- Written & Tested 10.04.2017 ~ 01:30
@@ -126,6 +150,12 @@ end;
 -------------------------------------------------------
 
 function SW.Activate(_seed)
+	if SW.IsActivated then
+		Message("@color:255,0,0 Warning: Tried to activate speedwar 2 times! - cancelled");
+		return;
+	end
+	SW.IsActivated = true;
+	
 	Message("SW activated");
 	math.randomseed(_seed);
 	SW.CallbackHacks();
@@ -141,6 +171,7 @@ function SW.Activate(_seed)
 		SW.MaxPlayers = table.getn(SW.Players)
 	end
 	
+	SW.EnableStartingTechnologies();
 	-- village centers shall be removed and replaced by outposts
 	SW.EnableOutpostVCs();
 	-- outpostcosts increase with number of outposts
@@ -181,6 +212,20 @@ function SW.Activate(_seed)
 	--StartSimpleJob("WipeThemAll")
 	-- Activate Fire
 	SW.FireMod.Init()
+end
+
+function SW.EnableStartingTechnologies()
+	local startTechs = {
+		"GT_Mercenaries", -- Wehrpflicht
+		"GT_Construction", -- Konstruktion
+		"GT_Literacy", -- Bildung
+	};
+	
+	for playerId = 1, SW.MaxPlayers do
+		for i = 1, table.getn(startTechs) do
+			ResearchTechnology(Technologies[startTechs[i]], playerId);
+		end
+	end
 end
 
 function WipeThemAll()
@@ -460,6 +505,7 @@ function SW_DestroySafe(_entityID)
 	end
 end;
 
+-- REDUCED CONSTRUCTION COSTS
 function SW.EnableReducedConstructionCosts()
 	for buildingType, costTable in pairs(SW.BuildingCosts) do
 		SW.SetConstructionCosts( Entities[buildingType], costTable);
