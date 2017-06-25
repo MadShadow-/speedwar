@@ -2,26 +2,27 @@
 <root>
 	<Display classname="ED::CDisplayEntityProps">
 		  <Class>ED::CDisplayBuilding</Class>
-		  <Model>PB_Farm1</Model>
+		  <Model>PB_Farm2</Model>
+		  <Anim>PB_Farm2_600</Anim>
 	</Display>
 	<Logic classname="GGL::CGLBuildingProps">
 		  <Class>GGL::CBuilding</Class>
-        <AccessCategory>AccessCategoryBuilding</AccessCategory>
-        <Category>Farm</Category>
-        <Category>DefendableBuilding</Category>  
+		  <AccessCategory>AccessCategoryBuilding</AccessCategory>
+		  <Category>Farm</Category>
+		  <Category>DefendableBuilding</Category>  
 		  <NeedsPlayer>true</NeedsPlayer>
 		  <ForceNoPlayer>false</ForceNoPlayer>
 		  <UpgradeSite>ZB_UpgradeSiteFarm1</UpgradeSite>
-        <MaxHealth>500</MaxHealth>
+        <MaxHealth>700</MaxHealth>
         <ArmorClass>ArmorClassFortification</ArmorClass> 
         <ArmorAmount>3</ArmorAmount>  
-
+        
 		
   <!-- Armor -->
 		  <ModifyArmor>
 		  	<Technology>T_Masonry</Technology>		  
 		</ModifyArmor>     
-				
+		    		
 		
   <!-- Exploration-->
 		  <ModifyExploration>
@@ -29,36 +30,27 @@
         </ModifyExploration>   
 		
         <Worker>PU_Farmer</Worker>
-        <MaxWorkers>1</MaxWorkers>
+        <MaxWorkers>2</MaxWorkers>
         <WorkTaskList>
-            <Start>TL_FARMER_WORK_START</Start> 
-            <Work>TL_FARMER_WORK</Work> 
+            <Start>TL_FARMER_WORK_START1</Start> 
+            <Work>TL_FARMER_WORK1</Work> 
         </WorkTaskList>
         <Upgrade>
-            <Time>40.0</Time>  
+            <Category>Farm</Category>
+            <Time>50.0</Time>  
             <Cost>
 			    <Clay>0</Clay>
-			    <Wood>50</Wood>
-				    <Stone>100</Stone>
+			    <Wood>150</Wood>
+				    <Stone>300</Stone>
 				    <Gold/>
 				    <Iron/>
 				    <Sulfur/>
             </Cost>
-            <Type>PB_Farm2</Type> 
-            <Category>Farm</Category>
+            <Type>PB_Farm3</Type>
         </Upgrade>
 		  <Exploration>30</Exploration>
         <ConstructionInfo>
-            <Time>80</Time>
-            <Cost>
-				    <Clay>150</Clay>
-				    <Wood>200</Wood>
-				    <Stone>0</Stone>
-				    <Gold/>
-				    <Iron/>
-				    <Sulfur/>
-            </Cost>
-            <BuilderSlot>
+             <BuilderSlot>
                 <Position>
                 <X>-400</X>
                 <Y>500</Y>
@@ -85,7 +77,7 @@
                 <Y>-500</Y>
                 </Position>
                 <Orientation>90</Orientation>
-            </BuilderSlot>
+            </BuilderSlot>          
             <ConstructionSite>ZB_ConstructionSiteFarm1</ConstructionSite>
         </ConstructionInfo>
         <LeavePos>
@@ -102,8 +94,7 @@
             <Y>267</Y>			
         </DoorPos>
          
-         
-         <Blocked1>
+           <Blocked1>
             <X>-300</X>
             <Y>600</Y>
         </Blocked1>
@@ -119,9 +110,8 @@
             <X>400</X>
             <Y>-500</Y>
         </TerrainPos2>  
-        
-        
-              
+         
+             
 	</Logic>
 	<Behavior>
 		  <Logic classname="EGL::CGLEBehaviorProps">
@@ -136,16 +126,17 @@
 			  <Class>GGL::CLimitedAttachmentBehavior</Class>
             <Attachment>
                 <Type>ATTACHMENT_WORKER_FARM</Type>
-                <Limit>5</Limit>
+                <Limit>10</Limit>
                 <IsActive>false</IsActive>
             </Attachment>
             <Attachment>
                 <Type>ATTACHMENT_DEFENDER_BUILDING</Type>
                 <Limit>10</Limit>
-            </Attachment>            
+            </Attachment>
 		</Logic>
 	</Behavior>
 	
+
 	
 	<Behavior>
 		  <Logic classname="EGL::CGLEBehaviorProps">
@@ -154,8 +145,8 @@
 		  <Display classname="GD::CBuildingBehaviorProps">
 			  <Class>GD::CBuildingBehavior</Class>
 			  <Banner>Default</Banner>
-			  <NumDamageEffects>14</NumDamageEffects>
-			  <NumDestroyEffects>14</NumDestroyEffects>
+			  <NumDamageEffects>17</NumDamageEffects>
+			  <NumDestroyEffects>15</NumDestroyEffects>
 		</Display>
 	</Behavior>
 	<Behavior>
