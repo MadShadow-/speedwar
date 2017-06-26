@@ -220,8 +220,8 @@ end
 
 function SW.EnableStartingTechnologies()
 	local startTechs = {
-		"GT_Mercenaries", -- Wehrpflicht
-		"GT_Construction", -- Konstruktion
+		--"GT_Mercenaries", -- Wehrpflicht
+		--"GT_Construction", -- Konstruktion
 		"GT_Literacy", -- Bildung
 	};
 	
