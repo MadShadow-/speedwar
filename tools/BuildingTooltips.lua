@@ -6,18 +6,18 @@
 
 --DO NOT GATE: B_Residence, B_Farm, B_University, B_VillageCenter, B_Mine
 
---TODO: Unlock technology once conditions are met:
---				MU_X gets researched
---				T_X gets allowed
---				B_X gets researched
---				T_UPX gets researched
---TODO: Relock MU_X, T_UPX and B_X, once conditions do not hold true anymore?
+--TODO: Hide ShortMessages when technologies are given by script
+--				http://www.siedler-games.de/forum/showthread.php/18104-Tech-s-per-Skript-erforschen-ohne-quot-F%C3%A4hnchen-quot
+--TODO: Relock MU_X, T_UPX and B_X, once conditions do not hold true anymore? Or remove this feature?
+--TODO: Use the parameter currBuilding in updateFuncs, currently ignored
 --TODO: Fix MilitaryUnitButtons -> ForbidTechnology(Technologies.T_UpgradeSpear1) makes "Research_UpgradeSpear2" appear
---TODO: Implement requirement for selected building, e.g. the best armor techs can only be researched in lvl3-blacksmith
 
 SW = SW or {}
 
 SW.BuildingTooltips = {}
+if not SW.BuildingTooltips.GetRank then
+	SW.BuildingTooltips.GetRank = function( _pId) return 4 end
+end
 SW.BuildingTooltips.RankNames = {
 	"Möchtegern",
 	"Siedler",
@@ -79,6 +79,7 @@ SW.BuildingTooltips.TechNames = {			--Gets generated on game start, [technologyI
 }
 SW.BuildingTooltips.TechFeatures = {		--Gets generated on game start, [technologyId] = lengthyDescription
 }
+SW.BuildingTooltips.WatchTechs = {}			--Gets generated on game start
 SW.BuildingTooltips.TooltipConstructRaw = {
 	["MenuSerf/residence_"]	= Technologies.B_Residence,
 	["MenuSerf/farm_"] = Technologies.B_Farm,
@@ -324,18 +325,22 @@ function SW.BuildingTooltipsInit()			--Has to be called via Debugger! Not starte
 	SW.BuildingTooltips.GenerateTechNames()
 	SW.BuildingTooltips.GenerateTechStrings()
 	SW.BuildingTooltips.ChangeGUI()
-	for k,v in pairs(SW.BuildingTooltips.MData) do
-		ForbidTechnology(k)
+	for i = 1, 8 do
+		for k,v in pairs(SW.BuildingTooltips.MData) do
+			Logic.SetTechnologyState(i, k, 0)
+		end
+		for k,v in pairs(SW.BuildingTooltips.BData) do
+			Logic.SetTechnologyState(i, k, 0)
+		end
+		for k,v in pairs(SW.BuildingTooltips.RData) do
+			Logic.SetTechnologyState(i, k, 0)
+		end
+		for k,v in pairs(SW.BuildingTooltips.UData) do
+			Logic.SetTechnologyState(i, k, 0)
+		end
 	end
-	for k,v in pairs(SW.BuildingTooltips.BData) do
-		ForbidTechnology(k)
-	end
-	for k,v in pairs(SW.BuildingTooltips.RData) do
-		ForbidTechnology(k)
-	end
-	for k,v in pairs(SW.BuildingTooltips.UData) do
-		ForbidTechnology(k)
-	end
+	SW.BuildingTooltips.InitWatch()
+	Tools.GiveResouces( 1, 5000, 5000, 5000, 5000, 5000, 5000)
 end
 function SW.BuildingTooltips.GenerateTechNames()
 	local rawString
@@ -505,96 +510,28 @@ function SW.BuildingTooltips.ConstructTooltipB(_tech)		--creates tooltips for bu
 	local retString = "@color:180,180,180,255  "..SW.BuildingTooltips.TechNames[_tech].." @cr @color:255,255,255,255" --title complete
 		.." @color:255,204,51,255 benötigt: @color:255,255,255,255 "
 	local req = SW.BuildingTooltips.BData[_tech]
-	local first = true
-	if req.Tier then
-		retString = retString.."Rang: "..SW.BuildingTooltips.RankNames[req.Tier]
-		first = false
-	end
-	if req.Techs then
-		for k, v in pairs(req.Techs) do
-			if not first then 
-				retString = retString..", "
-			end
-			retString = retString..SW.BuildingTooltips.TechNames[v]
-			first = false
-		end
-	end
-	if req.Buildings then
-		for k, v in pairs(req.Buildings) do
-			if not first then 
-				retString = retString..", "
-			end
-			retString = retString..SW.BuildingTooltips.TechNames[v[2]]
-			first = false
-		end
-	end
-	retString = retString.." @cr @color:255,204,51,255 ermöglicht: "..SW.BuildingTooltips.TechFeatures[_tech]
-	return retString
+	return retString..SW.BuildingTooltips.ConstructGeneralTooltip(req, _tech)
 end
 function SW.BuildingTooltips.ConstructTooltipM(_tech)		--creates tooltips for military units
 	local retString = "@color:180,180,180,255  "..SW.BuildingTooltips.TechNames[_tech].." @cr @color:255,255,255,255" --title complete
 		.." @color:255,204,51,255 benötigt: @color:255,255,255,255 "
 	local req = SW.BuildingTooltips.MData[_tech]
-	local first = true
-	if req.Tier then
-		retString = retString.."Rang: "..SW.BuildingTooltips.RankNames[req.Tier]
-		first = false
-	end
-	if req.Techs then
-		for k, v in pairs(req.Techs) do
-			if not first then 
-				retString = retString..", "
-			end
-			retString = retString..SW.BuildingTooltips.TechNames[v]
-			first = false
-		end
-	end
-	if req.Buildings then
-		for k, v in pairs(req.Buildings) do
-			if not first then 
-				retString = retString..", "
-			end
-			retString = retString..SW.BuildingTooltips.TechNames[v[2]]
-			first = false
-		end
-	end
-	retString = retString.." @cr @color:255,204,51,255 ermöglicht: "..SW.BuildingTooltips.TechFeatures[_tech]
-	return retString
+	return retString..SW.BuildingTooltips.ConstructGeneralTooltip(req, _tech)
 end
 function SW.BuildingTooltips.ConstructTooltipR(_tech)		--creates tooltips for researches
 	local retString = "@color:180,180,180,255  "..SW.BuildingTooltips.TechNames[_tech].." @cr @color:255,255,255,255" --title complete
 		.." @color:255,204,51,255 benötigt: @color:255,255,255,255 "
 	local req = SW.BuildingTooltips.RData[_tech]
-	local first = true
-	if req.Tier then
-		retString = retString.."Rang: "..SW.BuildingTooltips.RankNames[req.Tier]
-		first = false
-	end
-	if req.Techs then
-		for k, v in pairs(req.Techs) do
-			if not first then 
-				retString = retString..", "
-			end
-			retString = retString..SW.BuildingTooltips.TechNames[v]
-			first = false
-		end
-	end
-	if req.Buildings then
-		for k, v in pairs(req.Buildings) do
-			if not first then 
-				retString = retString..", "
-			end
-			retString = retString..SW.BuildingTooltips.TechNames[v[2]]
-			first = false
-		end
-	end
-	retString = retString.." @cr @color:255,204,51,255 ermöglicht: "..SW.BuildingTooltips.TechFeatures[_tech]
-	return retString
+	return retString..SW.BuildingTooltips.ConstructGeneralTooltip(req, _tech)
 end
 function SW.BuildingTooltips.ConstructTooltipU(_tech)		--creates tooltips for upgrades
 	local retString = "@color:180,180,180,255  "..SW.BuildingTooltips.TechNames[_tech].." @cr @color:255,255,255,255" --title complete
 		.." @color:255,204,51,255 benötigt: @color:255,255,255,255 "
 	local req = SW.BuildingTooltips.UData[_tech]
+	return retString..SW.BuildingTooltips.ConstructGeneralTooltip(req, _tech)
+end
+function SW.BuildingTooltips.ConstructGeneralTooltip(req, _tech)
+	local retString = ""
 	local first = true
 	if req.Tier then
 		retString = retString.."Rang: "..SW.BuildingTooltips.RankNames[req.Tier]
@@ -606,6 +543,16 @@ function SW.BuildingTooltips.ConstructTooltipU(_tech)		--creates tooltips for up
 				retString = retString..", "
 			end
 			retString = retString..SW.BuildingTooltips.TechNames[v]
+			first = false
+		end
+	end
+	if req.currBuilding then
+		local eType = Logic.GetEntityType(GUI.GetSelectedEntity())
+		if eType == req.currBuilding[1] then
+			if not first then 
+				retString = retString..", "
+			end
+			retString = retString..SW.BuildingTooltips.TechNames[req.currBuilding[2]]
 			first = false
 		end
 	end
@@ -621,5 +568,66 @@ function SW.BuildingTooltips.ConstructTooltipU(_tech)		--creates tooltips for up
 	retString = retString.." @cr @color:255,204,51,255 ermöglicht: "..SW.BuildingTooltips.TechFeatures[_tech]
 	return retString
 end
-
-
+function SW.BuildingTooltips.InitWatch()
+	for k,v in pairs(SW.BuildingTooltips.BData) do
+		table.insert(SW.BuildingTooltips.WatchTechs, k)
+	end
+	for k,v in pairs(SW.BuildingTooltips.MData) do
+		table.insert(SW.BuildingTooltips.WatchTechs, k)
+	end
+	for k,v in pairs(SW.BuildingTooltips.RData) do
+		table.insert(SW.BuildingTooltips.WatchTechs, k)
+	end
+	for k,v in pairs(SW.BuildingTooltips.UData) do
+		table.insert(SW.BuildingTooltips.WatchTechs, k)
+	end
+	StartSimpleJob("SW_BuildingTooltips_WatchJob")
+end
+function SW_BuildingTooltips_WatchJob()
+	if not Counter.Tick2("SW_BuildingTooltipsJob", 5) then
+		return
+	end
+	for k,v in pairs(SW.BuildingTooltips.WatchTechs) do
+		local req = SW.BuildingTooltips.BData[v] or SW.BuildingTooltips.MData[v] or SW.BuildingTooltips.RData[v] or SW.BuildingTooltips.UData[v]
+		if req ~= nil then
+			for i = 1, 8 do
+				if Logic.GetTechnologyState( i, v) == 0 then	--Technology is locked, can be unlocked
+					if SW.BuildingTooltips.IsUnlocked( i, req) then
+						LuaDebugger.Log("Unlocking "..v.." for player "..i)
+						if SW.BuildingTooltips.RData[v] then		--Allow
+							Logic.SetTechnologyState(i , v, 2) 	
+						else										--Research
+							Logic.SetTechnologyState(i , v, 3)
+							--Logic.SetTechnologyState(i , v, 4)
+						end
+					end
+				end
+			end
+		end
+	end
+end
+function SW.BuildingTooltips.IsUnlocked( _pId, _req)
+	--Check tier
+	if _req.Tier then
+		if _req.Tier > SW.BuildingTooltips.GetRank(_pId) then
+			return false
+		end
+	end
+	--Check techs
+	if _req.Techs then
+		for k,v in pairs(_req.Techs) do
+			if Logic.GetTechnologyState( _pId, v) ~= 4 then
+				return false
+			end
+		end
+	end	
+	--Check buildings on map
+	if _req.Buildings then
+		for k,v in pairs(_req.Buildings) do
+			if  Logic.GetNumberOfEntitiesOfTypeOfPlayer( _pId, v[1]) < 1 then
+				return false
+			end
+		end
+	end
+	return true
+end
