@@ -79,7 +79,7 @@ function GameCallback_OnGameStart()
 		-- try message sync
 		-- every player notifies the other about his "arrival"
 		-- first player ingame counts nr of "arrivals" and as soon
-		SW.NotifiedPlayers = 1;
+		SW.NotifiedPlayers = 0;
 		-- NotifyingDone determines whether Activate call has been made
 		SW.NotifyingDone = false;
 		function SW.NotifyPlayer()
@@ -182,6 +182,8 @@ function SW.Activate(_seed)
 	SW.ApplyMovementspeedBuff();
 	-- Use SW_BuildingCosts.lua for reduced buildings costs
 	SW.EnableReducedConstructionCosts();
+	-- same as for construction costs
+	SW.EnableReducedUpgradeCosts();
 	--SW.SetConstructionTime( Entities.PB_Residence1, 5)
 	-- Units cost less
 	local costTable_ = {
@@ -505,10 +507,17 @@ function SW_DestroySafe(_entityID)
 	end
 end;
 
--- REDUCED CONSTRUCTION COSTS
+-- REDUCE BUILDING CONSTRUCTION COSTS
 function SW.EnableReducedConstructionCosts()
-	for buildingType, costTable in pairs(SW.BuildingCosts) do
+	for buildingType, costTable in pairs(SW.BuildingConstructionCosts) do
 		SW.SetConstructionCosts( Entities[buildingType], costTable);
+	end
+end
+
+-- REDUCE BUILDING UPGRADE COSTS
+function SW.EnableReducedUpgradeCosts()
+	for buildingType, costTable in pairs(SW.BuildingUpgradeCosts) do
+		SW.SetUpgradeCosts( Entities[buildingType], costTable);
 	end
 end
 
@@ -825,10 +834,10 @@ function SW_Defeat_On_Entity_Destroyed()
 	end
 	local eId = Event.GetEntityID()
 	local player = SW.DefeatConditionEntityList[eId]
-	LuaDebugger.Log("Entity destroyed: "..eId.." of player "..(player or "unknown"))
 	if player == nil then
 		return;
 	end
+	LuaDebugger.Log("Entity destroyed: "..eId.." of player "..(player or "unknown"))
 	SW.DefeatConditionEntityList[eId] = nil
 	SW.DefeatConditionPlayerEntities[player] = SW.DefeatConditionPlayerEntities[player] - 1;
 	LuaDebugger.Log("Player "..player.." has "..SW.DefeatConditionPlayerEntities[player].." entities.")
