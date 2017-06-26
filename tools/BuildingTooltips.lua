@@ -6,17 +6,17 @@
 
 --DO NOT GATE: B_Residence, B_Farm, B_University, B_VillageCenter, B_Mine
 
---TODO: Hide ShortMessages when technologies are given by script
+--TODO: Hide ShortMessages when technologies are given by or alter message written on screen
 --				http://www.siedler-games.de/forum/showthread.php/18104-Tech-s-per-Skript-erforschen-ohne-quot-F%C3%A4hnchen-quot
 --TODO: Relock MU_X, T_UPX and B_X, once conditions do not hold true anymore? Or remove this feature?
---TODO: Use the parameter currBuilding in updateFuncs, currently ignored
---TODO: Fix MilitaryUnitButtons -> ForbidTechnology(Technologies.T_UpgradeSpear1) makes "Research_UpgradeSpear2" appear
+
 
 SW = SW or {}
 
 SW.BuildingTooltips = {}
 if not SW.BuildingTooltips.GetRank then
-	SW.BuildingTooltips.GetRank = function( _pId) return 4 end
+	SW.BuildingTooltips.GlobalRank = 4
+	SW.BuildingTooltips.GetRank = function( _pId) return SW.BuildingTooltips.GlobalRank end
 end
 SW.BuildingTooltips.RankNames = {
 	"Möchtegern",
@@ -24,26 +24,10 @@ SW.BuildingTooltips.RankNames = {
 	"Feldherr",
 	"Eroberer"
 }
---[[
-Rang 1 Startrang
-        Techs: Alle Tier1-Techs for free, abgesehen von Alchemie und evtl Mathematik?
-        Gebäude: Alles, was durch gratis Techs geht, plus Archery
-        Einheiten: Tier1-Schwert, Speer, Bogen
-    Rang 2
-        Techs: Alle Tier2-Techs erforschbar, erste ArmorTechs erforschbar?, WetterTech erforschbar
-        Gebäude: Stall wird freigeschalten, Kanonenmacher?
-        Einheiten: Tier2 Schwert, Bogen, Speer, Tier1 LKav, Leichte Kanonen?
-    Rang 3
-        Techs:         Alle Tier3-Techs erforschbar, Lvl2-ArmorTechs?
-        Gebäude    Kanonentürme besser gaten als Tier3?
-        Einheiten   Tier3 durch die Bank, Tier1 SKav, Tier2 LKav, Tier1-Scharfis?
-Problem: Tier3 erlaubt DamageUpgrades für alles ausser Schwertis und SKav
-    Rang 4
-        Techs:        Alles offen
-        Gebäude   Alles offen
-        Einheiten   Tier4-Einheiten durch die Bank, Große Kanonen und Lvl2-Skav
-]]
 SW.BuildingTooltips.BData = { --Data for new building tooltips in serf menu
+	[Technologies.B_Barracks] = {	--Barracks are allowed frome the start
+		Tier = 1,
+	},
 	[Technologies.B_Archery] = {
 		Techs = {Technologies.GT_Mercenaries}
 	},
@@ -53,6 +37,12 @@ SW.BuildingTooltips.BData = { --Data for new building tooltips in serf menu
 	[Technologies.B_Foundry] = {
 		Techs = {Technologies.GT_Alloying},
 		Buildings = {{Entities.PB_Alchemist1, Technologies.B_Alchemist}}, --list of needed buildings, every entry need eType and technology to find name of building
+	},
+	[Technologies.B_Sawmill] = {
+		Tier = 1,
+	},
+	[Technologies.B_Brickworks] = {
+		Tier = 1,
 	}
 }
 SW.BuildingTooltips.MData = { --Data for military unit tooltips
@@ -64,15 +54,193 @@ SW.BuildingTooltips.MData = { --Data for military unit tooltips
 	},
 }
 SW.BuildingTooltips.RData = { --Data for research tooltips
+	--Gating for university techs: lvl1 always, lvl2 on tier 2, lvl3 on tier 3 & university, lvl 4 on tier 4
+	--Chemistry path
+	[Technologies.GT_Alloying] = {
+		Techs = {Technologies.GT_Alchemy},
+		Tier = 2,
+	},
+	[Technologies.GT_Metallurgy] = {
+		currBuilding = {Entities.PB_University2, Technologies.UP1_University},
+		Techs = {Technologies.GT_Alloying},
+		Tier = 3,
+	},
+	[Technologies.GT_Chemistry] = {
+		currBuilding = {Entities.PB_University2, Technologies.UP1_University},
+		Techs = {Technologies.GT_Metallurgy},
+		Tier = 4,
+	},
+	--Library path
+	[Technologies.GT_Trading] = {
+		Techs = {Technologies.GT_Literacy},
+		Tier = 2,
+	},
+	[Technologies.GT_Printing] = {
+		currBuilding = {Entities.PB_University2, Technologies.UP1_University},
+		Techs = {Technologies.GT_Trading},
+		Tier = 3,
+	},
+	[Technologies.GT_Library] = {
+		currBuilding = {Entities.PB_University2, Technologies.UP1_University},
+		Techs = {Technologies.GT_Printing},
+		Tier = 4,
+	}, 
+	--Mathematics path
+	[Technologies.GT_Binocular] = {
+		Techs = {Technologies.GT_Mathematics},
+		Tier = 2,
+	},
+	[Technologies.GT_Matchlock] = {
+		currBuilding = {Entities.PB_University2, Technologies.UP1_University},
+		Techs = {Technologies.GT_Binocular},
+		Tier = 3,
+	},
+	[Technologies.GT_PulledBarrel] = {
+		currBuilding = {Entities.PB_University2, Technologies.UP1_University},
+		Techs = {Technologies.GT_Matchlock},
+		Tier = 4,
+	},
+	--Architecture path
+	[Technologies.GT_GearWheel] = {
+		Techs = {Technologies.GT_Construction},
+		Tier = 2,
+	},
+	[Technologies.GT_ChainBlock] = {
+		currBuilding = {Entities.PB_University2, Technologies.UP1_University},
+		Techs = {Technologies.GT_GearWheel},
+		Tier = 3,
+	},
+	[Technologies.GT_Architecture] = {
+		currBuilding = {Entities.PB_University2, Technologies.UP1_University},
+		Techs = {Technologies.GT_ChainBlock},
+		Tier = 4,
+	},
+	--Strategies path
+	[Technologies.GT_StandingArmy] = {
+		Techs = {Technologies.GT_Mercenaries},
+		Tier = 2,
+	},
+	[Technologies.GT_Tactics] = {
+		currBuilding = {Entities.PB_University2, Technologies.UP1_University},
+		Techs = {Technologies.GT_StandingArmy},
+		Tier = 3,
+	},
+	[Technologies.GT_Strategies] = {
+		currBuilding = {Entities.PB_University2, Technologies.UP1_University},
+		Techs = {Technologies.GT_Tactics},
+		Tier = 4,
+	},
+	--Now: Group upgrades
+	--Infantry grows with tier
+	--Allow best heavy cav on tier 4
+	--Allow best light cav on tier 3
+	[Technologies.T_UpgradeHeavyCavalry1] = {
+		Techs = {Technologies.GT_Strategies}, 
+	},
+	[Technologies.T_UpgradeLightCavalry1] = {
+		Techs = {Technologies.GT_Tactics}, 
+	},
+	[Technologies.T_UpgradeBow1] = {
+		Tier = 2,
+		Buildings = {{Entities.PB_Sawmill1, Technologies.B_Sawmill}}
+	},
+	[Technologies.T_UpgradeBow2] = {
+		Tier = 3,
+		Buildings = {{Entities.PB_Sawmill2, Technologies.UP1_Sawmill}},
+		currBuilding = {Entities.PB_Archery2, Technologies.UP1_Archery}
+	},
+	[Technologies.T_UpgradeBow3] = {
+		Tier = 4,
+		Buildings = {{Entities.PB_Sawmill1, Technologies.UP1_Sawmill}},
+		currBuilding = {Entities.PB_Archery2, Technologies.UP1_Archery}
+	},
 	[Technologies.T_UpgradeSpear1] = {
 		Tier = 2,
 		Buildings = {{Entities.PB_Sawmill1, Technologies.B_Sawmill}}
+	},
+	[Technologies.T_UpgradeSpear2] = {
+		Tier = 3,
+		Buildings = {{Entities.PB_Sawmill2, Technologies.UP1_Sawmill}},
+		currBuilding = {Entities.PB_Barracks2, Technologies.UP1_Barracks}
+	},
+	[Technologies.T_UpgradeSpear3] = {
+		Tier = 4,
+		Buildings = {{Entities.PB_Sawmill1, Technologies.UP1_Sawmill}},
+		currBuilding = {Entities.PB_Barracks2, Technologies.UP1_Barracks}
+	},
+	[Technologies.T_UpgradeSword1] = {
+		Tier = 2,
+		Buildings = {{Entities.PB_Blacksmith1, Technologies.B_Blacksmith}}
+	},
+	[Technologies.T_UpgradeSword2] = {
+		Tier = 3,
+		Buildings = {{Entities.PB_Blacksmith3, Technologies.UP2_Blacksmith}},
+		currBuilding = {Entities.PB_Barracks2, Technologies.UP1_Barracks}
+	},
+	[Technologies.T_UpgradeSword3] = {
+		Tier = 4,
+		Buildings = {{Entities.PB_Blacksmith3, Technologies.UP2_Blacksmith}},
+		currBuilding = {Entities.PB_Barracks2, Technologies.UP1_Barracks}
+	},
+	--Tech trees black smith
+	--First armor techs on tier 2
+	--First dmg tech, second armor tech on tier 3, lvl2 smith
+	--Second dmg tech, third armor tech on tier 4, lvl3 smith
+	--MasterOfSmithery -> IronCasting
+	--LeatherMailArmor -> ChainMailArmor -> PlateMailArmor
+	--SoftArcherArmor -> PaddedArcherArmor -> LeatherArcherArmor
+	[Technologies.T_SoftArcherArmor] = {
+		Tier = 2,
+	},
+	[Technologies.T_PaddedArcherArmor] = {
+		Tier = 3, 
+		Techs = {Technologies.T_SoftArcherArmor},
+		currBuilding = { Entities.PB_Blacksmith2, Technologies.UP1_Blacksmith}
+	},
+	[Technologies.T_LeatherArcherArmor] = {
+		Tier = 4, 
+		Techs = {Technologies.T_PaddedArcherArmor},
+		currBuilding = { Entities.PB_Blacksmith3, Technologies.UP2_Blacksmith}
+	},
+	[Technologies.T_LeatherMailArmor] = {
+		Tier = 2,
+	},
+	[Technologies.T_ChainMailArmor] = {
+		Tier = 3, 
+		Techs = {Technologies.T_LeatherMailArmor},
+		currBuilding = { Entities.PB_Blacksmith2, Technologies.UP1_Blacksmith}
+	},
+	[Technologies.T_PlateMailArmor] = {
+		Tier = 4, 
+		Techs = {Technologies.T_ChainMailArmor},
+		currBuilding = { Entities.PB_Blacksmith3, Technologies.UP2_Blacksmith}
+	},
+	[Technologies.T_MasterOfSmithery] = {
+		Tier = 3,
+		currBuilding = { Entities.PB_Blacksmith2, Technologies.UP1_Blacksmith}
+	},
+	[Technologies.T_IronCasting] = {
+		Tier = 4,
+		Techs = {Technologies.MasterOfSmithery},
+		currBuilding = { Entities.PB_Blacksmith3, Technologies.UP2_Blacksmith}
 	}
 } 
 SW.BuildingTooltips.UData = { --Data for research tooltips
-	[Technologies.UP1_Alchemist] = {
+	[Technologies.UP1_Stables] = {		--Give stable upgrade on tier 3 for free
+		Tier = 3,
+	},
+	[Technologies.UP1_Alchemist] = {	--Weather change on tier 2 possible
 		Tier = 2,
 		Techs = {Technologies.GT_Alloying}
+	},
+	[Technologies.UP2_Tower] = {		--Gate cannon towers behind tier 4
+		Techs = {Technologies.GT_Chemistry},
+	},
+	[Technologies.UP1_Market] = {		--Gate markets behind tier 3
+		Techs = {Technologies.GT_Printing},
+	},
+	[Technologies.UP1_Monastery] = {	--Allow lvl2 chapel on tier 2 in order to keep smiths and alchemists satisfied - Necessary?
+		Techs = {Technologies.GT_Trading},
 	}
 } 
 SW.BuildingTooltips.TechNames = {			--Gets generated on game start, [technologyId] = name, e.g. [Technologies.B_Residence] = "Wohnhaus"
@@ -341,6 +509,8 @@ function SW.BuildingTooltipsInit()			--Has to be called via Debugger! Not starte
 	end
 	SW.BuildingTooltips.InitWatch()
 	Tools.GiveResouces( 1, 5000, 5000, 5000, 5000, 5000, 5000)
+	SW.BuildingTooltips.FixMilitaryUpgradeButtons()
+	SW.BuildingTooltips.FixNeededBuilding()
 end
 function SW.BuildingTooltips.GenerateTechNames()
 	local rawString
@@ -547,14 +717,14 @@ function SW.BuildingTooltips.ConstructGeneralTooltip(req, _tech)
 		end
 	end
 	if req.currBuilding then
-		local eType = Logic.GetEntityType(GUI.GetSelectedEntity())
-		if eType == req.currBuilding[1] then
-			if not first then 
-				retString = retString..", "
-			end
-			retString = retString..SW.BuildingTooltips.TechNames[req.currBuilding[2]]
-			first = false
+		--local eType = Logic.GetEntityType(GUI.GetSelectedEntity())
+		--if eType == req.currBuilding[1] then
+		if not first then 
+			retString = retString..", "
 		end
+		retString = retString..SW.BuildingTooltips.TechNames[req.currBuilding[2]]
+		first = false
+		--end
 	end
 	if req.Buildings then
 		for k, v in pairs(req.Buildings) do
@@ -593,7 +763,7 @@ function SW_BuildingTooltips_WatchJob()
 			for i = 1, 8 do
 				if Logic.GetTechnologyState( i, v) == 0 then	--Technology is locked, can be unlocked
 					if SW.BuildingTooltips.IsUnlocked( i, req) then
-						LuaDebugger.Log("Unlocking "..v.." for player "..i)
+						--LuaDebugger.Log("Unlocking "..v.." for player "..i)
 						if SW.BuildingTooltips.RData[v] then		--Allow
 							Logic.SetTechnologyState(i , v, 2) 	
 						else										--Research
@@ -631,3 +801,93 @@ function SW.BuildingTooltips.IsUnlocked( _pId, _req)
 	end
 	return true
 end
+function SW.BuildingTooltips.FixMilitaryUpgradeButtons()	--Fix for vanishing Research_UpgradeX-buttons
+	GUIUpdate_SettlersUpgradeButtons = function( _button, _tech)
+		--critical are sword, spear and bow as there are multiple upgrade buttons for this type
+		--light cav, heavy cav and rifles are easier as there is only one button
+		if _tech == Technologies.T_UpgradeHeavyCavalry1 or Technologies.T_UpgradeLightCavalry1 == _tech or _tech == Technologies.T_UpgradeRifle1 then
+			local techState = Logic.GetTechnologyState( GUI.GetPlayerID(), _tech)
+			if techState == 4 then	--Technology researched - hide button
+				XGUIEng.ShowWidget( _button, 0)
+			elseif techState == 2 or techState == 3 then --Technology not researched but researchable - show and enable button
+				XGUIEng.ShowWidget( _button, 1)
+				XGUIEng.DisableButton( _button, 0)
+			else --Show button but disable it
+				XGUIEng.ShowWidget( _button, 1)
+				XGUIEng.DisableButton( _button, 1)	
+			end
+			return --not need to do further work
+		end
+		--now the harder part
+		--possible states: tech researched, tech ready to research & lower tech researched, tech ready to research but lower tech not researched, not researchable now
+		--needed lower tech not researched - hide button
+		if not SW.BuildingTooltips.IsLowerTechResearched(_tech) then
+			XGUIEng.ShowWidget( _button, 0)
+			return
+		end
+		--possible state: forbidden(not all requirements fulfilled), allowed, researched
+		local techState = Logic.GetTechnologyState( GUI.GetPlayerID(), _tech)
+		if techState == 4 then	--Already researched - hide button
+			XGUIEng.ShowWidget( _button, 0)
+		elseif techState == 2 or techState == 3 then	--Researchable, show & enable button
+			XGUIEng.ShowWidget( _button, 1)
+			XGUIEng.DisableButton( _button, 0)
+		else
+			XGUIEng.ShowWidget( _button, 1)
+			XGUIEng.DisableButton( _button, 1)
+		end
+	end
+end
+function SW.BuildingTooltips.IsLowerTechResearched(_tech)
+	local lowerTechs = {
+		[Technologies.T_UpgradeBow2] = Technologies.T_UpgradeBow1,
+		[Technologies.T_UpgradeBow3] = Technologies.T_UpgradeBow2,
+		[Technologies.T_UpgradeSpear2] = Technologies.T_UpgradeSpear1,
+		[Technologies.T_UpgradeSpear3] = Technologies.T_UpgradeSpear2,
+		[Technologies.T_UpgradeSword2] = Technologies.T_UpgradeSword1,
+		[Technologies.T_UpgradeSword3] = Technologies.T_UpgradeSword2
+	}
+	if lowerTechs[_tech] == nil then
+		return true --return true as there is no lower tech that might be not researched
+	end
+	if Logic.GetTechnologyState( GUI.GetPlayerID(), lowerTechs[_tech]) == 4 then
+		return true
+	end
+	return false
+end
+function SW.BuildingTooltips.FixNeededBuilding()			--Used to give the currBuilding parameter effect, tech can ONLY be researched in this building
+	--GUIUpdate_TechnologyButtons("Research_EnhancedGunPowder", Technologies.T_EnhancedGunPowder, Entities.PB_Alchemist2)
+	--GUIUpdate_GlobalTechnologiesButtons("Research_Construction", Technologies.GT_Construction, Entities.PB_University1)
+	--IsWidgetShown
+	--Log: "IsWidgetExisting"
+	--Log: "IsButtonDisabled"
+	--Log: "IsButtonHighLighted"
+	--Log: "IsWidgetShown"
+	SW.BuildingTooltips.GUIUpdate_TechnologyButtons = GUIUpdate_TechnologyButtons
+	GUIUpdate_TechnologyButtons = function( _button, _tech, _eType)
+		SW.BuildingTooltips.GUIUpdate_TechnologyButtons( _button, _tech, _eType) --call original
+		if XGUIEng.IsButtonDisabled( _button) == 0 then
+			if SW.BuildingTooltips.RData[_tech] then
+				if SW.BuildingTooltips.RData[_tech].currBuilding then
+					if SW.BuildingTooltips.RData[_tech].currBuilding[1] ~= Logic.GetEntityType(GUI.GetSelectedEntity()) then --wrong building
+						XGUIEng.DisableButton( _button, 1)
+					end
+				end
+			end
+		end
+	end
+	SW.BuildingTooltips.GUIUpdate_GlobalTechnologiesButtons = GUIUpdate_GlobalTechnologiesButtons
+	GUIUpdate_GlobalTechnologiesButtons = function( _button, _tech, _eType)
+		SW.BuildingTooltips.GUIUpdate_GlobalTechnologiesButtons( _button, _tech, _eType)
+		if XGUIEng.IsButtonDisabled( _button) == 0 then
+			if SW.BuildingTooltips.RData[_tech] then
+				if SW.BuildingTooltips.RData[_tech].currBuilding then
+					if SW.BuildingTooltips.RData[_tech].currBuilding[1] ~= Logic.GetEntityType(GUI.GetSelectedEntity()) then --wrong building
+						XGUIEng.DisableButton( _button, 1)
+					end
+				end
+			end
+		end
+	end
+end
+
