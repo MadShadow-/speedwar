@@ -233,7 +233,8 @@ function SW.EnableRankSystem()
 		[3] = 1200, -- 60 buildings or 600 kills
 		[4] = 2000,  -- 100 buildings or 1000 kills
 	};
-
+	SW.RankSystem.RankOfPlayer = {}
+	SW.RankSystem.PointsOfPlayer = {}
 	for i = 1, SW.NrOfPlayers do
 		SW.RankSystem.RankOfPlayer[SW.Players[i]] = 1;
 		SW.RankSystem.PointsOfPlayer[SW.Players[i]] = 0;
