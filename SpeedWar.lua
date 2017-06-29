@@ -171,6 +171,8 @@ function SW.Activate(_seed)
 		SW.MaxPlayers = table.getn(SW.Players)
 	end
 	
+	SW.EnableRankSystem();
+	
 	SW.EnableStartingTechnologies();
 	-- village centers shall be removed and replaced by outposts
 	SW.EnableOutpostVCs();
@@ -214,6 +216,27 @@ function SW.Activate(_seed)
 	--StartSimpleJob("WipeThemAll")
 	-- Activate Fire
 	SW.FireMod.Init()
+end
+
+-- llllIIIIlIlIIl
+function SW.EnableRankSystem()
+
+	SW.RankSystem = {};
+	
+	-- 1 Kill = 2 points
+	-- 1 Building = 20 Points
+	-- to be balanced
+	SW.RankSystem.PointsToNextRank = {
+		[2] = 400, -- 20 buildings or 200 kills
+		[3] = 1200, -- 60 buildings or 600 kills
+		[4] = 2000,  -- 100 buildings or 1000 kills
+	};
+
+	for i = 1, SW.NrOfPlayers do
+		SW.RankSystem.RankOfPlayer[SW.Players[i]] = 1;
+		SW.RankSystem.PointsOfPlayer[SW.Players[i]] = 0;
+	end
+	
 end
 
 function SW.EnableStartingTechnologies()
