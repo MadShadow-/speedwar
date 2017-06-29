@@ -24,10 +24,10 @@ function GameCallback_OnGameStart()
 	end
 	
 	LocalMusic.UseSet = HIGHLANDMUSIC
-	--AddPeriodicSummer( 7.3 * 60)
-	--AddPeriodicRain( 0.5 * 60)
+	AddPeriodicSummer( 7.3 * 60)
+	AddPeriodicRain( 0.5 * 60)
 	AddPeriodicWinter( 1.2 * 60)
-	--AddPeriodicRain( 0.5 * 60)
+	AddPeriodicRain( 0.5 * 60)
 	SetupHighlandWeatherGfxSet()
 	-- how about some vision?
 	Display.GfxSetSetFogParams(3, 0.0, 1.0, 1, 152,172,182, 3000,19500)
@@ -216,6 +216,8 @@ function SW.Activate(_seed)
 	--StartSimpleJob("WipeThemAll")
 	-- Activate Fire
 	SW.FireMod.Init()
+	-- Enable tech tree
+	SW.BuildingTooltipsInit()
 end
 
 -- llllIIIIlIlIIl
@@ -241,8 +243,8 @@ end
 
 function SW.EnableStartingTechnologies()
 	local startTechs = {
-		"GT_Mercenaries", -- Wehrpflicht
-		"GT_Construction", -- Konstruktion
+		--"GT_Mercenaries", -- Wehrpflicht
+		--"GT_Construction", -- Konstruktion
 		"GT_Literacy", -- Bildung
 	};
 	
@@ -860,10 +862,10 @@ function SW_Defeat_On_Entity_Destroyed()
 	if player == nil then
 		return;
 	end
-	LuaDebugger.Log("Entity destroyed: "..eId.." of player "..(player or "unknown"))
+	--LuaDebugger.Log("Entity destroyed: "..eId.." of player "..(player or "unknown"))
 	SW.DefeatConditionEntityList[eId] = nil
 	SW.DefeatConditionPlayerEntities[player] = SW.DefeatConditionPlayerEntities[player] - 1;
-	LuaDebugger.Log("Player "..player.." has "..SW.DefeatConditionPlayerEntities[player].." entities.")
+	--LuaDebugger.Log("Player "..player.." has "..SW.DefeatConditionPlayerEntities[player].." entities.")
 end
 function SW.DefeatCondition_GetExistingEntities()
 	for playerId = 1, SW.MaxPlayers do
@@ -911,9 +913,9 @@ function SW.EnableSellBuildingFix()
 	--Is not triggered by trades & sold buildings
 	SW.SellBuildingFixGainedResourcesOrig = GameCallback_GainedResources
 	GameCallback_GainedResources = function(_playerId, _type, _amount)
-		Message( _playerId)
-		Message( _type)
-		Message( _amount)
+		--Message( _playerId)
+		--Message( _type)
+		--Message( _amount)
 		SW.SellBuildingFixGainedResourcesOrig( _playerId, _type, _amount)
 	end
 end
