@@ -222,7 +222,8 @@ end
 
 -- llllIIIIlIlIIl
 function SW.EnableRankSystem()
-
+	SW.RankSystem.Init()
+	if true then return end
 	SW.RankSystem = {};
 	
 	-- 1 Kill = 2 points

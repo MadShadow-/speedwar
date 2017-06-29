@@ -7,6 +7,8 @@ SW = SW or {}
 -- All players see the ranks of all players
 -- Detailed information is available only for team mates
 
+-- TODO: Use actual names instead of "Team x"
+
 SW.RankSystem = {}
 SW.RankSystem.RankThresholds = {
 	50,
@@ -18,6 +20,13 @@ SW.RankSystem.LosePoints = 2		-- Points per settler lost
 SW.RankSystem.BuildingPoints = 10	-- Points per building destroyed
 SW.RankSystem.Points = {} --Key: PlayerId, Value: Current amount of points
 SW.RankSystem.Rank = {} --Key: PlayerId, Value: Current rank, 1 to 4
+SW.RankSystem.PlayerIds = {}
+SW.RankSystem.RankNames = {
+	"Möchtegern",
+	"Siedler",
+	"Feldherr",
+	"Eroberer"
+}
 function SW.RankSystem.Init()
 	for i = 1, 8 do
 		SW.RankSystem.Points[i] = 0
@@ -44,9 +53,11 @@ function SW.RankSystem.InitKillCount()
 	end
 end
 function SW.RankSystem.UpdatePlayer( _pId)	--Gets called every time the score of a player changes
-	if SW.RankSystem.Rank[_pId] == 4 then	--Max rank reached, no need to do things
+	if SW.RankSystem.Rank[_pId] == 4 then	--Max rank reached, set bar to full
+		XGUIEng.SetProgressBarValues("VCMP_Team"..SW.RankSystem.GetGUIIdByPlayerId(_pId).."Progress", 1, 1)
 		return
 	end
+	XGUIEng.SetProgressBarValues("VCMP_Team"..SW.RankSystem.GetGUIIdByPlayerId(_pId).."Progress", SW.RankSystem.Points[_pId], SW.RankSystem.RankThresholds[SW.RankSystem.Rank[_pId]])
 	if SW.RankSystem.Points[_pId] >= SW.RankSystem.RankThresholds[SW.RankSystem.Rank[_pId]] then	--Player got enough points for next rank
 		SW.RankSystem.Points[_pId] = SW.RankSystem.Points[_pId] - SW.RankSystem.RankThresholds[SW.RankSystem.Rank[_pId]]
 		SW.RankSystem.Rank[_pId] = SW.RankSystem.Rank[_pId] + 1
@@ -57,6 +68,48 @@ function SW.RankSystem.GetRank( _pId)
 	return SW.RankSystem.Rank[_pId]
 end
 function SW.RankSystem.InitGUI()
+	GUIUpdate_VCTechRaceColor = function() end
+	GUIUpdate_VCTechRaceProgress = function() end --use this function wisely!
+	GUIUpdate_GetTeamPoints = function() end
+	local numPlayer = SW.NrOfPlayers
+	local listPlayer = SW.Players
+	--DEBUG
+	if not SW.IsMultiplayer() then
+		listPlayer = {1,3,5,8}
+		numPlayer = 4
+		SetFriendly(1,8)
+	end
+	StartSimpleJob("SW_RankSystem_DEBUGHandOutPoints")
+	--DEBUG END
+	SW.RankSystem.PlayerIds = listPlayer
+	SW.RankSystem.NumPlayers = numPlayer
+	XGUIEng.ShowWidget("VCMP_Window", 1)
+	XGUIEng.ShowAllSubWidgets("VCMP_Window", 1)
+	for i = 1, numPlayer do
+		for j = 1, 8 do
+			XGUIEng.ShowWidget("VCMP_Team"..i.."Player"..j, 0)
+		end
+		XGUIEng.SetText("VCMP_Team"..i.."Name", "Team "..i)
+		XGUIEng.ShowWidget("VCMP_Team"..i.."TechRace", 1)
+		XGUIEng.ShowWidget("VCMP_Team"..i.."Progress", 1)
+		XGUIEng.ShowWidget("VCMP_Team"..i.."_Shade", 0)
+		XGUIEng.SetProgressBarValues("VCMP_Team"..i.."Progress", 0, 8)
+		local ColorR, ColorG, ColorB = GUI.GetPlayerColor( listPlayer[i] )
+		XGUIEng.SetMaterialColor("VCMP_Team"..i.."Progress",0,ColorR, ColorG, ColorB,200)
+	end
+	for i = numPlayer + 1, 8 do
+		XGUIEng.ShowWidget("VCMP_Team"..i, 0)
+		XGUIEng.ShowWidget("VCMP_Team"..i.."_Shade", 0)
+	end
+	-- Basics done, now start refining
+	-- Allies can see progress, Enemies see nothing except for a name
+	local currPlayer = GUI.GetPlayerID()
+	for i = 1, numPlayer do
+		if listPlayer[i] == currPlayer or Logic.GetDiplomacyState( currPlayer, listPlayer[i]) == Diplomacy.Friendly then --do nothing
+		else
+			XGUIEng.ShowWidget("VCMP_Team"..i.."TechRace", 0)
+		end
+	end
 	--[[
 	   VCMP_Window
          VCMP_Team1
@@ -86,199 +139,23 @@ function SW.RankSystem.InitGUI()
               Calls: GUIUpdate_GetTeamPoints()
              VCMP_Team1PointBG
          VCMP_Team1_Shade
-         VCMP_Team2
-           VCMP_Team2TechRace
-             VCMP_Team2Progress
-              Calls: GUIUpdate_VCTechRaceProgress()
-             VCMP_Team2ProgressBG
-           VCMP_Team2Name
-           VCMP_Team2Player1
-            Calls: GUIUpdate_VCTechRaceColor(1)
-           VCMP_Team2Player2
-            Calls: GUIUpdate_VCTechRaceColor(2)
-           VCMP_Team2Player3
-            Calls: GUIUpdate_VCTechRaceColor(3)
-           VCMP_Team2Player4
-            Calls: GUIUpdate_VCTechRaceColor(4)
-           VCMP_Team2Player5
-            Calls: GUIUpdate_VCTechRaceColor(5)
-           VCMP_Team2Player6
-            Calls: GUIUpdate_VCTechRaceColor(6)
-           VCMP_Team2Player7
-            Calls: GUIUpdate_VCTechRaceColor(7)
-           VCMP_Team2Player8
-            Calls: GUIUpdate_VCTechRaceColor(8)
-           VCMP_Team2PointGame
-             VCMP_Team2Points
-              Calls: GUIUpdate_GetTeamPoints()
-             VCMP_Team2PointBG
-         VCMP_Team3
-           VCMP_Team3Name
-           VCMP_Team3Player1
-            Calls: GUIUpdate_VCTechRaceColor(1)
-           VCMP_Team3Player2
-            Calls: GUIUpdate_VCTechRaceColor(2)
-           VCMP_Team3Player3
-            Calls: GUIUpdate_VCTechRaceColor(3)
-           VCMP_Team3Player4
-            Calls: GUIUpdate_VCTechRaceColor(4)
-           VCMP_Team3Player5
-            Calls: GUIUpdate_VCTechRaceColor(5)
-           VCMP_Team3Player6
-            Calls: GUIUpdate_VCTechRaceColor(6)
-           VCMP_Team3Player7
-            Calls: GUIUpdate_VCTechRaceColor(7)
-           VCMP_Team3Player8
-            Calls: GUIUpdate_VCTechRaceColor(8)
-           VCMP_Team3TechRace
-             VCMP_Team3Progress
-              Calls: GUIUpdate_VCTechRaceProgress()
-             VCMP_Team3ProgressBG
-           VCMP_Team3PointGame
-             VCMP_Team3Points
-              Calls: GUIUpdate_GetTeamPoints()
-             VCMP_Team3PointBG
-         VCMP_Team4
-           VCMP_Team4TechRace
-             VCMP_Team4Progress
-              Calls: GUIUpdate_VCTechRaceProgress()
-             VCMP_Team4ProgressBG
-           VCMP_Team4Name
-           VCMP_Team4Player1
-            Calls: GUIUpdate_VCTechRaceColor(1)
-           VCMP_Team4Player2
-            Calls: GUIUpdate_VCTechRaceColor(2)
-           VCMP_Team4Player3
-            Calls: GUIUpdate_VCTechRaceColor(3)
-           VCMP_Team4Player4
-            Calls: GUIUpdate_VCTechRaceColor(4)
-           VCMP_Team4Player5
-            Calls: GUIUpdate_VCTechRaceColor(5)
-           VCMP_Team4Player6
-            Calls: GUIUpdate_VCTechRaceColor(6)
-           VCMP_Team4Player7
-            Calls: GUIUpdate_VCTechRaceColor(7)
-           VCMP_Team4Player8
-            Calls: GUIUpdate_VCTechRaceColor(8)
-           VCMP_Team4PointGame
-             VCMP_Team4Points
-              Calls: GUIUpdate_GetTeamPoints()
-             VCMP_Team4PointBG
-         VCMP_Team5
-           VCMP_Team5TechRace
-             VCMP_Team5Progress
-              Calls: GUIUpdate_VCTechRaceProgress()
-             VCMP_Team5ProgressBG
-           VCMP_Team5Name
-           VCMP_Team5Player1
-            Calls: GUIUpdate_VCTechRaceColor(1)
-           VCMP_Team5Player2
-            Calls: GUIUpdate_VCTechRaceColor(2)
-           VCMP_Team5Player3
-            Calls: GUIUpdate_VCTechRaceColor(3)
-           VCMP_Team5Player4
-            Calls: GUIUpdate_VCTechRaceColor(4)
-           VCMP_Team5Player5
-            Calls: GUIUpdate_VCTechRaceColor(5)
-           VCMP_Team5Player6
-            Calls: GUIUpdate_VCTechRaceColor(6)
-           VCMP_Team5Player7
-            Calls: GUIUpdate_VCTechRaceColor(7)
-           VCMP_Team5Player8
-            Calls: GUIUpdate_VCTechRaceColor(8)
-           VCMP_Team5PointGame
-             VCMP_Team5Points
-              Calls: GUIUpdate_GetTeamPoints()
-             VCMP_Team5PointBG
-         VCMP_Team6
-           VCMP_Team6TechRace
-             VCMP_Team6Progress
-              Calls: GUIUpdate_VCTechRaceProgress()
-             VCMP_Team6ProgressBG
-           VCMP_Team6Name
-           VCMP_Team6Player1
-            Calls: GUIUpdate_VCTechRaceColor(1)
-           VCMP_Team6Player3
-            Calls: GUIUpdate_VCTechRaceColor(3)
-           VCMP_Team6Player4
-            Calls: GUIUpdate_VCTechRaceColor(4)
-           VCMP_Team6Player5
-            Calls: GUIUpdate_VCTechRaceColor(5)
-           VCMP_Team6Player6
-            Calls: GUIUpdate_VCTechRaceColor(6)
-           VCMP_Team6Player7
-            Calls: GUIUpdate_VCTechRaceColor(7)
-           VCMP_Team6Player8
-            Calls: GUIUpdate_VCTechRaceColor(8)
-           VCMP_Team6Player2
-            Calls: GUIUpdate_VCTechRaceColor(2)
-           VCMP_Team6PointGame
-             VCMP_Team6Points
-              Calls: GUIUpdate_GetTeamPoints()
-             VCMP_Team6PointBG
-         VCMP_Team7
-           VCMP_Team7TechRace
-             VCMP_Team7Progress
-              Calls: GUIUpdate_VCTechRaceProgress()
-             VCMP_Team7ProgressBG
-           VCMP_Team7Name
-           VCMP_Team7Player1
-            Calls: GUIUpdate_VCTechRaceColor(1)
-           VCMP_Team7Player2
-            Calls: GUIUpdate_VCTechRaceColor(2)
-           VCMP_Team7Player3
-            Calls: GUIUpdate_VCTechRaceColor(3)
-           VCMP_Team7Player4
-            Calls: GUIUpdate_VCTechRaceColor(4)
-           VCMP_Team7Player5
-            Calls: GUIUpdate_VCTechRaceColor(5)
-           VCMP_Team7Player6
-            Calls: GUIUpdate_VCTechRaceColor(6)
-           VCMP_Team7Player7
-            Calls: GUIUpdate_VCTechRaceColor(7)
-           VCMP_Team7Player8
-            Calls: GUIUpdate_VCTechRaceColor(8)
-           VCMP_Team7PointGame
-             VCMP_Team7Points
-              Calls: GUIUpdate_GetTeamPoints()
-             VCMP_Team7PointBG
-         VCMP_Team8
-           VCMP_Team8TechRace
-             VCMP_Team8Progress
-              Calls: GUIUpdate_VCTechRaceProgress()
-             VCMP_Team8ProgressBG
-           VCMP_Team8Name
-           VCMP_Team8Player1
-            Calls: GUIUpdate_VCTechRaceColor(1)
-           VCMP_Team8Player2
-            Calls: GUIUpdate_VCTechRaceColor(2)
-           VCMP_Team8Player3
-            Calls: GUIUpdate_VCTechRaceColor(3)
-           VCMP_Team8Player4
-            Calls: GUIUpdate_VCTechRaceColor(4)
-           VCMP_Team8Player5
-            Calls: GUIUpdate_VCTechRaceColor(5)
-           VCMP_Team8Player6
-            Calls: GUIUpdate_VCTechRaceColor(6)
-           VCMP_Team8Player7
-            Calls: GUIUpdate_VCTechRaceColor(7)
-           VCMP_Team8Player8
-            Calls: GUIUpdate_VCTechRaceColor(8)
-           VCMP_Team8PointGame
-             VCMP_Team8Points
-              Calls: GUIUpdate_GetTeamPoints()
-             VCMP_Team8PointBG
-         VCMP_Team3_Shade
-         VCMP_Team2_Shade
-         VCMP_Team4_Shade
-         VCMP_Team5_Shade
-         VCMP_Team6_Shade
-         VCMP_Team7_Shade
-         VCMP_Team8_Shade
 	]]
 end
 function SW.RankSystem.OnRankUp( _pId)	--Gets called every time a player reaches a new rank; Currently empty
-	
+	Message("Spieler ".._pId.." hat den Rang "..SW.RankSystem.RankNames[SW.RankSystem.Rank[_pId]].." erreicht!")
+	XGUIEng.SetProgressBarValues("VCMP_Team"..SW.RankSystem.GetGUIIdByPlayerId(_pId).."Progress", 0, 1)
 end
-
-
+function SW.RankSystem.GetGUIIdByPlayerId(_pId)
+	for k,v in pairs(SW.RankSystem.PlayerIds) do
+		if v == _pId then
+			return k
+		end
+	end
+	return 8
+end
+function SW_RankSystem_DEBUGHandOutPoints()
+	for i = 1, 8 do
+		SW.RankSystem.Points[i] = SW.RankSystem.Points[i] + 5*i
+		SW.RankSystem.UpdatePlayer( i)
+	end
+end
