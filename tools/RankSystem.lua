@@ -91,8 +91,8 @@ function SW.RankSystem.InitGUI()
 		SW.RankSystem.PlayerNames[8] = "Peter Enis"
 		numPlayer = 4
 		SetFriendly(1,8)
+		StartSimpleJob("SW_RankSystem_DEBUGHandOutPoints")
 	end
-	StartSimpleJob("SW_RankSystem_DEBUGHandOutPoints")
 	--DEBUG END
 	SW.RankSystem.PlayerIds = listPlayer
 	SW.RankSystem.NumPlayers = numPlayer
