@@ -20,7 +20,9 @@ function SW.FireMod.Init()
 	
 	-- config
 	SW.FireMod.Config = {
-		InflictBuildingThreshold = 0.3;
+		InflictBuildingOnAttackThreshold = 0.6;
+		InflictOthersBuildingsOnBurnThreshold = 0.25;
+		StopBurnThreshold = 0.6; -- musst be >= InflictThreshold
 	};
 	
 	-- add any entity type which should be excluded from beeing burned
@@ -51,7 +53,7 @@ function SW_FireMod_Condition_InflictBuilding()
 	if SW.FireMod.UnvincibleBuildings[Logic.GetEntityType(target)] then
 		return false;
 	end
-	if Logic.GetEntityHealth(target)/Logic.GetEntityMaxHealth(target) > SW.FireMod.Config.InflictBuildingThreshold then
+	if Logic.GetEntityHealth(target)/Logic.GetEntityMaxHealth(target) > SW.FireMod.Config.InflictBuildingOnAttackThreshold then
 		return false;
 	end
 	return true;
@@ -59,23 +61,57 @@ end
 
 function SW_FireMod_Action_InflictBuilding()
 	local target = Event.GetEntityID2();
-	Message("Inflict " .. target);
-	table.insert(SW.FireMod.BurningBuildings[GetPlayer(target)], target);
-	if not SW.FireMod.ControlJob then
-		SW.FireMod.ControlJob = StartSimpleJob("SW_FireMod_ControlJob_BurnBuildings");
-	end
-end
-
-function SW_FireMod_ControlJob_BurnBuildings()
-	for playerId = 1,8 do
-		for i = table.getn(SW.FireMod.BurningBuildings[playerId]), 1, -1 do
-			SW_FireMod_DamageBuilding(SW.FireMod.BurningBuildings[playerId][i]);
+	if not SW.FireMod.BurningBuildings[GetPlayer(target)][target] then
+		SW.FireMod.BurningBuildings[GetPlayer(target)][target] = {InflictedOthers=false};
+		if not SW.FireMod.ControlJob then
+			SW.FireMod.ControlJob = StartSimpleJob("SW_FireMod_ControlJob_BurnBuildings");
 		end
 	end
 end
 
-function SW_FireMod_DamageBuilding(_buildingId)
-	Message("DamageBuilding " .. _buildingId);
+function SW_FireMod_ControlJob_BurnBuildings()
+	local HP;
+	for playerId = 1,8 do
+		for buildingId, t in pairs(SW.FireMod.BurningBuildings[playerId]) do
+			HP = Logic.GetEntityHealth(buildingId)/Logic.GetEntityMaxHealth(buildingId)
+			if HP < SW.FireMod.Config.StopBurnThreshold then
+				SW.FireMod.DamageBuilding(buildingId, HP);
+			else
+				SW.FireMod.BurningBuildings[playerId][buildingId] = nil;
+			end
+		end
+	end
+end
+
+function SW.FireMod.TryInflictBuildingsInArea(_buildingId)
+	
+end
+
+function SW.FireMod.DamageBuilding(_buildingId, _HPInPercent)
+	local buildingHealth = Logic.GetEntityHealth(_buildingId);
+	local buildingMaxHealth = Logic.GetEntityMaxHealth(_buildingId);
+	
+	if _HPInPercent < SW.FireMod.Config.InflictOthersBuildingsOnBurnThreshold then
+		local inflictOtherBuilding = math.random((1-_HPInPercent)*100, 100);
+		if inflictOtherBuilding > 80 then
+			SW.FireMod.TryInflictBuildingsInArea(_buildingId);
+		end
+	end
+	
+	-- chance that a burn ticks is 50% in the beginning
+	-- the less hp the building got, the higher is the chance for a burn tick
+	local burn = math.random(_HPInPercent*100,100);
+	if burn > 50 then
+		--log("reached ".. burn .. " between ".. _HPInPercent*100 .." and 100 ");
+		return;
+	end
+	-- Damage: 1% of missing health per Tick
+	local damage = 0.01 * (buildingMaxHealth - buildingHealth);
+	--log("Burn building ".._buildingId.." with " .. damage .. " damage! MaxHealth("..buildingMaxHealth..")".." Health("..buildingHealth..")");
+	if damage < 0 then
+		damage = 0;
+	end
+	Logic.HurtEntity(_buildingId, damage);
 end
 
 
