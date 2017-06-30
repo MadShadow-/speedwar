@@ -21,11 +21,13 @@ SW.RankSystem.BuildingPoints = 10	-- Points per building destroyed
 SW.RankSystem.Points = {} --Key: PlayerId, Value: Current amount of points
 SW.RankSystem.Rank = {} --Key: PlayerId, Value: Current rank, 1 to 4
 SW.RankSystem.PlayerIds = {}
+SW.RankSystem.PlayerNames = {}
+SW.RankSystem.ListOfAllyIds = {}		-- ONLY LOCAL, DIFFERENT VALUES FOR DIFFERENT TEAMS!
 SW.RankSystem.RankNames = {
 	"Möchtegern",
-	"Siedler",
-	"Feldherr",
-	"Eroberer"
+	"@color:255,79,200: Siedler",
+	"@color:0,140,2: Feldherr",
+	"@color:115,209,65: Eroberer"
 }
 function SW.RankSystem.Init()
 	for i = 1, 8 do
@@ -73,9 +75,16 @@ function SW.RankSystem.InitGUI()
 	GUIUpdate_GetTeamPoints = function() end
 	local numPlayer = SW.NrOfPlayers
 	local listPlayer = SW.Players
+	for k,v in pairs(listPlayer) do
+		SW.RankSystem.PlayerNames[v] = XNetwork.GameInformation_GetLogicPlayerUserName( v)
+	end
 	--DEBUG
 	if not SW.IsMultiplayer() then
 		listPlayer = {1,3,5,8}
+		SW.RankSystem.PlayerNames[1] = "Napo"
+		SW.RankSystem.PlayerNames[3] = "Dieter"
+		SW.RankSystem.PlayerNames[5] = "Fritzl"
+		SW.RankSystem.PlayerNames[8] = "Peter Enis"
 		numPlayer = 4
 		SetFriendly(1,8)
 	end
@@ -85,7 +94,7 @@ function SW.RankSystem.InitGUI()
 	SW.RankSystem.NumPlayers = numPlayer
 	XGUIEng.ShowWidget("VCMP_Window", 1)
 	XGUIEng.ShowAllSubWidgets("VCMP_Window", 1)
-	for i = 1, numPlayer do
+	for i = 1, numPlayer do			--Prep everything
 		for j = 1, 8 do
 			XGUIEng.ShowWidget("VCMP_Team"..i.."Player"..j, 0)
 		end
@@ -94,21 +103,26 @@ function SW.RankSystem.InitGUI()
 		XGUIEng.ShowWidget("VCMP_Team"..i.."Progress", 1)
 		XGUIEng.ShowWidget("VCMP_Team"..i.."_Shade", 0)
 		XGUIEng.SetProgressBarValues("VCMP_Team"..i.."Progress", 0, 8)
-		local ColorR, ColorG, ColorB = GUI.GetPlayerColor( listPlayer[i] )
-		XGUIEng.SetMaterialColor("VCMP_Team"..i.."Progress",0,ColorR, ColorG, ColorB,200)
 	end
-	for i = numPlayer + 1, 8 do
+	for i = 1, 8 do
 		XGUIEng.ShowWidget("VCMP_Team"..i, 0)
 		XGUIEng.ShowWidget("VCMP_Team"..i.."_Shade", 0)
 	end
 	-- Basics done, now start refining
-	-- Allies can see progress, Enemies see nothing except for a name
+	-- Only show progress of allies
 	local currPlayer = GUI.GetPlayerID()
+	--Find all allies
 	for i = 1, numPlayer do
-		if listPlayer[i] == currPlayer or Logic.GetDiplomacyState( currPlayer, listPlayer[i]) == Diplomacy.Friendly then --do nothing
-		else
-			XGUIEng.ShowWidget("VCMP_Team"..i.."TechRace", 0)
+		if listPlayer[i] == currPlayer or Logic.GetDiplomacyState( currPlayer, listPlayer[i]) == Diplomacy.Friendly then
+			table.insert( SW.RankSystem.ListOfAllyIds, listPlayer[i])
 		end
+	end
+	for i = 1, table.getn(SW.RankSystem.ListOfAllyIds) do
+		XGUIEng.ShowWidget("VCMP_Team"..i, 1)
+		XGUIEng.ShowWidget("VCMP_Team"..i.."_Shade", 0)
+		local ColorR, ColorG, ColorB = GUI.GetPlayerColor( SW.RankSystem.ListOfAllyIds[i] )
+		XGUIEng.SetMaterialColor("VCMP_Team"..i.."Progress",0,ColorR, ColorG, ColorB,200)
+		XGUIEng.SetText("VCMP_Team"..i.."Name", SW.RankSystem.PlayerNames[SW.RankSystem.ListOfAllyIds[i]])
 	end
 	--[[
 	   VCMP_Window
@@ -142,11 +156,15 @@ function SW.RankSystem.InitGUI()
 	]]
 end
 function SW.RankSystem.OnRankUp( _pId)	--Gets called every time a player reaches a new rank; Currently empty
-	Message("Spieler ".._pId.." hat den Rang "..SW.RankSystem.RankNames[SW.RankSystem.Rank[_pId]].." erreicht!")
-	XGUIEng.SetProgressBarValues("VCMP_Team"..SW.RankSystem.GetGUIIdByPlayerId(_pId).."Progress", 0, 1)
+	Message("Spieler ".._pId.." hat den Rang "..SW.RankSystem.RankNames[SW.RankSystem.Rank[_pId]].." @color:255,255,255 erreicht!")
+	if SW.RankSystem.Rank[_pId] == 4 then
+		XGUIEng.SetProgressBarValues("VCMP_Team"..SW.RankSystem.GetGUIIdByPlayerId(_pId).."Progress", 1, 1)
+	else
+		XGUIEng.SetProgressBarValues("VCMP_Team"..SW.RankSystem.GetGUIIdByPlayerId(_pId).."Progress", 0, 1)
+	end
 end
 function SW.RankSystem.GetGUIIdByPlayerId(_pId)
-	for k,v in pairs(SW.RankSystem.PlayerIds) do
+	for k,v in pairs(SW.RankSystem.ListOfAllyIds) do
 		if v == _pId then
 			return k
 		end
@@ -155,7 +173,7 @@ function SW.RankSystem.GetGUIIdByPlayerId(_pId)
 end
 function SW_RankSystem_DEBUGHandOutPoints()
 	for i = 1, 8 do
-		SW.RankSystem.Points[i] = SW.RankSystem.Points[i] + 5*i
+		SW.RankSystem.Points[i] = SW.RankSystem.Points[i] + i
 		SW.RankSystem.UpdatePlayer( i)
 	end
 end

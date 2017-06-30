@@ -508,7 +508,7 @@ function SW.BuildingTooltipsInit()			--Has to be called via Debugger! Not starte
 		end
 	end
 	SW.BuildingTooltips.InitWatch()
-	Tools.GiveResouces( 1, 5000, 5000, 5000, 5000, 5000, 5000)
+	-- Tools.GiveResouces( 1, 5000, 5000, 5000, 5000, 5000, 5000)
 	SW.BuildingTooltips.FixMilitaryUpgradeButtons()
 	SW.BuildingTooltips.FixNeededBuilding()
 end

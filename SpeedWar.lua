@@ -419,12 +419,17 @@ end
 
 --			OUTPOSTS
 --HelperFunc: Get number of current outposts( finished & in construction)
+-- This function causes random crashes, then stops to cause random crashes
+-- WHYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY?
 function SW.GetNumberOfOutpostsOfPlayer( _player)
-	local x = 0;
-	for eID in S5Hook.EntityIterator(Predicate.OfPlayer(_player), Predicate.OfType(Entities.PB_Outpost1)) do
-		x=x+1;
-	end
-	return x;
+	--LuaDebugger.Log("".._player)
+	return Logic.GetNumberOfEntitiesOfTypeOfPlayer( _player, Entities.PB_Outpost1)
+	--Unstable cause of unknown reasons?
+	--local x = 0;
+	--for eID in S5Hook.EntityIterator(Predicate.OfPlayer(_player), Predicate.OfType(Entities.PB_Outpost1)) do
+	--	x=x+1;
+	--end
+	--return x;
 end
 --HelperFunc: Get cost of next outpost for player
 --optional: _modifier, reduces num of outposts used in calculation
