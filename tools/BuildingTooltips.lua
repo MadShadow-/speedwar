@@ -619,6 +619,10 @@ function SW.BuildingTooltips.ChangeGUI()
 	--Start with building tech tree
 	SW.BuildingTooltips.GUITooltip_ConstructBuilding = GUITooltip_ConstructBuilding
 	GUITooltip_ConstructBuilding = function ( _uc, _tooltipStringNormal, _tooltipStringDisabled, _tech, _keyBindingString)
+		if _uc == UpgradeCategories.Outpost then
+			SW.BuildingTooltips.GUITooltip_ConstructBuilding( _uc, _tooltipStringNormal, _tooltipStringDisabled, _tech, _keyBindingString)
+			return
+		end
 		if Logic.GetTechnologyState(GUI.GetPlayerID(), _tech) == 4 then --Already teched, use original function
 			SW.BuildingTooltips.GUITooltip_ConstructBuilding( _uc, _tooltipStringNormal, _tooltipStringDisabled, _tech, _keyBindingString)
 			return
