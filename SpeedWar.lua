@@ -32,8 +32,8 @@ function GameCallback_OnGameStart()
 	-- how about some vision?
 	Display.GfxSetSetFogParams(3, 0.0, 1.0, 1, 152,172,182, 3000,19500)
 	Display.GfxSetSetFogParams(2, 0.0, 1.0, 1, 102,132,132, 0,19500)
-	
-	--ActivateDebug();
+	log = function() end;
+	ActivateDebug();
 	for i = 1, 4 do
 		Tools.GiveResouces(i, 0, 700, 500, 0, 0, 0);
 	end
@@ -107,9 +107,22 @@ function GameCallback_OnGameStart()
 end
 
 function ActivateDebug()
+	log = function(_text) LuaDebugger.Log(_text) end
+	DebugTroops = {};
+	CT = function()
+		local x,y = GUI.Debug_GetMapPositionUnderMouse();
+		table.insert(DebugTroops, Tools.CreateGroup(2, Entities.PU_LeaderSword2, 8, x, y, 100));
+		SetHostile(1,2);
+	end
+	DT = function()
+		for i = table.getn(DebugTroops), 1, -1 do
+			Tools.DestroyGroupByLeader(DebugTroops[i]);
+			table.remove(DebugTroops, i);
+		end
+	end
 	Input.KeyBindDown(Keys.Q, "SpeedUpGame()",2);
 	--Input.KeyBindDown(Keys.W, "GUI.ActivatePlaceBuildingState(UpgradeCategories.Outpost)", 2);
-	Input.KeyBindDown(Keys.E, "Framework.RestartMap()", 2);
+	Input.KeyBindDown(Keys.E, "Framework.RestartMap_Orig()", 2);
 	local g = 10000;
 	for i = 1,8 do
 		Tools.GiveResouces(i, g,g,g,g,g,g);
