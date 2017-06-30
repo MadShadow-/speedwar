@@ -24,8 +24,8 @@ SW.RankSystem.PlayerIds = {}
 SW.RankSystem.PlayerNames = {}
 SW.RankSystem.ListOfAllyIds = {}		-- ONLY LOCAL, DIFFERENT VALUES FOR DIFFERENT TEAMS!
 SW.RankSystem.RankNames = {
-	"Möchtegern",
-	"@color:255,79,200: Siedler",
+	"Siedler",
+	"@color:255,79,200: Krieger",
 	"@color:0,140,2: Feldherr",
 	"@color:115,209,65: Eroberer"
 }
@@ -75,13 +75,17 @@ function SW.RankSystem.InitGUI()
 	GUIUpdate_GetTeamPoints = function() end
 	local numPlayer = SW.NrOfPlayers
 	local listPlayer = SW.Players
+	for i = 1, 8 do
+		SW.RankSystem.PlayerNames[i] = "Spieler "..i
+	end
 	for k,v in pairs(listPlayer) do
-		SW.RankSystem.PlayerNames[v] = XNetwork.GameInformation_GetLogicPlayerUserName( v)
+		local r,g,b = GUI.GetPlayerColor( v )
+		SW.RankSystem.PlayerNames[v] = "@color:"..r..","..g..","..b..": "..XNetwork.GameInformation_GetLogicPlayerUserName( v).." @color:255,255,255 "
 	end
 	--DEBUG
 	if not SW.IsMultiplayer() then
 		listPlayer = {1,3,5,8}
-		SW.RankSystem.PlayerNames[1] = "Napo"
+		SW.RankSystem.PlayerNames[1] = "@color:255,0,0: Napo @color:255,255,255: "
 		SW.RankSystem.PlayerNames[3] = "Dieter"
 		SW.RankSystem.PlayerNames[5] = "Fritzl"
 		SW.RankSystem.PlayerNames[8] = "Peter Enis"
@@ -156,7 +160,7 @@ function SW.RankSystem.InitGUI()
 	]]
 end
 function SW.RankSystem.OnRankUp( _pId)	--Gets called every time a player reaches a new rank; Currently empty
-	Message("Spieler ".._pId.." hat den Rang "..SW.RankSystem.RankNames[SW.RankSystem.Rank[_pId]].." @color:255,255,255 erreicht!")
+	Message("Spieler "..SW.RankSystem.PlayerNames[_pId].." hat den Rang "..SW.RankSystem.RankNames[SW.RankSystem.Rank[_pId]].." @color:255,255,255 erreicht!")
 	if SW.RankSystem.Rank[_pId] == 4 then
 		XGUIEng.SetProgressBarValues("VCMP_Team"..SW.RankSystem.GetGUIIdByPlayerId(_pId).."Progress", 1, 1)
 	else

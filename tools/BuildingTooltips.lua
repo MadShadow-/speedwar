@@ -19,8 +19,8 @@ if not SW.BuildingTooltips.GetRank then
 	SW.BuildingTooltips.GetRank = function( _pId) return SW.BuildingTooltips.GlobalRank end
 end
 SW.BuildingTooltips.RankNames = {
-	"Möchtegern",
 	"Siedler",
+	"Krieger",
 	"Feldherr",
 	"Eroberer"
 }
