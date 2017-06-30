@@ -172,7 +172,7 @@ function SW.Activate(_seed)
 	end
 	
 	SW.EnableRankSystem();
-	
+	SW.TankyHQ.Init()
 	SW.EnableStartingTechnologies();
 	-- village centers shall be removed and replaced by outposts
 	SW.EnableOutpostVCs();
@@ -419,8 +419,6 @@ end
 
 --			OUTPOSTS
 --HelperFunc: Get number of current outposts( finished & in construction)
--- This function causes random crashes, then stops to cause random crashes
--- WHYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY?
 function SW.GetNumberOfOutpostsOfPlayer( _player)
 	--LuaDebugger.Log("".._player)
 	return Logic.GetNumberOfEntitiesOfTypeOfPlayer( _player, Entities.PB_Outpost1)

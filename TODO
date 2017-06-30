@@ -22,33 +22,13 @@ DONE:
 - Überarbeitete DefeatCondition: 	- Keine Leibis, keine Outpost, keine Soldaten | TODO: OnDestroy bugged?
 					- Gebäude/Einheiten werden nicht eingeäschert bei Leave/Defeat
 					- Spieler, die das Spiel verlassen haben, verbleiben als Geisterspieler
+- Antirush: Burg verteilt Schaden auf Umgebung in der Nähe
+- Neuer TechTree implementiert, es wird Kampf benötigt, um bessere Technologien zu erhalten
+- Schnellerer Aufbau: Billigere & schnellere Gebäude, mehr StartTech
 
 -- ################################################ TODO ################################################
 
-- Antirush: Burg wird tanky durch Gebäude in Umgebung?
-- Militärupgrades hinter etwas "gaten"?
-- Schnellerer Aufbau: Mehr Technologien zu Spielstart, bessere Veredler, schneller Armee und Gebäude?
-- Flacherer Techtree, dafür "steilere" Sprünge, für die man mehr tun muss?
-
-[03.06.2017 14:26:50] Max: hm .. ich frage mich ob beim speedmod der aufbauteil komplett entfallen soll oder nicht
-[03.06.2017 14:52:52] Patrick: nönö, aufbau gehört doch dazu
-[03.06.2017 14:53:53] Max: aber der aufbau passt irgendwie noch nicht
-[03.06.2017 14:53:57] Max: der muss angepasst werden
-[03.06.2017 14:54:06] Patrick: baukosten und bauzeit sind easy
-[03.06.2017 14:54:12] Patrick: evtl ein schneller techtree?
-[03.06.2017 14:54:35] Patrick: also direkt ziegler/holzfäller und kasernen?
-[03.06.2017 14:56:38] Patrick: wobei dann auch fraglich ist, wie man die militärupgrades unterbringt
-[03.06.2017 14:56:44] Patrick: die muss man sich irgendwie verdienen
-[03.06.2017 14:57:07] Max: es geht nicht darum was easy ist sondern darum was man konkret verändern will
-[03.06.2017 14:57:16] Max: ja genau
-[03.06.2017 14:57:22] Max: das mit den militärupgrades
-[03.06.2017 14:57:26] Max: will geregelt werden
-[03.06.2017 14:57:41] Max: ka vilt auch die veredler effizienter machen
-[03.06.2017 14:57:45] Max: das man nicht mehr soviele braucht
-[03.06.2017 14:58:13] Patrick: der start mit 5 oder 6 möglichen gebäuden wirkt auch komisch
-[03.06.2017 14:58:28] Patrick: effizientere veredler sind easy
-[03.06.2017 14:58:29] Max: du meinst man sollte mehr mögliche gebäude haben?
-[03.06.2017 14:58:39] Patrick: mehr mögliche gebäude am anfang
+Veredler pimpen
 
 
 Mauerbau & Straßenbau:
@@ -56,12 +36,6 @@ Wenn Mauern angewählt dann GUI Menü zur Einstellung für die Positionierung de
 Range indicator mit vertex farben?
 Mauern schnell und billig
 Straßen bauen ^^ --Knackig :/ - easy af
-
-gebäude billiger:
-SW.SetConstructionCosts( _eType, _costTable)
-SW.GetConstructionCosts( _eType)
-SW.SetUpgradeCosts( _eType, _costTable)
-SW.GetUpgradeCosts( _eType)
 
 Schnellere Ausbildung, würde an den Ausbildungsgebäuden hängen, nicht am Soldatentyp:
 SW.SetRecruitingTime( _eType, _time)
@@ -74,8 +48,6 @@ Ideen, die diskutiert werden könnten:
 Kanonennerf: Eine Kanone stark, viele Kanonen schwach?
 Kanonennerf: Stark gegen Gebäude, schwach gegen Einheiten?
 Pferde ins Spiel bringen: ?
-Truppenupgrades erschweren:	Benötige Kampfstati? Silber? Freischaltung nach Zeit/Event für alle?
-TECHTREES, z.B. entscheide dich zwischen Scharfi-Dmg, Scharfi-Rüstung, Scharfi-range?
 Zahlen von Heldenfähigkeiten ändern? Headshotrange, Aurafaktoren z.B.? Veränderung im weiteren Spiel
 
 
