@@ -125,7 +125,7 @@ function ActivateDebug()
 	local g = 10000;
 	for i = 1,8 do
 		Tools.GiveResouces(i, g,g,g,g,g,g);
-		ResearchAllUniversityTechnologies(i);
+		--ResearchAllUniversityTechnologies(i);
 	end
 	Camera.ZoomSetFactorMax( 2)
 end
@@ -171,7 +171,6 @@ function SW.Activate(_seed)
 	Message("SW activated");
 	math.randomseed(_seed);
 	SW.CallbackHacks();
-	
 	-- leaders don't cost sold anymore
 	for playerId = 1,8 do
 		Logic.SetPlayerPaysLeaderFlag(playerId, 0);

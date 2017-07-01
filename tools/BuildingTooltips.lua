@@ -511,6 +511,7 @@ function SW.BuildingTooltipsInit()			--Has to be called via Debugger! Not starte
 	-- Tools.GiveResouces( 1, 5000, 5000, 5000, 5000, 5000, 5000)
 	SW.BuildingTooltips.FixMilitaryUpgradeButtons()
 	SW.BuildingTooltips.FixNeededBuilding()
+	SW.BuildingTooltips.FixBuyMilitary()
 end
 function SW.BuildingTooltips.GenerateTechNames()
 	local rawString
@@ -619,7 +620,7 @@ function SW.BuildingTooltips.ChangeGUI()
 	--Start with building tech tree
 	SW.BuildingTooltips.GUITooltip_ConstructBuilding = GUITooltip_ConstructBuilding
 	GUITooltip_ConstructBuilding = function ( _uc, _tooltipStringNormal, _tooltipStringDisabled, _tech, _keyBindingString)
-		if _uc == UpgradeCategories.Outpost then
+		if _tech == nil then
 			SW.BuildingTooltips.GUITooltip_ConstructBuilding( _uc, _tooltipStringNormal, _tooltipStringDisabled, _tech, _keyBindingString)
 			return
 		end
@@ -894,4 +895,22 @@ function SW.BuildingTooltips.FixNeededBuilding()			--Used to give the currBuildi
 		end
 	end
 end
-
+function SW.BuildingTooltips.FixBuyMilitary()
+	GUIUpdate_BuyMilitaryUnitButtons = function(_Button, _Technology, _UpgradeCategory)
+		local PlayerID = GUI.GetPlayerID()	
+		local SettlerType = Logic.GetSettlerTypeByUpgradeCategory( _UpgradeCategory, PlayerID )
+		local TechState = Logic.GetTechnologyState(PlayerID, _Technology)
+		--Unit type is interdicted
+		if TechState == 0 then	
+			XGUIEng.DisableButton(_Button,1)
+		elseif TechState == 1 then	
+				XGUIEng.DisableButton(_Button,1)
+		--Technology is enabled 
+		elseif TechState == 2 or TechState == 4 then
+			XGUIEng.DisableButton(_Button,0)
+		--Technology is in reserach ot to far in the future
+		elseif TechState == 3 or TechState == 5 then
+			XGUIEng.DisableButton(_Button,1)
+		end
+	end
+end
