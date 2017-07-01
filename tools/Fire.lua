@@ -20,9 +20,12 @@ function SW.FireMod.Init()
 	
 	-- config
 	SW.FireMod.Config = {
-		InflictBuildingOnAttackThreshold = 0.6;
+		InflictBuildingOnAttackThreshold = 0.5;
 		InflictOthersBuildingsOnBurnThreshold = 0.25;
 		StopBurnThreshold = 0.6; -- musst be >= InflictThreshold
+		InflictBuildingsRange = 2000; -- range in scm
+		DamageMissingHealthPerTick = 0.01; -- = 1% of missing health per damage tick
+		ChanceBurningBuildingInflictsOthers = 10; -- chance <10% on each tick
 	};
 	
 	-- add any entity type which should be excluded from beeing burned
@@ -37,11 +40,15 @@ function SW.FireMod.Init()
 	-- -> on each a attack - check building hp
 	
 	Trigger.RequestTrigger(Events.LOGIC_EVENT_ENTITY_HURT_ENTITY, "SW_FireMod_Condition_InflictBuilding", "SW_FireMod_Action_InflictBuilding", 1);
+	Trigger.RequestTrigger(Events.LOGIC_EVENT_WEATHER_STATE_CHANGED , "", "SW_FireMod_Action_WeatherChanged", 1);
 end
 
 function SW_FireMod_Condition_InflictBuilding()
 	local target = Event.GetEntityID2();
-	Message(Event.GetEntityID1() .. " attacked " .. target);
+	if Logic.GetWeatherState() ~= 1 then
+		-- no burning in winter and rain
+		return false;
+	end
 	if Logic.IsBuilding(target) == 0 then
 		-- only inflicht buildings
 		return false;
@@ -62,9 +69,18 @@ end
 function SW_FireMod_Action_InflictBuilding()
 	local target = Event.GetEntityID2();
 	if not SW.FireMod.BurningBuildings[GetPlayer(target)][target] then
-		SW.FireMod.BurningBuildings[GetPlayer(target)][target] = {InflictedOthers=false};
-		if not SW.FireMod.ControlJob then
+		SW.FireMod.BurningBuildings[GetPlayer(target)][target] = {InflictedOthers = false;};
+		if JobIsRunning(SW.FireMod.ControlJob) == 0 then
 			SW.FireMod.ControlJob = StartSimpleJob("SW_FireMod_ControlJob_BurnBuildings");
+		end
+	end
+end
+
+function SW_FireMod_Action_WeatherChanged()
+	if Logic.GetWeatherState() > 1 then
+		for playerId = 1,8 do
+			EndJob(SW.FireMod.ControlJob);
+			SW.FireMod.BurningBuildings[playerId] = {};
 		end
 	end
 end
@@ -84,16 +100,32 @@ function SW_FireMod_ControlJob_BurnBuildings()
 end
 
 function SW.FireMod.TryInflictBuildingsInArea(_buildingId)
-	
+	local pos = GetPosition(_buildingId);
+	local buildingMaxHealth, buildingHealth;
+	for eID in S5Hook.EntityIterator(Predicate.InCircle(pos.X, pos.Y, SW.FireMod.Config.InflictBuildingsRange), Predicate.IsBuilding()) do
+		if Logic.IsConstructionComplete(eID) == 1 and eID ~= _buildingId then
+			-- inflict a building with burn -> health less 50%
+			buildingHealth = Logic.GetEntityHealth(eID);
+			buildingMaxHealth = Logic.GetEntityMaxHealth(eID);
+			if buildingHealth/buildingMaxHealth >= 0.5 then
+				Logic.HurtEntity(eID, buildingHealth - (buildingMaxHealth/2) + 1);
+			end
+			SW.FireMod.BurningBuildings[GetPlayer(eID)][eID] = {};
+		end
+	end
 end
 
 function SW.FireMod.DamageBuilding(_buildingId, _HPInPercent)
 	local buildingHealth = Logic.GetEntityHealth(_buildingId);
 	local buildingMaxHealth = Logic.GetEntityMaxHealth(_buildingId);
 	
-	if _HPInPercent < SW.FireMod.Config.InflictOthersBuildingsOnBurnThreshold then
-		local inflictOtherBuilding = math.random((1-_HPInPercent)*100, 100);
-		if inflictOtherBuilding > 80 then
+	-- building inflicts only once -> check if inflicted already and hp below threshold
+	if not SW.FireMod.BurningBuildings[GetPlayer(_buildingId)][_buildingId].InflictedOthers and
+    _HPInPercent < SW.FireMod.Config.InflictOthersBuildingsOnBurnThreshold then
+		-- chance in percentage to inflict is given in config
+		local inflictOtherBuilding = math.random(1, 100);
+		if inflictOtherBuilding < SW.FireMod.Config.ChanceBurningBuildingInflictsOthers then
+			SW.FireMod.BurningBuildings[GetPlayer(_buildingId)][_buildingId].InflictedOthers = true;
 			SW.FireMod.TryInflictBuildingsInArea(_buildingId);
 		end
 	end
@@ -106,7 +138,7 @@ function SW.FireMod.DamageBuilding(_buildingId, _HPInPercent)
 		return;
 	end
 	-- Damage: 1% of missing health per Tick
-	local damage = 0.01 * (buildingMaxHealth - buildingHealth);
+	local damage = SW.FireMod.Config.DamageMissingHealthPerTick * (buildingMaxHealth - buildingHealth);
 	--log("Burn building ".._buildingId.." with " .. damage .. " damage! MaxHealth("..buildingMaxHealth..")".." Health("..buildingHealth..")");
 	if damage < 0 then
 		damage = 0;
