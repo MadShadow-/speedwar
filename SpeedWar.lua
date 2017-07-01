@@ -855,8 +855,10 @@ end
 function SW.PillageRewardPlayer( _eType, _pId)
 	local costTable = SW.PillageEntityTypeCost[_eType]
 	if costTable == nil then return; end
+	local stringg = "Ihr habt ein Gebäude zerstört! Ihr erhaltet "
 	for k,v in pairs( costTable) do
 		Logic.AddToPlayersGlobalResource( _pId, k, math.floor(v*SW.PillagingRate/100)) 	
+		stringg = stringg..math.floor(v*SW.PillagingRate/100).." "..k.." "
 	end
 end
 
