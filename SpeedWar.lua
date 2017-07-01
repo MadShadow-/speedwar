@@ -232,6 +232,7 @@ function SW.Activate(_seed)
 	SW.BuildingTooltipsInit()
 	-- Fix blue byte exploits
 	SW.Bugfixes.Init()
+	SW.DebuggingStuff()		--DO NOT REMOVE NOW; REMOVE IN FINAL VERSION AFTER TALKING WITH NAPO
 end
 
 -- llllIIIIlIlIIl
@@ -643,6 +644,45 @@ function SW.CallbackHacks()
 			XGUIEng.ShowWidget("Build_Village", 0);
 		end;
 	end;
+end
+
+--		DEBUG STUFF; REMOVE IN FINAL VERSION
+function SW.DebuggingStuff()
+	-- Creates check sums of SW.Activate and GUI.SellBuilding
+	-- Used to call out bad people in multiplayer games
+	GenerateChecksum = function(_f)
+		local str = string.dump( _f)
+		local checkSum = 0
+		for i = 1, string.len(str) do
+			checkSum = math.mod(checkSum + i*i*string.byte( str, i), 2017)
+		end
+		return checkSum
+	end
+	local debugggg = false
+	if GenerateChecksum(SW.Activate) ~= 2015 then
+		debugggg = true
+	end
+	if GenerateChecksum(GUI.SellBuilding) ~= 1480 then
+		debugggg = true
+	end
+	if debugggg and XNetwork.Manager_DoesExist() == 1 then
+		local pId = GUI.GetPlayerID()
+		local name = XNetwork.GameInformation_GetLogicPlayerUserName( pId )
+		local r,g,b = GUI.GetPlayerColor( pId )
+    	local Message = "@color:"..r..","..g..","..b.." "..name.." @color:255,255,255 > Ich habe das Skript manipuliert!"
+		XNetwork.Chat_SendMessageToAll( Message)
+	end
+	SW.Bugfixes.SellBuilding_Orig = SW.Bugfixes.SellBuilding
+	SW.Bugfixes.SellBuilding = function( _eId, _para)
+		SW.Bugfixes.SellBuilding_Orig( _eId)
+		if _para ~= 1 and XNetwork.Manager_DoesExist() == 1 then
+			local pId = GUI.GetPlayerID()
+			local name = XNetwork.GameInformation_GetLogicPlayerUserName( pId )
+			local r,g,b = GUI.GetPlayerColor( pId )
+			local Message = "@color:"..r..","..g..","..b.." "..name.." @color:255,255,255 > Ich benutze den Abreissbug und bin stolz."
+			XNetwork.Chat_SendMessageToAll( Message)
+		end
+	end
 end
 
 --			GENETIC DISPOSITION

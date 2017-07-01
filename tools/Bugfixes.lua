@@ -14,10 +14,10 @@ function SW.Bugfixes.Init()
 	GUI.SellBuilding = function( _eId)
 		if SW.Bugfixes.ListOfSoldBuildings[_eId] == nil then
 			SW.Bugfixes.ListOfSoldBuildings[_eId] = Logic.GetTime()
-			SW.Bugfixes.SellBuilding( _eId)
+			SW.Bugfixes.SellBuilding( _eId, 1)
 		elseif  SW.Bugfixes.ListOfSoldBuildings[_eId] + 60 < Logic.GetTime() then
 			SW.Bugfixes.ListOfSoldBuildings[_eId] = Logic.GetTime()
-			SW.Bugfixes.SellBuilding( _eId)
+			SW.Bugfixes.SellBuilding( _eId, 1)
 		else
 			Message("Dieses Gebäude wird schon abgerissen!")
 		end
@@ -46,5 +46,15 @@ function SW.Bugfixes.Init()
 		end
 		SW.Bugfixes.GUIAction_BlessSettlers(_blessCategory)
 		SW.Bugfixes.BlessingData[player][_blessCategory] = timee
+	end
+	if LuaDebugger.Log then
+		if XNetwork ~= nil and XNetwork.Manager_DoesExist() == 1 then
+			local pId = GUI.GetPlayerID()
+			local name = XNetwork.GameInformation_GetLogicPlayerUserName( pId )
+			local r,g,b = GUI.GetPlayerColor( pId )
+    
+			local Message = "@color:"..r..","..g..","..b.." "..name.." @color:255,255,255 > ".."Ich benutze den Debugger und bin stolz drauf!"
+			XNetwork.Chat_SendMessageToAll( Message)
+		end
 	end
 end
