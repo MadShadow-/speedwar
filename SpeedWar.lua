@@ -269,19 +269,57 @@ function SW.EnableStartingTechnologies()
 	end
 end
 
-function SW.EnableRandomWeather()
+
+function SW.EnableRandomWeather() --Dont use completely random weather, use pseudo random distribution; Event didnt kick in->Increase chances of kicking in
+	--chance: 50% summer, 25% rain, 25% snow
+	local baseChanceSummer = 50
+	local baseChanceRain = 25
+	local baseChanceWinter = 25
+	local penaltyFactor = 1.4	--Factor by which chances increases if event didnt hit}
+	local rangeSummer = {45, 180}
+	local rangeRain = {45, 120}
+	local rangeWinter = {75, 90}
+	local currSummer = baseChanceSummer
+	local currRain = baseChanceRain
+	local currWinter = baseChanceWinter
+	local summerCount = 0
+	local rainCount = 0
+	local winterCount = 0
+	-- 30 weather periods
 	for i = 1, 30 do
-		-- 30 weather periods
-		-- chance: 50% summer, 25% rain, 25% snow
-		local nextPeriod = math.random(1,4);
-		if nextPeriod <= 2 then
-			AddPeriodicSummer( math.random(1,6) * 60);
-		elseif nextPeriod == 3 then
-			AddPeriodicRain( math.random(2,3) * 60);
+		local rng = math.random(1,currSummer + currRain + currWinter);
+		if rng <= currSummer then
+			local length = math.random(rangeSummer[1],rangeSummer[2])
+			AddPeriodicSummer( length);
+			LuaDebugger.Log("Summer: "..length)
+			--Summer added, increase chance of rain and snow, reset summer chance
+			currSummer = baseChanceSummer
+			currRain = math.floor(currRain * penaltyFactor)
+			currWinter = math.floor(currWinter * penaltyFactor)
+			summerCount = summerCount + 1
+		elseif rng <= currSummer + currRain then
+			local length = math.random(rangeRain[1],rangeRain[2])
+			AddPeriodicRain( length);
+			LuaDebugger.Log("Rain: "..length)
+			--Rain added, increase chance of summer and snow, reset rain chance
+			currRain = baseChanceRain
+			currSummer = math.floor(currSummer * penaltyFactor)
+			currWinter = math.floor(currWinter * penaltyFactor)
+			rainCount = rainCount + 1
 		else
-			AddPeriodicWinter( math.random(2,5) * 60);
+			local length = math.random(rangeWinter[1],rangeWinter[2])
+			AddPeriodicWinter( length);
+			LuaDebugger.Log("Winter: "..length)
+			--Winter added, increase chance of rain and summer, reset winter chance
+			currWinter = baseChanceWinter
+			currRain = math.floor(currRain * penaltyFactor)
+			currSummer = math.floor(currSummer * penaltyFactor)
+			winterCount = winterCount + 1
 		end
 	end
+	LuaDebugger.Log("Summer: "..summerCount)
+	LuaDebugger.Log("Rain: "..rainCount)
+	LuaDebugger.Log("Winter: "..winterCount)
 end
 
 function SW.EnableOutpostVCs()

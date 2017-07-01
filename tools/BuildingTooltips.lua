@@ -226,6 +226,9 @@ SW.BuildingTooltips.RData = { --Data for research tooltips
 	}
 } 
 SW.BuildingTooltips.UData = { --Data for research tooltips
+	[Technologies.UP1_Farm] = {
+		Techs = {Technologies.GT_Construction},
+	},
 	[Technologies.UP1_Stables] = {		--Give stable upgrade on tier 3 for free
 		Tier = 3,
 	},
@@ -366,7 +369,11 @@ SW.BuildingTooltips.TooltipsUpgradeRaw = {
 	["MenuAlchemist/UpgradeAlchemist1_"] = Technologies.UP1_Alchemist,
 	["MenuBlacksmith/UpgradeBlacksmith1_"] = Technologies.UP1_Blacksmith,
 	["MenuBlacksmith/UpgradeBlacksmith2_"] = Technologies.UP2_Blacksmith,
-	["MenuStonemason/UpgradeStonemason1_"] = Technologies.UP1_StoneMason
+	["MenuStonemason/UpgradeStonemason1_"] = Technologies.UP1_StoneMason,
+	["MenuResidence/UpgradeResidence1_"] = Technologies.UP1_Residence,
+	["MenuResidence/UpgradeResidence2_"] = Technologies.UP2_Residence,
+	["MenuFarmX/UpgradeFarm1_"] = Technologies.UP1_Farm,
+	["MenuFarmX/UpgradeFarm2_"] = Technologies.UP2_Farm
 }
 --[[		--Not necessary anymore
 --GUITooltip_ConstructBuilding, second and third arg
@@ -513,6 +520,9 @@ function SW.BuildingTooltipsInit()			--Has to be called via Debugger! Not starte
 	SW.BuildingTooltips.FixNeededBuilding()
 	SW.BuildingTooltips.FixBuyMilitary()
 	SW.BuildingTooltips.FixShortMessages()
+	for i = 1, 10 do
+		SW_BuildingTooltips_WatchJob()
+	end
 end
 function SW.BuildingTooltips.GenerateTechNames()
 	local rawString
@@ -800,9 +810,14 @@ function SW.BuildingTooltips.IsUnlocked( _pId, _req)
 	--Check buildings on map
 	if _req.Buildings then
 		for k,v in pairs(_req.Buildings) do
-			if  Logic.GetNumberOfEntitiesOfTypeOfPlayer( _pId, v[1]) < 1 then
-				return false
+			local rdy = false
+			for eId in S5Hook.EntityIterator(Predicate.OfPlayer(_pId), Predicate.OfType(v[1])) do
+				if Logic.IsConstructionComplete(eId) == 1 then
+					rdy = true
+					break
+				end
 			end
+			if not rdy then return false end
 		end
 	end
 	return true
@@ -917,9 +932,25 @@ function SW.BuildingTooltips.FixBuyMilitary()
 end
 function SW.BuildingTooltips.FixShortMessages()
 	--GUI.ShortMessages_ButtonUpdateInfoString
-	if true then return true end
+	--if true then return true end
+	SW.BuildingTooltips.ShortMessages_ButtonUpdateInfoString = GUI.ShortMessages_ButtonUpdateInfoString
 	GUI.ShortMessages_ButtonUpdateInfoString = function(_index)
-		LuaDebugger.Log(XGUIEng.GetText("ShortMessagesOutputWindowInfoString"))
+		--LuaDebugger.Log(XGUIEng.GetText("ShortMessagesOutputWindowInfoString"))
+		SW.BuildingTooltips.ShortMessages_ButtonUpdateInfoString( _index)
+		local text = XGUIEng.GetText("ShortMessagesOutputWindowInfoString")
+		local str1 = string.find( text, "T_")
+		local str2 = string.find( text, "B_")
+		local str3 = string.find( text, "MU_")
+		local str4 = string.find( text, "UP1_")
+		local str5 = string.find( text, "UP2_")
+		local start = str1 or str2 or str3 or str4 or str5
+		if start then
+			local techName = string.sub( text, start)
+			--LuaDebugger.Log(techName)
+			if SW.BuildingTooltips.TechNames[Technologies[techName]] then
+				XGUIEng.SetText("ShortMessagesOutputWindowInfoString", string.sub(text, 1, start-1).. SW.BuildingTooltips.TechNames[Technologies[techName]])
+			end
+		end
 	end
 
 end
