@@ -664,16 +664,16 @@ function SW_OnEntityDestroyedMR()
 	local offsetX = math.random(-3,3) * 100;
 	local offsetY = math.random(-3,3) * 100;
 	local bones = math.random(1,3);
-	for i = 1, bones do
-		table.insert( SW.MortalRemainsEntitiesToPlace, {"XD_BoneHuman"..math.random(1,8), pos.X + offsetX, pos.Y + offsetY, myDegRng})
-	end
-	--[[ Gräber by mordred
+	--for i = 1, bones do
+	--	table.insert( SW.MortalRemainsEntitiesToPlace, {"XD_BoneHuman"..math.random(1,8), pos.X + offsetX, pos.Y + offsetY, myDegRng})
+	--end
+	-- Gräber by mordred
 	for k,v in pairs(SW.MortalRemainsTable) do
 		--Transform offsetX, offsetY into new offsets with rotation
 		local offsetX = myCos*v[2] - mySin*v[3]
 		local offsetY = mySin*v[2] + myCos*v[3]
 		table.insert( SW.MortalRemainsEntitiesToPlace, {v[1], pos.X + offsetX, pos.Y + offsetY, myDegRng+v[4]})
-	end --]]
+	end --
 	
 end
 function SW_JobMR()

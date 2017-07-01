@@ -512,6 +512,7 @@ function SW.BuildingTooltipsInit()			--Has to be called via Debugger! Not starte
 	SW.BuildingTooltips.FixMilitaryUpgradeButtons()
 	SW.BuildingTooltips.FixNeededBuilding()
 	SW.BuildingTooltips.FixBuyMilitary()
+	SW.BuildingTooltips.FixShortMessages()
 end
 function SW.BuildingTooltips.GenerateTechNames()
 	local rawString
@@ -913,4 +914,12 @@ function SW.BuildingTooltips.FixBuyMilitary()
 			XGUIEng.DisableButton(_Button,1)
 		end
 	end
+end
+function SW.BuildingTooltips.FixShortMessages()
+	--GUI.ShortMessages_ButtonUpdateInfoString
+	if true then return true end
+	GUI.ShortMessages_ButtonUpdateInfoString = function(_index)
+		LuaDebugger.Log(XGUIEng.GetText("ShortMessagesOutputWindowInfoString"))
+	end
+
 end
