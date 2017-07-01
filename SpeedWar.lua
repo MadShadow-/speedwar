@@ -230,6 +230,8 @@ function SW.Activate(_seed)
 	SW.FireMod.Init()
 	-- Enable tech tree
 	SW.BuildingTooltipsInit()
+	-- Fix blue byte exploits
+	SW.Bugfixes.Init()
 end
 
 -- llllIIIIlIlIIl
