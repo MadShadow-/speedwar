@@ -24,10 +24,7 @@ function GameCallback_OnGameStart()
 	end
 	
 	LocalMusic.UseSet = HIGHLANDMUSIC
-	AddPeriodicSummer( 7.3 * 60)
-	AddPeriodicRain( 0.5 * 60)
-	AddPeriodicWinter( 1.2 * 60)
-	AddPeriodicRain( 0.5 * 60)
+	AddPeriodicSummer( 2 * 60);
 	SetupHighlandWeatherGfxSet()
 	-- how about some vision?
 	Display.GfxSetSetFogParams(3, 0.0, 1.0, 1, 152,172,182, 3000,19500)
@@ -120,9 +117,11 @@ function ActivateDebug()
 			table.remove(DebugTroops, i);
 		end
 	end
+	Input.KeyBindDown(Keys.W, "CT()",2);
+	Input.KeyBindDown(Keys.E, "DT()",2);
 	Input.KeyBindDown(Keys.Q, "SpeedUpGame()",2);
 	--Input.KeyBindDown(Keys.W, "GUI.ActivatePlaceBuildingState(UpgradeCategories.Outpost)", 2);
-	Input.KeyBindDown(Keys.E, "Framework.RestartMap_Orig()", 2);
+	Input.KeyBindDown(Keys.R, "Framework.RestartMap()", 2);
 	local g = 10000;
 	for i = 1,8 do
 		Tools.GiveResouces(i, g,g,g,g,g,g);
@@ -187,6 +186,7 @@ function SW.Activate(_seed)
 	SW.EnableRankSystem();
 	SW.TankyHQ.Init()
 	SW.EnableStartingTechnologies();
+	SW.EnableRandomWeather();
 	-- village centers shall be removed and replaced by outposts
 	SW.EnableOutpostVCs();
 	-- outpostcosts increase with number of outposts
@@ -270,12 +270,17 @@ function SW.EnableStartingTechnologies()
 	end
 end
 
-function WipeThemAll()
-	if Counter.Tick2("Wipe", 150) then
-		for i = 1, 8 do
-			for eId in S5Hook.EntityIterator(Predicate.OfPlayer(i)) do
-				DestroyEntity( eId)
-			end
+function SW.EnableRandomWeather()
+	for i = 1, 30 do
+		-- 30 weather periods
+		-- chance: 50% summer, 25% rain, 25% snow
+		local nextPeriod = math.random(1,4);
+		if nextPeriod <= 2 then
+			AddPeriodicSummer( math.random(1,6) * 60);
+		elseif nextPeriod == 3 then
+			AddPeriodicRain( math.random(2,3) * 60);
+		else
+			AddPeriodicWinter( math.random(2,5) * 60);
 		end
 	end
 end
@@ -1037,7 +1042,8 @@ function SW.SetRandomSeed(_seed)
 	end]]
 end
 
-
+--[[
+	Mad[01.07.17 12:31]: causes crashes at restart, seems to happen if troops attacked a building -> disabled
 if not Framework.RestartMap_Orig then
 	Framework.RestartMap_Orig = Framework.RestartMap;
 	Framework.RestartMap = function()
@@ -1067,7 +1073,7 @@ if not Framework.CloseGame_Orig then
 		Trigger.DisableTriggerSystem( 1)
 		Framework.CloseGame_Orig();
 	end
-end
+end]]
 
 function AddTribute( _tribute )
 		assert( type( _tribute ) == "table", "Tribut muß ein Table sein" );
