@@ -860,6 +860,7 @@ function SW.PillageRewardPlayer( _eType, _pId)
 		Logic.AddToPlayersGlobalResource( _pId, k, math.floor(v*SW.PillagingRate/100)) 	
 		stringg = stringg..math.floor(v*SW.PillagingRate/100).." "..k.." "
 	end
+	Message( stringg)
 end
 
 --		DEFEAT CONDITION
