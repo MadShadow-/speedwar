@@ -9,26 +9,13 @@ SW = SW or {}
 
 -- TODO: Use actual names instead of "Team x"
 
-SW.RankSystem = {}
-SW.RankSystem.RankThresholds = {
-	50,
-	200,
-	1000
-}
-SW.RankSystem.KillPoints = 1		-- Points per settler killed
-SW.RankSystem.LosePoints = 2		-- Points per settler lost
-SW.RankSystem.BuildingPoints = 10	-- Points per building destroyed
+SW.RankSystem = SW.RankSystem or {}
+
 SW.RankSystem.Points = {} --Key: PlayerId, Value: Current amount of points
 SW.RankSystem.Rank = {} --Key: PlayerId, Value: Current rank, 1 to 4
 SW.RankSystem.PlayerIds = {}
 SW.RankSystem.PlayerNames = {}
 SW.RankSystem.ListOfAllyIds = {}		-- ONLY LOCAL, DIFFERENT VALUES FOR DIFFERENT TEAMS!
-SW.RankSystem.RankNames = {
-	"Siedler",
-	"@color:255,79,200: Krieger",
-	"@color:0,140,2: Feldherr",
-	"@color:115,209,65: Eroberer"
-}
 function SW.RankSystem.Init()
 	for i = 1, 8 do
 		SW.RankSystem.Points[i] = 0
