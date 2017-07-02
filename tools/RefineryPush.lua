@@ -38,19 +38,19 @@ SW = SW or {}
 
 SW.RefineryPush = {}
 SW.RefineryPush.Config = {		--Sets amount of ressources generated per refinery tick
-	[Entities.PB_Blacksmith1] = 50,
-	[Entities.PB_Blacksmith2] = 50,
-	[Entities.PB_Blacksmith3] = 50,
-	[Entities.PB_Brickworks1] = 50,
-	[Entities.PB_Brickworks2] = 50,
-	[Entities.PB_Sawmill1] = 75,
-	[Entities.PB_Sawmill2] = 75,
-	[Entities.PB_Alchemist1] = 15,
-	[Entities.PB_Alchemist2] = 15,
-	[Entities.PB_Bank1] = 15,
-	[Entities.PB_Bank2] = 25,
-	[Entities.PB_StoneMason1] = 25,
-	[Entities.PB_StoneMason2] = 25
+	[Entities.PB_Blacksmith1] = 4,
+	[Entities.PB_Blacksmith2] = 6,
+	[Entities.PB_Blacksmith3] = 8,
+	[Entities.PB_Brickworks1] = 4,
+	[Entities.PB_Brickworks2] = 8,
+	[Entities.PB_Sawmill1] = 6,
+	[Entities.PB_Sawmill2] = 12,
+	[Entities.PB_Alchemist1] = 4,
+	[Entities.PB_Alchemist2] = 8,
+	[Entities.PB_Bank1] = 3,
+	[Entities.PB_Bank2] = 6,
+	[Entities.PB_StoneMason1] = 4,
+	[Entities.PB_StoneMason2] = 5
 }
 SW.RefineryPush.ConfigWorker = {
 	[Entities.PU_BrickMaker] = 25,
@@ -64,18 +64,18 @@ SW.RefineryPush.ConfigWorker = {
 	[Entities.PU_Treasurer] = 25
 }
 SW.RefineryPush.ConfigMines = {
-	[Entities.PB_ClayMine1] = 10,
+	[Entities.PB_ClayMine1] = 8,
 	[Entities.PB_ClayMine2] = 10,
-	[Entities.PB_ClayMine3] = 10,
-	[Entities.PB_IronMine1] = 10,
+	[Entities.PB_ClayMine3] = 12,
+	[Entities.PB_IronMine1] = 8,
 	[Entities.PB_IronMine2] = 10,
-	[Entities.PB_IronMine3] = 10,
-	[Entities.PB_StoneMine1] = 10,
+	[Entities.PB_IronMine3] = 12,
+	[Entities.PB_StoneMine1] = 8,
 	[Entities.PB_StoneMine2] = 10,
-	[Entities.PB_StoneMine3] = 10,
-	[Entities.PB_SulfurMine1] = 10,
+	[Entities.PB_StoneMine3] = 12,
+	[Entities.PB_SulfurMine1] = 8,
 	[Entities.PB_SulfurMine2] = 10,
-	[Entities.PB_SulfurMine3] = 10
+	[Entities.PB_SulfurMine3] = 12
 }
 --S5Hook.GetRawMem(9002416)[0][16][Entities.PB_IronMine1*8+5][2][4]:SetInt(50)
 --> S5Hook.GetRawMem(9002416)[0][16][Entities.PB_IronMine1*8+5][2][0]:GetInt()

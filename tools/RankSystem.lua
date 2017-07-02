@@ -72,10 +72,12 @@ function SW.RankSystem.InitGUI()
 	--DEBUG
 	if not SW.IsMultiplayer() then
 		listPlayer = {1,3,5,8}
-		SW.RankSystem.PlayerNames[1] = "@color:255,0,0: Napo @color:255,255,255: "
+		local r,g,b = GUI.GetPlayerColor(1)
+		SW.RankSystem.PlayerNames[1] = "@color:"..r..","..g..","..b..": "..UserTool_GetPlayerName(1).." @color:255,255,255: "
 		SW.RankSystem.PlayerNames[3] = "Dieter"
 		SW.RankSystem.PlayerNames[5] = "Fritzl"
-		SW.RankSystem.PlayerNames[8] = "Peter Enis"
+		r,g,b = GUI.GetPlayerColor(8)
+		SW.RankSystem.PlayerNames[8] = "@color:"..r..","..g..","..b..": Peter Enis @color:255,255,255 "
 		numPlayer = 4
 		SetFriendly(1,8)
 		--StartSimpleJob("SW_RankSystem_DEBUGHandOutPoints")

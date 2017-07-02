@@ -232,6 +232,8 @@ function SW.Activate(_seed)
 	SW.BuildingTooltipsInit()
 	-- Fix blue byte exploits
 	SW.Bugfixes.Init()
+	-- Enable increased ressource gain
+	SW.RefineryPush.Init()
 	SW.DebuggingStuff()		--DO NOT REMOVE NOW; REMOVE IN FINAL VERSION AFTER TALKING WITH NAPO
 end
 
@@ -499,7 +501,7 @@ function SW.GetCostOfNextOutpost( _player, _modifier)
 	local factor = SW.GetCostFactorByNumOfOutposts(numOutposts);
 	local finalCosts = {};
 	for k,v in pairs(baseCosts) do
-		finalCosts[k] = math.floor(math.floor(v*factor + 0.5) / 100 + 0.5) * 100;
+		finalCosts[k] = math.floor(math.floor(v*factor + 0.5) / 50 + 0.5) * 50;
 	end
 	return finalCosts;
 end
@@ -659,10 +661,10 @@ function SW.DebuggingStuff()
 		return checkSum
 	end
 	local debugggg = false
-	if GenerateChecksum(SW.Activate) ~= 2015 then
+	if GenerateChecksum(SW.Activate) ~= 275 then
 		debugggg = true
 	end
-	if GenerateChecksum(GUI.SellBuilding) ~= 1480 then
+	if GenerateChecksum(GUI.SellBuilding) ~= 1371 then
 		debugggg = true
 	end
 	if debugggg and XNetwork.Manager_DoesExist() == 1 then
@@ -856,11 +858,37 @@ function SW.PillageRewardPlayer( _eType, _pId)
 	local costTable = SW.PillageEntityTypeCost[_eType]
 	if costTable == nil then return; end
 	local stringg = "Ihr habt ein Gebäude zerstört! Ihr erhaltet "
+	local nameTable = {
+		[ResourceType.Gold] = "Gold",
+		[ResourceType.Clay] = "Lehm",
+		[ResourceType.Wood] = "Holz",
+		[ResourceType.Stone] = "Stein",
+		[ResourceType.Iron] = "Eisen",
+		[ResourceType.Sulfur] = "Schwefel",
+	}
+	local resColor = {
+		[ResourceType.Gold] = "@color:255,215,0",
+		[ResourceType.Clay] = "@color:167,107,41",
+		[ResourceType.Wood] = "@color:86,47,14",
+		[ResourceType.Stone] = "@color:139,141,122",
+		[ResourceType.Iron] = "@color:203,205,205",
+		[ResourceType.Sulfur] = "@color:237,255,33",
+	}
+	local stringElements = {}
 	for k,v in pairs( costTable) do
-		Logic.AddToPlayersGlobalResource( _pId, k, math.floor(v*SW.PillagingRate/100)) 	
-		stringg = stringg..math.floor(v*SW.PillagingRate/100).." "..k.." "
+		local toGive = math.floor(v*SW.PillagingRate/100)
+		if toGive > 0 then
+			Logic.AddToPlayersGlobalResource( _pId, k, toGive)
+			local resName = nameTable[k] or "Unknown"
+			local resColorr = resColor[k] or ""
+			table.insert(stringElements, resColorr.." "..toGive.." "..resName.." @color:255,255,255 ")
+		end
 	end
-	Message( stringg)
+	stringg = stringg..(stringElements[1] or "")
+	for i = 2, table.getn(stringElements) do
+		stringg = stringg..", "..stringElements[i]
+	end
+	Message( stringg..".")
 end
 
 --		DEFEAT CONDITION
