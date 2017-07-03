@@ -19,7 +19,7 @@ function SW.Bugfixes.Init()
 			SW.Bugfixes.ListOfSoldBuildings[_eId] = Logic.GetTime()
 			SW.Bugfixes.SellBuilding( _eId, 1)
 		else
-			Message("Dieses Gebäude wird schon abgerissen!")
+			--Message("Dieses Gebäude wird schon abgerissen!")
 		end
 	end
 	for i = 1, 8 do
@@ -54,7 +54,7 @@ function SW.Bugfixes.Init()
 			local r,g,b = GUI.GetPlayerColor( pId )
     
 			local Message = "@color:"..r..","..g..","..b.." "..name.." @color:255,255,255 > ".."Ich benutze den Debugger und bin stolz drauf!"
-			XNetwork.Chat_SendMessageToAll( Message)
+			--XNetwork.Chat_SendMessageToAll( Message)
 		end
 	end
 end

@@ -30,7 +30,7 @@ function GameCallback_OnGameStart()
 	Display.GfxSetSetFogParams(3, 0.0, 1.0, 1, 152,172,182, 3000,19500)
 	Display.GfxSetSetFogParams(2, 0.0, 1.0, 1, 102,132,132, 0,19500)
 	log = function() end;
-	ActivateDebug();
+	--ActivateDebug();
 	for i = 1, 4 do
 		Tools.GiveResouces(i, 0, 700, 500, 0, 0, 0);
 	end
@@ -234,7 +234,7 @@ function SW.Activate(_seed)
 	SW.Bugfixes.Init()
 	-- Enable increased ressource gain
 	SW.RefineryPush.Init()
-	SW.DebuggingStuff()		--DO NOT REMOVE NOW; REMOVE IN FINAL VERSION AFTER TALKING WITH NAPO
+	--SW.DebuggingStuff()		--DO NOT REMOVE NOW; REMOVE IN FINAL VERSION AFTER TALKING WITH NAPO
 end
 
 -- llllIIIIlIlIIl
@@ -290,14 +290,12 @@ function SW.EnableRandomWeather() --Dont use completely random weather, use pseu
 	local summerCount = 0
 	local rainCount = 0
 	local winterCount = 0
-	LuaDebugger_Log = function() end
 	-- 30 weather periods
 	for i = 1, 30 do
 		local rng = math.random(1,currSummer + currRain + currWinter);
 		if rng <= currSummer then
 			local length = math.random(rangeSummer[1],rangeSummer[2])
 			AddPeriodicSummer( length);
-			LuaDebugger_Log("Summer: "..length)
 			--Summer added, increase chance of rain and snow, reset summer chance
 			currSummer = baseChanceSummer
 			currRain = math.floor(currRain * penaltyFactor)
@@ -306,7 +304,6 @@ function SW.EnableRandomWeather() --Dont use completely random weather, use pseu
 		elseif rng <= currSummer + currRain then
 			local length = math.random(rangeRain[1],rangeRain[2])
 			AddPeriodicRain( length);
-			LuaDebugger_Log("Rain: "..length)
 			--Rain added, increase chance of summer and snow, reset rain chance
 			currRain = baseChanceRain
 			currSummer = math.floor(currSummer * penaltyFactor)
@@ -315,7 +312,6 @@ function SW.EnableRandomWeather() --Dont use completely random weather, use pseu
 		else
 			local length = math.random(rangeWinter[1],rangeWinter[2])
 			AddPeriodicWinter( length);
-			LuaDebugger_Log("Winter: "..length)
 			--Winter added, increase chance of rain and summer, reset winter chance
 			currWinter = baseChanceWinter
 			currRain = math.floor(currRain * penaltyFactor)
@@ -323,9 +319,6 @@ function SW.EnableRandomWeather() --Dont use completely random weather, use pseu
 			winterCount = winterCount + 1
 		end
 	end
-	LuaDebugger_Log("Summer: "..summerCount)
-	LuaDebugger_Log("Rain: "..rainCount)
-	LuaDebugger_Log("Winter: "..winterCount)
 end
 
 function SW.EnableOutpostVCs()
