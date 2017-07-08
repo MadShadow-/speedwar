@@ -234,7 +234,10 @@ function SW.Activate(_seed)
 	SW.Bugfixes.Init()
 	-- Enable increased ressource gain
 	SW.RefineryPush.Init()
-	--SW.DebuggingStuff()		--DO NOT REMOVE NOW; REMOVE IN FINAL VERSION AFTER TALKING WITH NAPO
+	-- Just debug stuff
+	SW.DebuggingStuff()		--DO NOT REMOVE NOW; REMOVE IN FINAL VERSION AFTER TALKING WITH NAPO
+	-- Enable building walls
+	SW.Walls.Init()
 end
 
 -- llllIIIIlIlIIl
