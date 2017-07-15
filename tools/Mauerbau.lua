@@ -11,20 +11,25 @@
 -- TODO LIST:
 
 -- Change needed entity types
--- Include way to close gate
--- Catch all destroyed wall pieces without OnDestroyed-trigger ( not enough information in trigger)
--- Alter script to "see" closed gates
 -- Change model while building beautification
+
+
+-- Include way to close gate
+
+-- Catch all destroyed wall pieces without OnDestroyed-trigger ( not enough information in trigger)
+
 
 
 SW = SW or {}
 SW.Walls = {}
 SW.Walls.Walllength = 400
+SW.Walls.Walltype = Entities.XD_WallStraight
 SW.Walls.CornerSize = 50
 SW.Walls.CreateSchedule = {}
 SW.Walls.DestroySchedule = {}
 SW.Walls.DestroyedWalls = {}
 SW.Walls.OnConstructionCompleteSchedule = {}
+SW.Walls.ListOfWalls = {}	--List of all build walls to ever have existed
 function SW.Walls.Init()
 	Trigger.RequestTrigger(Events.LOGIC_EVENT_ENTITY_CREATED, "SW_Walls_OnCreatedCondition", "SW_Walls_OnCreatedAction", 1)
 	Trigger.RequestTrigger(Events.LOGIC_EVENT_ENTITY_DESTROYED, "SW_Walls_OnDestroyed", "SW-Walls-OnDestroyedAction", 1)
@@ -137,7 +142,7 @@ function SW.Walls.PlaceRepairElement( _eId)
 	end
 	local entry = SW.Walls.DestroyedWalls[targetIndex]
 	table.remove( SW.Walls.DestroyedWalls, targetIndex)
-	Logic.CreateEntity( entry.type, entry.pos.X, entry.pos.Y, entry.rot, player)
+	SW.Walls.CreateEntity( entry.type, entry.pos.X, entry.pos.Y, entry.rot, player)
 end
 function SW.Walls.PlaceNormalWall( _eId)
 	local pos = GetPosition( _eId)
@@ -156,17 +161,17 @@ function SW.Walls.PlaceNormalWall( _eId)
 	end
 	table.insert(SW.Walls.DestroySchedule, _eId)
 	if nearestCorner == 0 then --No corner found? Create wall at location
-		Logic.CreateEntity(Entities.XD_WallStraight, pos.X, pos.Y, 0, player)
-		Logic.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y-200, 0, player)
-		Logic.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y+200, 0, player)
+		SW.Walls.CreateEntity(Entities.XD_WallStraight, pos.X, pos.Y, 0, player)
+		SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y-200, 0, player)
+		SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y+200, 0, player)
 	else
 		--Corner found, search for best placement
 		local cornerPos = GetPosition( nearestCorner)
 		local newPos = SW.Walls.GetBestFit( cornerPos, pos, 400)
 		--Calculate angle between corner and proposed position
 		local angle = SW.Walls.GetAngle( newPos.X - cornerPos.X, newPos.Y - cornerPos.Y)
-		Logic.CreateEntity(Entities.XD_WallCorner, newPos.X + math.cos(math.rad(angle))*200, newPos.Y+ math.sin(math.rad(angle))*200, angle, player)
-		Logic.CreateEntity(Entities.XD_WallStraight, newPos.X, newPos.Y, angle+90, player)
+		SW.Walls.CreateEntity(Entities.XD_WallCorner, newPos.X + math.cos(math.rad(angle))*200, newPos.Y+ math.sin(math.rad(angle))*200, angle, player)
+		SW.Walls.CreateEntity(Entities.XD_WallStraight, newPos.X, newPos.Y, angle+90, player)
 	end
 end
 function SW.Walls.PlaceClosingWall( _eId)
@@ -186,9 +191,9 @@ function SW.Walls.PlaceClosingWall( _eId)
 	end
 	table.insert(SW.Walls.DestroySchedule, _eId)
 	if nearestCorner == 0 then --No corner found? Create wall at location
-		Logic.CreateEntity(Entities.XD_WallStraightGate, pos.X, pos.Y, 0, player)
-		Logic.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y-200, 0, player)
-		Logic.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y+200, 0, player)
+		SW.Walls.CreateEntity(Entities.XD_WallStraightGate, pos.X, pos.Y, 0, player)
+		SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y-200, 0, player)
+		SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y+200, 0, player)
 	else
 		--Corner found, search for nearby walls
 		local cornerPos = GetPosition( nearestCorner)
@@ -207,8 +212,8 @@ function SW.Walls.PlaceClosingWall( _eId)
 		-- Wall and corner pos found, now extrapolate data & create entities
 		-- newPos = cornerPos + (cornerPos - WallPos)
 		-- newCornerPos = cornerPos + 2(cornerPos - WallPos)
-		Logic.CreateEntity(Entities.XD_WallStraight, 2*cornerPos.X - wallPos.X, 2*cornerPos.Y - wallPos.Y, Logic.GetEntityOrientation( wallID), player)
-		Logic.CreateEntity(Entities.XD_WallCorner, 3*cornerPos.X - 2*wallPos.X, 3*cornerPos.Y - 2*wallPos.Y, 0, player)
+		SW.Walls.CreateEntity(Entities.XD_WallStraight, 2*cornerPos.X - wallPos.X, 2*cornerPos.Y - wallPos.Y, Logic.GetEntityOrientation( wallID), player)
+		SW.Walls.CreateEntity(Entities.XD_WallCorner, 3*cornerPos.X - 2*wallPos.X, 3*cornerPos.Y - 2*wallPos.Y, 0, player)
 		--Calculate angle between corner and proposed position
 		--local angle = SW.Walls.GetAngle( newPos.X - cornerPos.X, newPos.Y - cornerPos.Y)
 		--Logic.CreateEntity(Entities.XD_WallCorner, newPos.X + math.cos(math.rad(angle))*300, newPos.Y+ math.sin(math.rad(angle))*300, angle, player)
@@ -216,7 +221,9 @@ function SW.Walls.PlaceClosingWall( _eId)
 	end
 end
 function SW.Walls.GetAdjacentWalls( _pos, _player)
-	return Logic.GetPlayerEntitiesInArea( _player, Entities.XD_WallStraight, _pos.X, _pos.Y, 400, 2) + Logic.GetPlayerEntitiesInArea( _player, Entities.XD_WallStraightGate, _pos.X, _pos.Y, 600, 2)
+	return Logic.GetPlayerEntitiesInArea( _player, Entities.XD_WallStraight, _pos.X, _pos.Y, 400, 5) 
+		+ Logic.GetPlayerEntitiesInArea( _player, Entities.XD_WallStraightGate, _pos.X, _pos.Y, 600, 5)
+		+ Logic.GetPlayerEntitiesInArea( _player, Entities.XD_WallStraightGate_Closed, _pos.X, _pos.Y, 600, 5)
 end
 function SW.Walls.PlaceGate( _eId)
 	local pos = GetPosition( _eId)
@@ -235,9 +242,9 @@ function SW.Walls.PlaceGate( _eId)
 	end
 	table.insert(SW.Walls.DestroySchedule, _eId)
 	if nearestCorner == 0 then --No corner found? Create wall at location
-		Logic.CreateEntity(Entities.XD_WallStraightGate, pos.X, pos.Y, 0, player)
-		Logic.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y-300, 0, player)
-		Logic.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y+300, 0, player)
+		SW.Walls.CreateEntity(Entities.XD_WallStraightGate, pos.X, pos.Y, 0, player)
+		SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y-300, 0, player)
+		SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y+300, 0, player)
 	else
 		--Corner found, search for best placement
 		local cornerPos = GetPosition( nearestCorner)
@@ -245,14 +252,14 @@ function SW.Walls.PlaceGate( _eId)
 		--LuaDebugger.Log("X:"..newPos.X.." Y:"..newPos.Y)
 		--Calculate angle between corner and proposed position
 		local angle = SW.Walls.GetAngle( newPos.X - cornerPos.X, newPos.Y - cornerPos.Y)
-		Logic.CreateEntity(Entities.XD_WallCorner, newPos.X + math.cos(math.rad(angle))*300, newPos.Y+ math.sin(math.rad(angle))*300, angle, player)
-		Logic.CreateEntity(Entities.XD_WallStraightGate, newPos.X, newPos.Y, angle+90, player)
+		SW.Walls.CreateEntity(Entities.XD_WallCorner, newPos.X + math.cos(math.rad(angle))*300, newPos.Y+ math.sin(math.rad(angle))*300, angle, player)
+		SW.Walls.CreateEntity(Entities.XD_WallStraightGate, newPos.X, newPos.Y, angle+90, player)
 	end
 end
 function SW_Walls_Job()
 	for i = table.getn(SW.Walls.CreateSchedule), 1, -1 do
 		local entry = SW.Walls.CreateSchedule[i]
-		Logic.CreateEntity( entry[1], entry[2], entry[3], entry[4], entry[5])
+		SW.Walls.CreateEntity( entry[1], entry[2], entry[3], entry[4], entry[5])
 	end
 	SW.Walls.CreateSchedule = {}
 	for i = table.getn(SW.Walls.DestroySchedule), 1, -1 do
@@ -280,13 +287,39 @@ function SW_Walls_Job()
 		end
 	end
 end
+-- _pos is playerID
+function SW.Walls.CreateEntity( _eType, _x, _y, _rot, _pos)
+	if _eType == Entities.XD_WallCorner then	--Place real corner, hide it with model, create fake corner
+		local eId = Logic.CreateEntity( _eType, _x, _y, _rot, _pos)
+		Logic.SetModelAndAnimSet( eId, Models.XD_Rock1)
+		MakeInvulnerable( eId)
+		local pos = GetPosition( eId)
+		local eId2 = Logic.CreateEntity( Entities.XD_CoordinateEntity, pos.X, pos.Y, _rot, _pos)
+		Logic.SetModelAndAnimSet( eId2, Models.XD_WallCorner)
+	else
+		local eId = Logic.CreateEntity( _eType, _x, _y, _rot, _pos)
+		SW.Walls.ListOfWalls[eId] = {type = _eType, X = _x, Y = _y, rot = _rot, pId = _pos}
+	end
+end
 function SW.Walls.MessForPlayer( _message, _pId)
 	local controlled = GUI.GetPlayerID()
 	if controlled == _pId then
 		Message( _message)
 	end
 end
-		--if _eType == Entities.PB_Beautification04  then
+function SW.Walls.Round(_value, _factor)
+	_factor = _factor or 1
+	_value = _value / _factor
+    local f = math.floor(_value);
+	local t = _value - f
+    if t > 0.5 then
+        return math.ceil(_value)*_factor;
+    else
+        return f*_factor;
+    end
+end	
+
+	--if _eType == Entities.PB_Beautification04  then
 		--	Logic.SetModelAndAnimSet(_eId,Models.XD_WallStraight)
 		--elseif _eType == Entities.PB_Beautification01  then
 		--	Logic.SetModelAndAnimSet(_eId,Models.XD_WallStraightGate)
