@@ -30,7 +30,7 @@ function GameCallback_OnGameStart()
 	Display.GfxSetSetFogParams(3, 0.0, 1.0, 1, 152,172,182, 3000,19500)
 	Display.GfxSetSetFogParams(2, 0.0, 1.0, 1, 102,132,132, 0,19500)
 	log = function() end;
-	--ActivateDebug();
+	ActivateDebug();
 	for i = 1, 4 do
 		Tools.GiveResouces(i, 0, 700, 500, 0, 0, 0);
 	end
@@ -59,6 +59,7 @@ function GameCallback_OnGameStart()
 
 	SW.SetupMPLogic();
 	Sync.Init();
+	SW.WallGUI.Init();
 
 
 	local ret = InstallS5Hook();
@@ -66,6 +67,8 @@ function GameCallback_OnGameStart()
 	if (ret) then
 		SW.OnS5HookLoaded();
 	end;
+	
+	S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml")
 	
 	SW.IsActivated = false;
 	
@@ -332,7 +335,7 @@ function SW.EnableOutpostVCs()
 	--Message("EnableOutpostVCs");
 	--Blende VC-Button bei Leibis aus, schiebe Outpost-Button rüber und zeige an
 	XGUIEng.ShowWidget("Build_Village", 0);
-	XGUIEng.ShowWidget("Build_Outpost", 1);
+	--XGUIEng.ShowWidget("Build_Outpost", 1); -- handled now by WallGUI.lua
 	--XGUIEng.SetWidgetPosition("Build_Outpost", 112, 4);
 	XGUIEng.SetWidgetPosition("Build_Outpost", S5Hook.GetWidgetPosition(XGUIEng.GetWidgetID("Build_Village")));
 
@@ -1073,8 +1076,12 @@ end
 function SW.RandomPosForPlayer(_player)
 	local success = false
 	local positions = {
-		{ X = 4000, Y = 18000 };
-		{ X = 22000, Y = 6000 };
+		-- SW Wooden:
+		--{ X = 4000, Y = 18000 };
+		--{ X = 22000, Y = 6000 };
+		-- SW Meadow:
+		{ X = 44000, Y = 18900 };
+		{ X = 50000, Y = 7700 };
 	};
 	local sectors = {};
 	local _, _, sector;
