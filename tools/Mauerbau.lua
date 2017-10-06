@@ -190,6 +190,7 @@ function SW_Walls_OnDestroyedAction()
 	SW.Walls.OnWallDestroyed(eId)
 end
 function SW.Walls.OnConstructionComplete( _eId, _type)
+	if true then return end
 	if _type == Entities.PB_Beautification06 then
 		SW.Walls.PlaceNormalWall( _eId)
 	elseif _type == Entities.PB_Beautification02 then

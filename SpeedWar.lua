@@ -1078,11 +1078,11 @@ function SW.RandomPosForPlayer(_player)
 	local success = false
 	local positions = {
 		-- SW Wooden:
-		--{ X = 4000, Y = 18000 };
-		--{ X = 22000, Y = 6000 };
+		{ X = 4000, Y = 18000 };
+		{ X = 22000, Y = 6000 };
 		-- SW Meadow:
-		{ X = 44000, Y = 18900 };
-		{ X = 50000, Y = 7700 };
+		--{ X = 44000, Y = 18900 };
+		--{ X = 50000, Y = 7700 };
 	};
 	local sectors = {};
 	local _, _, sector;

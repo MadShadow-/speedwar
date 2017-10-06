@@ -263,7 +263,20 @@ function SW.WallGUI.CreateWall(_entityType, _position, _playerId)
 	-- not part of the GUI anymore
 	-- this is the logic part
 	-- to be continued by napo
-	Logic.CreateEntity(_entityType, _position.X, _position.Y, 0, _playerId);
+	
+	--NOW IS NAPO TIME
+	--FEAR ME
+	local dummyId = Logic.CreateEntity( Entities.XD_ScriptEntity, _position.X, _position.Y, 0, _playerId)
+	if _entityType == Entities.XD_WallStraight then
+		SW.Walls.PlaceNormalWall( dummyId)
+	elseif _entityType == Entities.XD_WallStraightGate then
+		SW.Walls.PlaceGate( dummyId)
+	elseif _entityType == Entities.XD_WallDistorted then
+		SW.Walls.PlaceClosingWall( dummyId)
+	elseif _entityType == Entities.PB_Beautification10 then
+		SW.Walls.PlaceRepairElement( dummyId)
+	end
+	--Logic.CreateEntity(_entityType, _position.X, _position.Y, 0, _playerId);
 end
 
 function SW.WallGUI.EntityType_SetDisplayModel(_entityType, _model)
