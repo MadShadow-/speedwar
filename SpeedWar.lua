@@ -104,6 +104,7 @@ function GameCallback_OnGameStart()
 			StartSimpleJob("SW_Iks");
 		end
 	end
+	Camera.ZoomSetFactorMax( 2)
 end
 
 function ActivateDebug()
