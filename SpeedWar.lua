@@ -53,22 +53,32 @@ function GameCallback_OnGameStart()
 	
 	Script.LoadFolder("maps\\user\\speedwar\\config");
 	Script.LoadFolder("maps\\user\\speedwar\\tools");
-
-
 	
-
 	SW.SetupMPLogic();
 	Sync.Init();
-	SW.WallGUI.Init();
-
+	
+	SW.RotFlipBack = 0;
+	Camera.RotSetFlipBack(0);
+	SW.ToggleRotFlipBack = function()
+		Message("Pessed");
+		SW.RotFlipBack = 1 - SW.RotFlipBack;
+		Camera.RotSetFlipBack(SW.RotFlipBack)
+	end
 
 	local ret = InstallS5Hook();
 
 	if (ret) then
 		SW.OnS5HookLoaded();
 	end;
+
+	-- für alle custom names die wir brauchen - wird von WallGUI verwendet
+	SW.CustomNames = {
+	};
+	S5Hook.SetCustomNames(SW.CustomNames);
 	
 	S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml")
+	
+	SW.WallGUI.Init();
 	
 	SW.IsActivated = false;
 	
@@ -231,7 +241,7 @@ function SW.Activate(_seed)
 	SW.EnableSellBuildingFix()
 	--StartSimpleJob("WipeThemAll")
 	-- Activate Fire
-	SW.FireMod.Init()
+	--SW.FireMod.Init()
 	-- Enable tech tree
 	SW.BuildingTooltipsInit()
 	-- Fix blue byte exploits
@@ -285,7 +295,7 @@ end
 function SW.EnableRandomWeather() --Dont use completely random weather, use pseudo random distribution; Event didnt kick in->Increase chances of kicking in
 	-- HOOK TIME
 	SW.EnableRandomWeatherNEW()
-	return true
+	if true then return end
 	--chance: 50% summer, 25% rain, 25% snow
 	local baseChanceSummer = 50
 	local baseChanceRain = 25
@@ -421,10 +431,13 @@ function SW.EnableOutpostVCs()
 	S5Hook.RemoveArchive();
 	--Message("EnableOutpostVCs");
 	--Blende VC-Button bei Leibis aus, schiebe Outpost-Button rüber und zeige an
-	XGUIEng.ShowWidget("Build_Village", 0);
-	--XGUIEng.ShowWidget("Build_Outpost", 1); -- handled now by WallGUI.lua
+	--XGUIEng.ShowWidget("Build_Village", 0);
+	XGUIEng.ShowWidget("SWBuildOutpost", 0);
+	XGUIEng.ShowWidget("Build_Outpost", 1); -- handled now by WallGUI.lua
+	
 	--XGUIEng.SetWidgetPosition("Build_Outpost", 112, 4);
 	XGUIEng.SetWidgetPosition("Build_Outpost", S5Hook.GetWidgetPosition(XGUIEng.GetWidgetID("Build_Village")));
+	XGUIEng.TransferMaterials( "SWBuildOutpost", "Build_Outpost");
 
 	--[[
 		XGUIEng.DoManualButtonUpdate(gvGUI_WidgetID.InGame);
@@ -1303,3 +1316,4 @@ function AddTribute( _tribute )
 		SetupTributePaid( _tribute );
 		return _tribute.Tribute;
 end
+
