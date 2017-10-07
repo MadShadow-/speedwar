@@ -283,6 +283,9 @@ end
 
 
 function SW.EnableRandomWeather() --Dont use completely random weather, use pseudo random distribution; Event didnt kick in->Increase chances of kicking in
+	-- HOOK TIME
+	SW.EnableRandomWeatherNEW()
+	return true
 	--chance: 50% summer, 25% rain, 25% snow
 	local baseChanceSummer = 50
 	local baseChanceRain = 25
@@ -297,6 +300,10 @@ function SW.EnableRandomWeather() --Dont use completely random weather, use pseu
 	local summerCount = 0
 	local rainCount = 0
 	local winterCount = 0
+	local summerLength = 0
+	local rainLength = 0
+	local winterLength =  0
+	local debugging = true
 	-- 30 weather periods
 	for i = 1, 30 do
 		local rng = math.random(1,currSummer + currRain + currWinter);
@@ -308,6 +315,10 @@ function SW.EnableRandomWeather() --Dont use completely random weather, use pseu
 			currRain = math.floor(currRain * penaltyFactor)
 			currWinter = math.floor(currWinter * penaltyFactor)
 			summerCount = summerCount + 1
+			summerLength = summerLength + length
+			if debugging then
+				LuaDebugger.Log("Added summer of length "..length)
+			end
 		elseif rng <= currSummer + currRain then
 			local length = math.random(rangeRain[1],rangeRain[2])
 			AddPeriodicRain( length);
@@ -316,6 +327,10 @@ function SW.EnableRandomWeather() --Dont use completely random weather, use pseu
 			currSummer = math.floor(currSummer * penaltyFactor)
 			currWinter = math.floor(currWinter * penaltyFactor)
 			rainCount = rainCount + 1
+			rainLength = rainLength + length
+			if debugging then
+				LuaDebugger.Log("Added rain of length "..length)
+			end
 		else
 			local length = math.random(rangeWinter[1],rangeWinter[2])
 			AddPeriodicWinter( length);
@@ -324,8 +339,79 @@ function SW.EnableRandomWeather() --Dont use completely random weather, use pseu
 			currRain = math.floor(currRain * penaltyFactor)
 			currSummer = math.floor(currSummer * penaltyFactor)
 			winterCount = winterCount + 1
+			winterLength = winterLength + length
+			if debugging then
+				LuaDebugger.Log("Added winter of length "..length)
+			end
 		end
 	end
+	if debugging then
+		LuaDebugger.Log(summerCount.." summers with summed up length "..summerLength)
+		LuaDebugger.Log(rainCount.." rain periods with summed up length "..rainLength)
+		LuaDebugger.Log(winterCount.." winters with summed up length "..winterLength)
+	end
+end
+function SW.EnableRandomWeatherNEW()
+	-- New algorithm:
+	-- 3 weather states, always start with some summer
+	-- next weather period has to be another state
+	-- therefore 2 states are possible
+	-- decide odds by using the current total length of the remaining states
+	-- e.g. old state is rain, following statements should hold true:
+	-- totalS = 1200, totalW = 600, bCS = 50, bCW = 25 -> 2/3 summer, 1/3 winter
+	-- totalS = 1200, totalW = 400, bCS = 50, bCW = 25 -> winter should have more than 1/3 chance; 
+	-- 24-16->  factor 16/(24+16) for bCS, factor 24/(24+16) for bCW
+	-- idea: calc totalS/bCS, totalW/bCS; weight baseChances with these factors, big factor -> lower actual chance
+	-- 			aCS = bCS * totalW/bCW/(totalS/bCS+totalW/bCW) =  bCS * totalW/(totalS*bCW/bCS+totalW)
+	--chance: 50% summer, 25% rain, 25% snow
+	
+	-- CONFIG PART
+	local baseChance = {}
+	baseChance[1] = 50					--Chance summer
+	baseChance[2] = 25					--Chance rain
+	baseChance[3] = 25					--Chance winter
+	local range = {}
+	range[1] = {60, 180}				--Lower and upper limit for summer period
+	range[2] = {45, 80}					--Lower and upper limit for rain period
+	range[3] = {60, 75}					--Lower and upper limit for winter period
+	local startSummerLength = 300 		--5 minutes of starting summer
+	local numOfPeriods = 50
+	-- END OF CONFIG, DO NOT CHANGE
+	local total = {}
+	total[1] = startSummerLength		--ensure even playing field for all 3 states
+	total[2] = startSummerLength*baseChance[2]/baseChance[1]
+	total[3] = startSummerLength*baseChance[3]/baseChance[1]
+	local currentState = 1
+	SW.RandomWeatherAddElement( 1, startSummerLength)
+	for i = 2, numOfPeriods do
+		--mapping for 1->2, 2->3, 3->1
+		local stateAId = math.mod(currentState,3)+1
+		local stateBId = math.mod(stateAId,3)+1
+		local actualChanceA = baseChance[stateAId] * total[stateBId] / (total[stateAId]*baseChance[stateBId]/baseChance[stateAId] + total[stateBId])
+		local actualChanceB = baseChance[stateBId] * total[stateAId] / (total[stateBId]*baseChance[stateAId]/baseChance[stateBId] + total[stateAId])
+		local rng = math.random()*(actualChanceA+actualChanceB)
+		local finalState = 0
+		if rng < actualChanceA then		--Switch to state A
+			finalState = stateAId
+		else							--Switch to state B
+			finalState = stateBId
+		end
+		local length = range[finalState][1]+math.floor(math.random()*(range[finalState][2]-range[finalState][1]))
+		total[finalState] = total[finalState] + length
+		currentState = finalState
+		SW.RandomWeatherAddElement( finalState, length)
+	end
+	if LuaDebugger.Log then
+		LuaDebugger.Log(total[1].." "..total[2].." "..total[3])
+		local suptotal = total[1]+total[2]+total[3]
+		LuaDebugger.Log(total[1]/suptotal.." "..total[2]/suptotal.." "..total[3]/suptotal)
+	end
+end
+function SW.RandomWeatherAddElement( _stateId, _length)
+	if LuaDebugger.Log then
+		LuaDebugger.Log("Adding state ".._stateId.." with length ".._length)
+	end
+	AddWeatherElement( _length, _stateId, 1)
 end
 
 function SW.EnableOutpostVCs()

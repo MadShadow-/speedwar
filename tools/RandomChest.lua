@@ -44,7 +44,7 @@ function SW.RandomChest.GenerateChest()
 	end
 end
 function SW.RandomChest.GenerateAtPos( _x, _y)
-
+	Message("Chest at X: ".._x.." Y: ".._y)
 end
 
 
