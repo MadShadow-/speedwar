@@ -30,7 +30,7 @@ function GameCallback_OnGameStart()
 	Display.GfxSetSetFogParams(3, 0.0, 1.0, 1, 152,172,182, 3000,19500)
 	Display.GfxSetSetFogParams(2, 0.0, 1.0, 1, 102,132,132, 0,19500)
 	log = function() end;
-	ActivateDebug();
+	--ActivateDebug();
 	for i = 1, 4 do
 		Tools.GiveResouces(i, 0, 700, 500, 0, 0, 0);
 	end

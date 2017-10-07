@@ -273,12 +273,13 @@ function SW.WallGUI.Init()
 
 		local s = Logic.WorldGetSize() / 100 - 1;
 		Logic.UpdateBlocking(0, 0, s, s);
+		
+		-- update ressource costs
+		SW.WallGUI.EntityType_SetResourceCost(1, Entities.PB_Beautification12, 0);
+		SW.WallGUI.EntityType_SetResourceCost(5, Entities.PB_Beautification12, 0);
 		return true;
 	end
 	StartSimpleJob("SW_WallGUI_UpdateWallBlocking");
-	
-	SW.WallGUI.EntityType_SetResourceCost(1, Entities.PB_Beautification12, 0);
-	SW.WallGUI.EntityType_SetResourceCost(5, Entities.PB_Beautification12, 0);
 	
 	Trigger.RequestTrigger( Events.LOGIC_EVENT_ENTITY_DESTROYED, "", "SW_WallGUI_OnEntityDestroyed", 1);
 	Trigger.RequestTrigger( Events.LOGIC_EVENT_ENTITY_CREATED, "", "SW_WallGUI_OnEntityCreated", 1);
