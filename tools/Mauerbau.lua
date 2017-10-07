@@ -10,14 +10,19 @@
 
 -- TODO LIST:
 
--- Change needed entity types
--- Change model while building beautification
+-- Change algorithm for closing wall, currently not good.
+-- Better SellBuilding with smoke(and ressource return?)
 
 
--- Better use for repair elements:
+-- Better use for closing elements:
 --	Search for nearby corners
 --	Check if a gate or a wall can be placed between 2 corners
 --	If possible, place thing and stop working
+--	If not, check for the nearest corner and place a wall to continue the great wall
+
+--	Alternative: Search for corners, check all edge points for blocking and place wall in order to complete blocking?
+
+--Problem: Continuation of wall allows to build a wall through a mountain.
 
 
 SW = SW or {}
@@ -32,8 +37,8 @@ SW.Walls.OnConstructionCompleteSchedule = {}
 SW.Walls.ListOfWalls = {}	--List of all build walls to ever have existed
 SW.Walls.ListOfCorners = {}
 function SW.Walls.Init()
-	Trigger.RequestTrigger(Events.LOGIC_EVENT_ENTITY_CREATED, "SW_Walls_OnCreatedCondition", "SW_Walls_OnCreatedAction", 1)
-	SW.Walls.DestroyTriggerId = Trigger.RequestTrigger(Events.LOGIC_EVENT_ENTITY_DESTROYED, "SW_Walls_OnDestroyed", "SW_Walls_OnDestroyedAction", 1)
+	--Trigger.RequestTrigger(Events.LOGIC_EVENT_ENTITY_CREATED, "SW_Walls_OnCreatedCondition", "SW_Walls_OnCreatedAction", 1)
+	--SW.Walls.DestroyTriggerId = Trigger.RequestTrigger(Events.LOGIC_EVENT_ENTITY_DESTROYED, "SW_Walls_OnDestroyed", "SW_Walls_OnDestroyedAction", 1)
 	StartSimpleJob("SW_Walls_Job")
 	SW.Walls.GUIChanges()
 	if not SW.IsMultiplayer() then
@@ -47,7 +52,7 @@ function SW.Walls.GUIChanges()
 	SW.Walls.SellBuilding = GUI.SellBuilding
 	GUI.SellBuilding = function( _eId)
 		if SW.Walls.ListOfWalls[_eId]  then
-			Sync.Call( "DestroyEntity", _eId)
+			Sync.Call( "DestroyEntity", _eId) --TODO: use a fancier way to sell building with smoke?
 		else
 			SW.Walls.SellBuilding( _eId)
 		end
@@ -62,16 +67,34 @@ function SW.Walls.GUIChanges()
 			return
 		end
 		local typee = Logic.GetEntityType( sel)
-		if typee == Entities.PB_ClayMine1 or typee == Entities.PB_ClayMine2 or typee == Entities.PB_ClayMine3 then
-			XGUIEng.ShowWidget("Claymine", 1)
-			XGUIEng.ShowWidget("Research_PickAxe", 0)
+		--[[ Structure of GUI for Claymine
+		Claymine
+			Commands_Claymine
+				Research_PickAxe
+				Upgrade_Claymine1
+				Upgrade_Claymine2
+		]]
+		--show claymine menu on selection
+		XGUIEng.ShowWidget("Claymine", 1)
+		XGUIEng.ShowWidget("Commands_Claymine", 1)
+		XGUIEng.ShowAllSubWidgets("Commands_Claymine", 0)
+		if typee == Entities.PB_ClayMine1 then --Show only UP1
+			XGUIEng.ShowWidget("Upgrade_Claymine1", 1)
 			return
 		end
-		if typee == Entities.XD_WallStraightGate_Closed or typee == Entities.XD_WallStraightGate then
-			XGUIEng.ShowWidget("Claymine", 1)
+		if typee == Entities.PB_ClayMine2 then --Show only UP2
+			XGUIEng.ShowWidget("Upgrade_Claymine2", 1)
+			return
+		end
+		if typee == Entities.PB_ClayMine3 then --Show nothing
+			return
+		end
+		if typee == Entities.XD_WallStraightGate_Closed or typee == Entities.XD_WallStraightGate then --only show Research_PickAxe
 			XGUIEng.ShowWidget("Research_PickAxe", 1)
 			return 
 		end
+		--if there is no "return" until now, hide claymine menu
+		XGUIEng.ShowWidget("Claymine", 0)
 	end
 	SW.Walls.GUITooltip_ResearchTechnologies = GUITooltip_ResearchTechnologies
 	GUITooltip_ResearchTechnologies = function( ...)

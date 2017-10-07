@@ -58,7 +58,7 @@ SW.WallGUI.WallConstructionTooltips = {
 		"Abschlussmauer",
 		"Stehendes Heer",
 		"Erbau einer Abschlussmauer",
-		"Schließt eine Mauer am Ende ab und verhindert das eindringen von Feinden."
+		"Schließt Breschen in der Mauer und kann benutzt werden, um die Mauer in die selbe Richtung fortzusetzen."
 	},
 	{
 		"Tor",
