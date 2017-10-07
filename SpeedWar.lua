@@ -384,7 +384,7 @@ function SW.EnableRandomWeatherNEW()
 	range[1] = {60, 180}				--Lower and upper limit for summer period
 	range[2] = {45, 80}					--Lower and upper limit for rain period
 	range[3] = {60, 75}					--Lower and upper limit for winter period
-	local startSummerLength = 300 		--5 minutes of starting summer
+	local startSummerLength = 120 		--2 minutes of starting summer
 	local numOfPeriods = 50
 	-- END OF CONFIG, DO NOT CHANGE
 	local total = {}
@@ -991,7 +991,9 @@ function SW.PillageRewardPlayer( _eType, _pId)
 	for i = 2, table.getn(stringElements) do
 		stringg = stringg..", "..stringElements[i]
 	end
-	Message( stringg..".")
+	if _pId == GUI.GetPlayerID() then
+		Message( stringg..".")
+	end
 end
 
 --		DEFEAT CONDITION
@@ -1181,11 +1183,12 @@ function SW.RandomPosForPlayer(_player)
 	local success = false
 	local positions = {
 		-- SW Wooden:
-		{ X = 4000, Y = 18000 };
-		{ X = 22000, Y = 6000 };
+		--{ X = 4000, Y = 18000 };
+		--{ X = 22000, Y = 6000 };
 		-- SW Meadow:
 		--{ X = 44000, Y = 18900 };
 		--{ X = 50000, Y = 7700 };
+		{ X = 36000, Y = 28500 },
 	};
 	local sectors = {};
 	local _, _, sector;

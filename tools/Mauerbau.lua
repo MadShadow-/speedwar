@@ -38,7 +38,7 @@ SW.Walls.ListOfWalls = {}	--List of all build walls to ever have existed
 SW.Walls.ListOfCorners = {}
 function SW.Walls.Init()
 	--Trigger.RequestTrigger(Events.LOGIC_EVENT_ENTITY_CREATED, "SW_Walls_OnCreatedCondition", "SW_Walls_OnCreatedAction", 1)
-	--SW.Walls.DestroyTriggerId = Trigger.RequestTrigger(Events.LOGIC_EVENT_ENTITY_DESTROYED, "SW_Walls_OnDestroyed", "SW_Walls_OnDestroyedAction", 1)
+	SW.Walls.DestroyTriggerId = Trigger.RequestTrigger(Events.LOGIC_EVENT_ENTITY_DESTROYED, "SW_Walls_OnDestroyed", "SW_Walls_OnDestroyedAction", 1)
 	StartSimpleJob("SW_Walls_Job")
 	SW.Walls.GUIChanges()
 	if not SW.IsMultiplayer() then
@@ -164,8 +164,8 @@ end
 function SW.Walls.SearchValidPoints(x,y, _walllength)
 	local retList = {}
 	local wallLength = math.floor( _walllength/200)
-	local minn = SW.Walls.Walllength/2 - SW.Walls.CornerSize
-	local maxx = SW.Walls.Walllength/2 + SW.Walls.CornerSize
+	local minn = _walllength/2 - SW.Walls.CornerSize
+	local maxx = _walllength/2 + SW.Walls.CornerSize
 	for dx = - wallLength, wallLength do
 		for dy = -wallLength, wallLength do
 			local delta = math.sqrt(dx*dx + dy*dy)*100
@@ -488,16 +488,6 @@ function SW.Walls.IsBusy(_eId)
 	return false
 end
 function SW.Walls.PlaceClosingWallNEW( _eId)
--- Better use for closing elements:
---	Search for nearby corners
---	Check if a gate or a wall can be placed between 2 corners
---	If possible, place thing and stop working
---	If not, check for the nearest corner and place a wall to continue the great wall
-	-- First search for a place between two corners that´ll do
-	-- Length of wall/door is given, x
-	-- Corner radius is given, y
-	-- Therefore the distance d between 2 corners that may allow a wall inbetween fulfills  x-2d <= d <= x+2d
-	-- Minimum distance is 400 - 2*cornersize, max distance is 500 + 2*cornersize
 	local pos = GetPosition( _eId)
 	local player = GetPlayer( _eId)
 	local list = {}
@@ -510,7 +500,7 @@ function SW.Walls.PlaceClosingWallNEW( _eId)
 	local dis
 	local disMin = SW.Walls.Walllength - 2*SW.Walls.CornerSize
 	disMin = disMin*disMin
-	local disMax = 500 + 2*SW.Walls.CornerSize
+	local disMax = 600 + 2*SW.Walls.CornerSize
 	disMax = disMax*disMax
 	for k,v in pairs(listOfCorners) do
 		for k2,v2 in pairs(listOfCorners) do
@@ -529,29 +519,106 @@ function SW.Walls.PlaceClosingWallNEW( _eId)
 	for k,v in pairs(list) do
 		posNew, angleNew = SW.Walls.IsWallSegmentPlaceable( v[1], v[2], 400)
 		if posNew ~= nil then
-			typee = "Wall"
-			break
-		end
-		posNew, angleNew = SW.Walls.IsWallSegmentPlaceable( v[1], v[2], 500)
-		if posNew ~= nil then
-			typee = "Gate"
-			break
+			if Logic.GetEntityAtPosition( posNew.X, posNew.Y) == 0 then
+				typee = "Wall"
+				break
+			end
 		end
 	end
-	if posNew ~= nil then
-		LuaDebugger.Log("Abschlussmauer bei "..posNew.X.." "..posNew.Y.." mit Winkel "..angleNew)
+	if typee == nil then
+		for k,v in pairs(list) do
+			posNew, angleNew = SW.Walls.IsWallSegmentPlaceable( v[1], v[2], 600)
+			if posNew ~= nil then
+				if Logic.GetEntityAtPosition( posNew.X, posNew.Y) == 0 then
+					typee = "Gate"
+					break
+				end
+			end
+		end
+	end
+	if typee ~= nil then
+		SW.Walls.DbgMsg("Abschlussmauer bei "..posNew.X.." "..posNew.Y.." mit Winkel "..angleNew.." und Typ "..typee)
+		--Corners are already placed, so just place wall or gate
+		if typee == "Wall" then		-- place wall
+			return SW.Walls.CreateEntity( Entities.XD_WallStraight, posNew.X, posNew.Y, angleNew+90, player)
+		else						-- place gate
+			return SW.Walls.CreateEntity( Entities.XD_WallStraightGate, posNew.X, posNew.Y, angleNew+90, player)
+		end
 		return
 	end
+	-- END OF TRYING TO CLOSE WALL PIECE
+	--	It wasnt possible to close a missing wall piece
+	--	Now search for nearby corners with exactly 1 wall piece nearby
+	local candidate = nil
+	local dis = 5000*5000
+	for eId in S5Hook.EntityIterator(Predicate.OfPlayer( player), Predicate.OfType(Entities.XD_WallCorner), Predicate.InCircle( pos.X, pos.Y, 2000)) do
+		local pos2 = GetPosition(eId)
+		if SW.Walls.GetAdjacentWalls( pos2, player) == 1 then
+			if (pos.X-pos2.X)*(pos.X-pos2.X)+(pos.Y-pos2.Y)*(pos.Y-pos2.Y) < dis then
+				candidate = eId
+				dis = (pos.X-pos2.X)*(pos.X-pos2.X)+(pos.Y-pos2.Y)*(pos.Y-pos2.Y)
+			end
+		end
+	end
+	if candidate == nil then
+		SW.Walls.DbgMsg("Keine geeignete Ecke gefunden!")
+		return
+	end
+	-- Found a corner with exactly 1 wall nearby? BRING ME THIS WALL
+	local wallId = nil
+	local cornerPos = GetPosition(candidate)
+	local n1, possId1 = Logic.GetPlayerEntitiesInArea( player, Entities.XD_WallStraight, cornerPos.X, cornerPos.Y, 400, 5)
+	local n2, possId2 = Logic.GetPlayerEntitiesInArea( player, Entities.XD_WallStraight, cornerPos.X, cornerPos.Y, 400, 5)
+	local n3, possId3 = Logic.GetPlayerEntitiesInArea( player, Entities.XD_WallStraight, cornerPos.X, cornerPos.Y, 400, 5)
+	if n1 == 1 then wallId = possId1
+	elseif n2 == 1 then wallId = possId2
+	elseif n3 == 1 then wallId = possId3 end
+	if wallId == nil then
+		SW.Walls.DbgMsg("Found corner with 1 adjacent element, wasnt able to find element.")
+		return
+	end
+	local wallPos = GetPosition(wallId)
+	-- Wanted position: cornerPos + (cornerPos-wallPos)
+	local toPlace = SW.Walls.GetBestFit( cornerPos, {X = cornerPos.X*2-wallPos.X, Y = cornerPos.Y*2-wallPos.Y}, 400)
+	local toPlaceAngle = SW.Walls.GetAngle( toPlace.X-cornerPos.X, toPlace.Y-cornerPos.Y)
+	--Everything decided
+	SW.Walls.CreateEntity(Entities.XD_WallCorner, toPlace.X + math.cos(math.rad(toPlaceAngle))*200, toPlace.Y+ math.sin(math.rad(toPlaceAngle))*200, 0, player)
+	return SW.Walls.CreateEntity(Entities.XD_WallStraight, toPlace.X, toPlace.Y, toPlaceAngle+90, player)
 end
 function SW.Walls.IsWallSegmentPlaceable( _pos1, _pos2, _walllength)
 	-- Returns the position and rotation of a valid wall segment that´ll connect both corners
 	local retList = SW.Walls.SearchValidPoints( _pos1.X, _pos1.Y, _walllength)
-	local angle
+	local angle, tablee
+	local n, dir, length
+	local target, dis
 	for k,v in pairs(retList) do
-		angle = SW.Walls.GetAngle( _pos1.X-v.X, _pos1.Y-v.Y)
+		--direction: v-pos1
+		dir = { X = v.X - _pos1.X, Y = v.Y - _pos1.Y}
+		length = math.sqrt(dir.X*dir.X+dir.Y*dir.Y)
+		n = { X = dir.X/length*_walllength/2, Y = dir.Y/length*_walllength/2}
+		--norm it to 1: n
+		--calc v+n*walllength/2
+		target = { X = v.X + n.X, Y = v.Y + n.Y}
+		--check if close enough
+		dis = math.sqrt((target.X-_pos2.X)*(target.X-_pos2.X)+(target.Y-_pos2.Y)*(target.Y-_pos2.Y))
+		if dis <= SW.Walls.CornerSize then
+			tablee = v
+			angle = SW.Walls.GetAngle( _pos1.X-v.X, _pos1.Y-v.Y)
+			break;
+		end
 	end
 	if tablee ~= nil  then
 		return tablee, SW.Walls.GetAngle( _pos1.X-tablee.X, _pos1.Y-tablee.Y)
+	end
+end
+function SW.Walls.Test(_len)
+	for dx = -6, 6 do
+		for dy = -6, 6 do
+			local p = SW.Walls.IsWallSegmentPlaceable({X=0,Y=0}, {X = 100*dx,Y = 100*dy}, _len)
+			if p ~= nil then
+				LuaDebugger.Log("dx: "..dx.." dy: "..dy.." X "..p.X.." Y "..p.Y)
+			end
+		end
 	end
 end
 function SW.Walls.FindCommonElement( _t1, _t2)
@@ -591,3 +658,10 @@ function SW.Walls.table_equals(_t, _t2, _done)
 
     return true;
 end;
+function SW.Walls.DbgMsg(_s)
+	if LuaDebugger.Log then
+		LuaDebugger.Log(_s)
+	else
+		Message( _s)
+	end
+end

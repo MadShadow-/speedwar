@@ -420,9 +420,8 @@ function SW.WallGUI.CreateWall(_entityType, _position, _playerId)
 		newWallId = SW.Walls.PlaceGate( dummyId)
 	elseif _entityType == Entities.XD_WallDistorted then
 		newWallId = SW.Walls.PlaceClosingWall( dummyId)
-	elseif _entityType == Entities.PB_Beautification10 then
-		newWallId = SW.Walls.PlaceRepairElement( dummyId)
 	end
+	if newWallId == nil then return end
 	if SW.WallGUI.SelectedWallDestroyed then
 		GUI.SelectEntity(newWallId);
 		SW.WallGUI.SelectedWallDestroyed = false;

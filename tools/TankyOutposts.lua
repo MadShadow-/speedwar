@@ -46,12 +46,12 @@ function SW_TankyHQ_Job()
 	SW.TankyHQ.Tick()
 end
 function SW.TankyHQ.CheckDestroyedBuildings()
-	for k,v in ipairs(SW.TankyHQ.Data) do
+	for k,v in pairs(SW.TankyHQ.Data) do
 		if IsDead(k) then
 			SW.TankyHQ.Data[k] = nil
 		end
 	end
-	for k,v in ipairs(SW.TankyHQ.Data) do
+	for k,v in pairs(SW.TankyHQ.Data) do
 		for i = table.getn(v), 1, -1 do
 			if IsDead(v[i]) then
 				table.remove( v, i)
@@ -122,6 +122,7 @@ function SW.TankyHQ.SpreadDamage( _list, _toSpread, _hqId) --returns damage that
 		local maxHP = Logic.GetEntityMaxHealth(newList[index][1])
 		local toTransfer = math.min( math.floor(currHP - maxHP*SW.TankyHQ.Threshold), _toSpread - spreaded)
 		--Message(toTransfer)
+		Message(newList[index][1])
 		Logic.HurtEntity( newList[index][1], toTransfer)
 		table.insert( SW.TankyHQ.DataTransferVisualization, { start = GetPosition(newList[index][1]), target = GetPosition( _hqId), t = 0})
 		spreaded = spreaded + _toSpread
