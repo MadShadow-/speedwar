@@ -79,11 +79,15 @@ function SW.Walls.GUIChanges()
 		XGUIEng.ShowWidget("Commands_Claymine", 1)
 		XGUIEng.ShowAllSubWidgets("Commands_Claymine", 0)
 		if typee == Entities.PB_ClayMine1 then --Show only UP1
-			XGUIEng.ShowWidget("Upgrade_Claymine1", 1)
+			if not SW.Walls.IsBusy(sel) then
+				XGUIEng.ShowWidget("Upgrade_Claymine1", 1)
+			end
 			return
 		end
 		if typee == Entities.PB_ClayMine2 then --Show only UP2
-			XGUIEng.ShowWidget("Upgrade_Claymine2", 1)
+			if not SW.Walls.IsBusy(sel) then
+				XGUIEng.ShowWidget("Upgrade_Claymine2", 1)
+			end
 			return
 		end
 		if typee == Entities.PB_ClayMine3 then --Show nothing
@@ -264,9 +268,9 @@ function SW.Walls.PlaceNormalWall( _eId)
 	end
 	table.insert(SW.Walls.DestroySchedule, _eId)
 	if nearestCorner == 0 then --No corner found? Create wall at location
-		SW.Walls.CreateEntity(Entities.XD_WallStraight, pos.X, pos.Y, 0, player)
 		SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y-200, 0, player)
 		SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y+200, 0, player)
+		return SW.Walls.CreateEntity(Entities.XD_WallStraight, pos.X, pos.Y, 0, player)
 	else
 		--Corner found, search for best placement
 		local cornerPos = GetPosition( nearestCorner)
@@ -274,10 +278,14 @@ function SW.Walls.PlaceNormalWall( _eId)
 		--Calculate angle between corner and proposed position
 		local angle = SW.Walls.GetAngle( newPos.X - cornerPos.X, newPos.Y - cornerPos.Y)
 		SW.Walls.CreateEntity(Entities.XD_WallCorner, newPos.X + math.cos(math.rad(angle))*200, newPos.Y+ math.sin(math.rad(angle))*200, angle, player)
-		SW.Walls.CreateEntity(Entities.XD_WallStraight, newPos.X, newPos.Y, angle+90, player)
+		return SW.Walls.CreateEntity(Entities.XD_WallStraight, newPos.X, newPos.Y, angle+90, player)
 	end
 end
 function SW.Walls.PlaceClosingWall( _eId)
+	--New algorithm, will do for now
+	table.insert(SW.Walls.DestroySchedule, _eId)
+	return SW.Walls.PlaceClosingWallNEW( _eId)
+	--Stop now and dont use the old algorithm
 	local pos = GetPosition( _eId)
 	local player = GetPlayer( _eId)
 	--Search for nearby corners
@@ -369,9 +377,9 @@ function SW.Walls.PlaceGate( _eId)
 	end
 	table.insert(SW.Walls.DestroySchedule, _eId)
 	if nearestCorner == 0 then --No corner found? Create wall at location
-		SW.Walls.CreateEntity(Entities.XD_WallStraightGate, pos.X, pos.Y, 0, player)
 		SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y-300, 0, player)
 		SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y+300, 0, player)
+		return SW.Walls.CreateEntity(Entities.XD_WallStraightGate, pos.X, pos.Y, 0, player)
 	else
 		--Corner found, search for best placement
 		local cornerPos = GetPosition( nearestCorner)
@@ -380,7 +388,7 @@ function SW.Walls.PlaceGate( _eId)
 		--Calculate angle between corner and proposed position
 		local angle = SW.Walls.GetAngle( newPos.X - cornerPos.X, newPos.Y - cornerPos.Y)
 		SW.Walls.CreateEntity(Entities.XD_WallCorner, newPos.X + math.cos(math.rad(angle))*300, newPos.Y+ math.sin(math.rad(angle))*300, angle, player)
-		SW.Walls.CreateEntity(Entities.XD_WallStraightGate, newPos.X, newPos.Y, angle+90, player)
+		return SW.Walls.CreateEntity(Entities.XD_WallStraightGate, newPos.X, newPos.Y, angle+90, player)
 	end
 end
 function SW_Walls_Job()
@@ -470,13 +478,25 @@ function SW.Walls.Round(_value, _factor)
         return f*_factor;
     end
 end	
-
-	--if _eType == Entities.PB_Beautification04  then
-		--	Logic.SetModelAndAnimSet(_eId,Models.XD_WallStraight)
-		--elseif _eType == Entities.PB_Beautification01  then
-		--	Logic.SetModelAndAnimSet(_eId,Models.XD_WallStraightGate)
-		--elseif _eType == Entities.PB_Beautification05  then
-		--	Logic.SetModelAndAnimSet(_eId,Models.XD_DarkWallDistorted)
-		--elseif _eType == Entities.PB_Beautification03  then
-		--	Logic.SetModelAndAnimSet(_eId,Models.PB_DarkTower2)
-		--end
+function SW.Walls.IsBusy(_eId)
+	if Logic.IsConstructionComplete( _eId) == 0 then
+		return true
+	end
+	if Logic.GetRemainingUpgradeTimeForBuilding( _eId) ~= Logic.GetTotalUpgradeTimeForBuilding( _eId) then
+		return true
+	end
+	return false
+end
+function SW.Walls.PlaceClosingWallNEW( _eId)
+-- Better use for closing elements:
+--	Search for nearby corners
+--	Check if a gate or a wall can be placed between 2 corners
+--	If possible, place thing and stop working
+--	If not, check for the nearest corner and place a wall to continue the great wall
+	-- First search for a place between two corners that´ll do
+	-- Length of wall/door is given, x
+	-- Corner radius is given, y
+	-- Therefore the distance d between 2 corners that may allow a wall inbetween fulfills  x-2d <= d <= x+2d
+	local pos = GetPosition( _eId)
+	local player = GetPlayer( _eId)
+end
