@@ -284,7 +284,7 @@ end
 function SW.Walls.PlaceClosingWall( _eId)
 	--New algorithm, will do for now
 	table.insert(SW.Walls.DestroySchedule, _eId)
-	return SW.Walls.PlaceClosingWallNEW( _eId)
+	if true then return SW.Walls.PlaceClosingWallNEW( _eId) end
 	--Stop now and dont use the old algorithm
 	local pos = GetPosition( _eId)
 	local player = GetPlayer( _eId)
@@ -499,4 +499,6 @@ function SW.Walls.PlaceClosingWallNEW( _eId)
 	-- Therefore the distance d between 2 corners that may allow a wall inbetween fulfills  x-2d <= d <= x+2d
 	local pos = GetPosition( _eId)
 	local player = GetPlayer( _eId)
+	local list = {}
+	
 end
