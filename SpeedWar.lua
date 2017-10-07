@@ -661,13 +661,17 @@ function SW.DebuggingStuff()
 		return checkSum
 	end
 	local debugggg = false
-	if GenerateChecksum(SW.Activate) ~= 275 then
+	--LuaDebugger.Log(""..GenerateChecksum(SW.Activate))
+	if GenerateChecksum(SW.Activate) ~= 1489 then
 		debugggg = true
+		--LuaDebugger.Log("Activate manipuliert")
 	end
-	if GenerateChecksum(GUI.SellBuilding) ~= 1371 then
+	if GenerateChecksum(GUI.SellBuilding) ~= 1558 then
 		debugggg = true
+		--LuaDebugger.Log("SellBuilding manipuliert")
 	end
 	if debugggg and XNetwork.Manager_DoesExist() == 1 then
+	--if debugggg then
 		local pId = GUI.GetPlayerID()
 		local name = XNetwork.GameInformation_GetLogicPlayerUserName( pId )
 		local r,g,b = GUI.GetPlayerColor( pId )
