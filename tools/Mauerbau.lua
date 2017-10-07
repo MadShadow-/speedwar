@@ -497,8 +497,97 @@ function SW.Walls.PlaceClosingWallNEW( _eId)
 	-- Length of wall/door is given, x
 	-- Corner radius is given, y
 	-- Therefore the distance d between 2 corners that may allow a wall inbetween fulfills  x-2d <= d <= x+2d
+	-- Minimum distance is 400 - 2*cornersize, max distance is 500 + 2*cornersize
 	local pos = GetPosition( _eId)
 	local player = GetPlayer( _eId)
 	local list = {}
-	
+	local listOfCorners = S5Hook.EntityIteratorTableize(Predicate.OfPlayer(player), Predicate.OfType(Entities.XD_WallCorner), Predicate.InCircle( pos.X, pos.Y, 2000))
+	local listOfPos = {}
+	for k,v in pairs(listOfCorners) do
+		listOfPos[k] = GetPosition(v)
+	end
+	local delX, delY
+	local dis
+	local disMin = SW.Walls.Walllength - 2*SW.Walls.CornerSize
+	disMin = disMin*disMin
+	local disMax = 500 + 2*SW.Walls.CornerSize
+	disMax = disMax*disMax
+	for k,v in pairs(listOfCorners) do
+		for k2,v2 in pairs(listOfCorners) do
+			if k2 > k then
+				delX = listOfPos[k].X - listOfPos[k2].X
+				delY = listOfPos[k].Y - listOfPos[k2].Y
+				dis = delX*delX+delY*delY
+				if dis >= disMin and dis <= disMax then
+					table.insert( list, { listOfPos[k], listOfPos[k2]})
+				end
+			end
+		end
+	end
+	-- Found all corners in suitable distance
+	local posNew, angleNew, typee
+	for k,v in pairs(list) do
+		posNew, angleNew = SW.Walls.IsWallSegmentPlaceable( v[1], v[2], 400)
+		if posNew ~= nil then
+			typee = "Wall"
+			break
+		end
+		posNew, angleNew = SW.Walls.IsWallSegmentPlaceable( v[1], v[2], 500)
+		if posNew ~= nil then
+			typee = "Gate"
+			break
+		end
+	end
+	if posNew ~= nil then
+		LuaDebugger.Log("Abschlussmauer bei "..posNew.X.." "..posNew.Y.." mit Winkel "..angleNew)
+		return
+	end
 end
+function SW.Walls.IsWallSegmentPlaceable( _pos1, _pos2, _walllength)
+	-- Returns the position and rotation of a valid wall segment that´ll connect both corners
+	local retList = SW.Walls.SearchValidPoints( _pos1.X, _pos1.Y, _walllength)
+	local angle
+	for k,v in pairs(retList) do
+		angle = SW.Walls.GetAngle( _pos1.X-v.X, _pos1.Y-v.Y)
+	end
+	if tablee ~= nil  then
+		return tablee, SW.Walls.GetAngle( _pos1.X-tablee.X, _pos1.Y-tablee.Y)
+	end
+end
+function SW.Walls.FindCommonElement( _t1, _t2)
+	for k,v in pairs(_t1) do
+		for k2,v2 in pairs(_t2) do
+			if SW.Walls.table_equals(v, v2) then
+				return v
+			end
+		end
+	end
+end
+function SW.Walls.table_equals(_t, _t2, _done)
+
+    if not _done then
+        if not SW.Walls.table_equals(_t2,_t, true) then
+            return false;
+        end;
+    end;
+
+    for k,v in pairs(_t) do
+
+        if type(_t2[k]) == type(v) then
+
+            if type(v) == "table" then
+                if not SW.Walls.table_equals(_t2[k], v) then
+                    return false;
+                end;
+            else
+                if _t2[k] ~= v then
+                    return false;
+                end;
+            end;
+        else
+            return false;
+        end;
+    end;
+
+    return true;
+end;
