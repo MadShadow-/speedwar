@@ -8,6 +8,8 @@ SW.FasterBuildFactor = 0.8
 --If use of general factor is not wished, use this table for exceptions (= Anzahl Sekunden die 1 Leibi für den Bau benötigt)
 SW.FasterBuildConstruction = {
 	-- [Entities.PB_Residence1] = 1		--example for valid entry
+	[Entities.PB_Beautification12] = 6,
+	[Entities.PB_Tower1] = 120,
 }
 SW.FasterBuildUpgrade = {
 	[Entities.PB_Residence1] = 1		--example for valid entry

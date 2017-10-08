@@ -17,6 +17,10 @@ SW.BuildingConstructionCosts = {
 	["PB_University1"] = { [ResourceType.Wood] = 300, [ResourceType.Clay] = 400  },
 	["PB_Barracks1"] = { [ResourceType.Wood] = 200, [ResourceType.Clay] = 150  },
 	["PB_Archery1"] = { [ResourceType.Wood] = 150, [ResourceType.Clay] = 150  },
+	["PB_Tower1"] = { [ResourceType.Wood] = 250, [ResourceType.Stone] = 350  },
+	["PB_Blacksmith1"] = { [ResourceType.Clay] = 200, [ResourceType.Stone] = 150  },
+	["PB_Market1"] = { [ResourceType.Wood] = 150, [ResourceType.Clay] = 150  },
+	["PB_Monastery1"] = { [ResourceType.Wood] = 700, [ResourceType.Clay] = 550  },
 };
 
 SW.BuildingUpgradeCosts = {
