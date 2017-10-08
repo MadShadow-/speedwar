@@ -15,13 +15,13 @@ SW.BuildingTooltips.RankNames = {
 	"Eroberer"
 }
 SW.RankSystem.RankThresholds = {
-	250,
-	1500,
-	4000
+	500,
+	2000,
+	8000
 }
-SW.RankSystem.KillPoints = 1		-- Points per settler killed
-SW.RankSystem.LosePoints = 2		-- Points per settler lost
-SW.RankSystem.BuildingPoints = 10	-- Points per building destroyed
+SW.RankSystem.KillPoints = 5		-- Points per settler killed
+SW.RankSystem.LosePoints = 1		-- Points per settler lost
+SW.RankSystem.BuildingPoints = 75	-- Points per building destroyed
 SW.BuildingTooltips.BData = { --Data for new building tooltips in serf menu
 	[Technologies.B_Barracks] = {	--Barracks are allowed frome the start
 		Tier = 1,
@@ -242,5 +242,9 @@ SW.BuildingTooltips.UData = { --Data for research tooltips
 	},
 	[Technologies.UP1_Monastery] = {	--Allow lvl2 chapel on tier 2 in order to keep smiths and alchemists satisfied - Necessary?
 		Techs = {Technologies.GT_Trading},
+	},
+	[Technologies.UP1_Tower] = {
+		Tier = 3,
+		Techs = {Technologies.GT_StandingArmy}
 	}
 } 
