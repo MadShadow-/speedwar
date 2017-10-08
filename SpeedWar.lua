@@ -1211,6 +1211,7 @@ function SW.RandomPosForPlayer(_player)
 		for i = 1,table.getn(SW.RandomStartPositions) do
 			if ((SW.RandomStartPositions[i].X-ranX)^2 + (SW.RandomStartPositions[i].Y-ranY)^2) < minDistanceToNextPlayer then
 				minDistanceValid = false;
+				break;
 			end
 		end
 		_, _, sectorID = S5Hook.GetTerrainInfo( ranX, ranY);
