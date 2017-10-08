@@ -11,10 +11,10 @@ SW.WallGUI.SelectedWallDestroyed = false;
 SW.WallGUI.Costs =
 {
 	["Wall"] = {
-		[4] = 50,
+		[4] = 30,
 	},
 	["Gate"] = {
-		[4] = 75,
+		[4] = 50,
 	},
 	["EndWall"] = {
 		[3] = 100,
@@ -105,6 +105,7 @@ function SW.WallGUI.Init()
 	SW.WallGUI.GameCallback_GUI_StateChanged = GameCallback_GUI_StateChanged;
 	function GameCallback_GUI_StateChanged( _StateNameID, _Armed )
 		if SW.WallGUI.DummyPlaced then
+			Sync.Call("SW.WallGUI.PayCosts", GUI.GetPlayerID(), SW.WallGUI.Costs[SW.WallGUI.LatestWallType]);
 			Sync.Call("SW.WallGUI.AddWallInConstructionToQueue", SW.WallGUI.LatestEntity, SW.WallGUI.LatestWallType);
 			SW.WallGUI.DummyPlaced = false;
 		end
@@ -157,6 +158,7 @@ function SW.WallGUI.Init()
 		end
 		SW.WallGUI.GameCallback_GUI_SelectionChanged();
 		if type == Entities.PU_Serf then
+			XGUIEng.ShowWidget("SWBottomOverlayBeautification",0);
 			XGUIEng.ShowWidget("SWBottomOverlay", 1);
 			XGUIEng.ShowWidget("Build_Village",0);
 		elseif XGUIEng.IsWidgetShown("SWBottomOverlay") == 1 or XGUIEng.IsWidgetShown("SWBottomOverlayBeautification") == 1 then
@@ -173,113 +175,6 @@ function SW.WallGUI.Init()
 		end
 		SW.WallGUI.GUIUpdate_SelectionName();
 	end
-
-	function GetXY(mem)
-		return { X = mem[0]:GetFloat(), Y = mem[1]:GetFloat() }
-	end
-
-	function SetXY(mem, x, y)
-		mem[0]:SetFloat(x)
-		mem[1]:SetFloat(y)
-	end
-
-	function ReadX2O(base)
-		local n = 0
-		local lst = {}
-		
-		while true do
-			local typ = base[n]:GetInt() --2: direct value, 3: embedded/linked object
-			if typ == 0 then break end
-			
-			local namefield, name = base[n+1]
-			if namefield:GetInt() == 0 then
-				name = n --unnamed field
-			else
-				name = namefield:GetString()
-			end
-			
-			local pos = base[n+2]:GetInt()
-			local len = base[n+3]:GetInt()
-			local subElmDef = base[n+5]
-			local listOps = base[n+7]
-			
-			local entry = { Length = len, RelativePos = pos }
-			
-			if subElmDef:GetInt() ~= 0 then
-				entry.SubData9999 = ReadX2O(subElmDef)
-			end
-			
-			if listOps:GetInt() ~= 0 then
-				name = "ListOf__" .. name
-			end
-			
-			lst[name] = entry
-			n = n + 9
-		end
-		
-		return lst
-	end
-
-	MemList = { __index = function(t,k) return MemList[k] or t:get(k) end }
-	function MemList:new(mem, len) --len in bytes
-		bp, cp, ep = mem[1], mem[2], mem[3]
-		
-		-- (+) and (-) is not affected by DX fpu precision settings
-		-- and the difference should be small enough to fit 24Bit ;)
-		local cnt = math.floor((ep:GetInt() - bp:GetInt())/len) 
-		local cap = math.floor((ep:GetInt() - bp:GetInt())/len)
-		
-		local obj = { Length = cnt, Capacity = cap, list = mem, idxLen = len/4, listStart = bp }
-		setmetatable(obj, self)
-		return obj
-	end
-
-	function MemList:get(n) -- zero based
-		if n < self.Length then
-			return self.listStart:Offset(n * self.idxLen)
-		end
-	end
-
-	function MemList:iterate()
-		local i, count = -1, self.Length
-		return function() 
-			i = i + 1
-			if i < count then 
-				return self:get(i)
-			end
-		end
-	end
-
-	function u() Message("update Blocking");local s = Logic.WorldGetSize() / 100 - 1; Logic.UpdateBlocking(0, 0, s, s); end 
-
-	function GetLogicDef(e)
-		return S5Hook.GetRawMem(9002416)[0][16][e*8+2]
-	end
-	
-	SW_WallGUI_UpdateWallBlocking = function()
-		local def = GetLogicDef(Entities.PB_Beautification12)
-		baList = MemList:new(def:Offset(136/4), 16)
-		for subElm in baList:iterate() do
-			local pt1, pt2 = subElm, subElm:Offset(2)
-			SetXY(pt2, 1, 1)
-			SetXY(pt1, 0, 0)
-		end
-		
-		def = GetLogicDef(Entities.PB_Beautification12)
-		local tp1 = def:Offset(152/4)
-		local tp2 = def:Offset(160/4)
-		SetXY(tp1, 0, 0)
-		SetXY(tp2, 0, 0)
-
-		local s = Logic.WorldGetSize() / 100 - 1;
-		Logic.UpdateBlocking(0, 0, s, s);
-		
-		-- update ressource costs
-		SW.WallGUI.EntityType_SetResourceCost(1, Entities.PB_Beautification12, 0);
-		SW.WallGUI.EntityType_SetResourceCost(5, Entities.PB_Beautification12, 0);
-		return true;
-	end
-	StartSimpleJob("SW_WallGUI_UpdateWallBlocking");
 	
 	Trigger.RequestTrigger( Events.LOGIC_EVENT_ENTITY_DESTROYED, "", "SW_WallGUI_OnEntityDestroyed", 1);
 	Trigger.RequestTrigger( Events.LOGIC_EVENT_ENTITY_CREATED, "", "SW_WallGUI_OnEntityCreated", 1);
@@ -534,5 +429,121 @@ function SW.WallGUI.CreateCostString( _costs )
 		end
 	end
 	return costString;
+
+end
+
+
+function SW.WallGUI.PayCosts( _playerId, _costs )
+	AddGold  ( _playerId, - math.min(GetGold(),   _costs[1] or 0) );
+	AddClay  ( _playerId, - math.min(GetClay(),   _costs[2] or 0) );
+	AddWood  ( _playerId, - math.min(GetWood(),   _costs[3] or 0) );
+	AddStone ( _playerId, - math.min(GetStone(),  _costs[4] or 0) );
+	AddIron  ( _playerId, - math.min(GetIron(),   _costs[5] or 0) );
+	AddSulfur( _playerId, - math.min(GetSulfur(), _costs[6] or 0) );
+end
+
+function SW.WallGUI.PostStartEntityCostAndBlockingChanges()
+
+	function GetXY(mem)
+		return { X = mem[0]:GetFloat(), Y = mem[1]:GetFloat() }
+	end
+
+	function SetXY(mem, x, y)
+		mem[0]:SetFloat(x)
+		mem[1]:SetFloat(y)
+	end
+
+	function ReadX2O(base)
+		local n = 0
+		local lst = {}
+		
+		while true do
+			local typ = base[n]:GetInt() --2: direct value, 3: embedded/linked object
+			if typ == 0 then break end
+			
+			local namefield, name = base[n+1]
+			if namefield:GetInt() == 0 then
+				name = n --unnamed field
+			else
+				name = namefield:GetString()
+			end
+			
+			local pos = base[n+2]:GetInt()
+			local len = base[n+3]:GetInt()
+			local subElmDef = base[n+5]
+			local listOps = base[n+7]
+			
+			local entry = { Length = len, RelativePos = pos }
+			
+			if subElmDef:GetInt() ~= 0 then
+				entry.SubData9999 = ReadX2O(subElmDef)
+			end
+			
+			if listOps:GetInt() ~= 0 then
+				name = "ListOf__" .. name
+			end
+			
+			lst[name] = entry
+			n = n + 9
+		end
+		
+		return lst
+	end
+
+	MemList = { __index = function(t,k) return MemList[k] or t:get(k) end }
+	function MemList:new(mem, len) --len in bytes
+		bp, cp, ep = mem[1], mem[2], mem[3]
+		
+		-- (+) and (-) is not affected by DX fpu precision settings
+		-- and the difference should be small enough to fit 24Bit ;)
+		local cnt = math.floor((ep:GetInt() - bp:GetInt())/len) 
+		local cap = math.floor((ep:GetInt() - bp:GetInt())/len)
+		
+		local obj = { Length = cnt, Capacity = cap, list = mem, idxLen = len/4, listStart = bp }
+		setmetatable(obj, self)
+		return obj
+	end
+
+	function MemList:get(n) -- zero based
+		if n < self.Length then
+			return self.listStart:Offset(n * self.idxLen)
+		end
+	end
+
+	function MemList:iterate()
+		local i, count = -1, self.Length
+		return function() 
+			i = i + 1
+			if i < count then 
+				return self:get(i)
+			end
+		end
+	end
+
+	function GetLogicDef(e)
+		return S5Hook.GetRawMem(9002416)[0][16][e*8+2]
+	end
+	
+	-- now use all the functions above and do the actually blocking exchange
+	local def = GetLogicDef(Entities.PB_Beautification12)
+	baList = MemList:new(def:Offset(136/4), 16)
+	for subElm in baList:iterate() do
+		local pt1, pt2 = subElm, subElm:Offset(2)
+		SetXY(pt2, 1, 1)
+		SetXY(pt1, 0, 0)
+	end
+	
+	def = GetLogicDef(Entities.PB_Beautification12)
+	local tp1 = def:Offset(152/4)
+	local tp2 = def:Offset(160/4)
+	SetXY(tp1, 0, 0)
+	SetXY(tp2, 0, 0)
+
+	local s = Logic.WorldGetSize() / 100 - 1;
+	Logic.UpdateBlocking(0, 0, s, s);
+	
+	-- update ressource costs
+	SW.WallGUI.EntityType_SetResourceCost(1, Entities.PB_Beautification12, 0);
+	SW.WallGUI.EntityType_SetResourceCost(5, Entities.PB_Beautification12, 0);
 
 end

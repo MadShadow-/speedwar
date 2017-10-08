@@ -248,6 +248,8 @@ function SW.Activate(_seed)
 	SW.Bugfixes.Init()
 	-- Enable increased ressource gain
 	SW.RefineryPush.Init()
+	-- Decrease wall blocking and disable normal costs
+	SW.WallGUI.PostStartEntityCostAndBlockingChanges()
 	-- Just debug stuff
 	SW.DebuggingStuff()		--DO NOT REMOVE NOW; REMOVE IN FINAL VERSION AFTER TALKING WITH NAPO
 	-- Enable building walls
