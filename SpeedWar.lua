@@ -1159,13 +1159,12 @@ function SW.EnableSellBuildingFix()
 	end
 end
 
-
-
 function SW.IsMultiplayer()
 	return XNetworkUbiCom.Manager_DoesExist() == 1 or XNetwork.Manager_DoesExist() == 1;
 end
 
 function SW.EnableRandomStart()
+	SW.RandomStartPositions = {};
 	if SW.IsMultiplayer() then
 		local isHuman;
 		for i = 1, 8 do
@@ -1179,7 +1178,11 @@ function SW.EnableRandomStart()
 		SW.RandomPosForPlayer(1);
 	end;
 end
+
 function SW.RandomPosForPlayer(_player)
+	local div = math.min(table.getn(SW.Players), 4);
+	div = math.max(2,div); -- be > 1
+	local minDistanceToNextPlayer = (Logic.WorldGetSize() / div)^2;
 	local success = false
 	local positions = {
 		-- SW Wooden:
@@ -1188,6 +1191,7 @@ function SW.RandomPosForPlayer(_player)
 		-- SW Meadow:
 		--{ X = 44000, Y = 18900 };
 		--{ X = 50000, Y = 7700 };
+		-- SW Schlacht der Helden
 		{ X = 36000, Y = 28500 },
 	};
 	local sectors = {};
@@ -1198,20 +1202,29 @@ function SW.RandomPosForPlayer(_player)
 	end;
 	local worldSize = Logic.WorldGetSize()
 	local ranX, ranY, sectorID
-	local valid;
+	local sectorValid, minDistanceValid;
 	while not success do
 		ranX = math.random()*worldSize
 		ranY = math.random()*worldSize
+		-- falls die neue zufalls pos zu nahe an einer bestehenden start pos liegt muss neu gewürfelt werden
+		minDistanceValid = true;
+		for i = 1,table.getn(SW.RandomStartPositions) do
+			if ((SW.RandomStartPositions[i].X-ranX)^2 + (SW.RandomStartPositions[i].Y-ranY)^2) < minDistanceToNextPlayer then
+				minDistanceValid = false;
+			end
+		end
 		_, _, sectorID = S5Hook.GetTerrainInfo( ranX, ranY);
-		valid = false --invalid until proven otherwise
+		sectorValid = false --invalid until proven otherwise
 		for j = 1, table.getn(sectors) do
 			if sectors[j] == sectorID then
-				valid = true
+				sectorValid = true
 				break;
 			end
 		end
-		if valid then
+		if sectorValid and minDistanceValid then
 			success = true
+			GUI.CreateMinimapMarker(ranX,ranY,0);
+			table.insert(SW.RandomStartPositions,{X=ranX,Y=ranY});
 			for i = 1, 8 do
 				Logic.CreateEntity( Entities.PU_Serf, ranX, ranY, 0, _player)
 				if GUI.GetPlayerID() == _player then
@@ -1220,7 +1233,6 @@ function SW.RandomPosForPlayer(_player)
 			end
 		end 
 	end
-	
 end
 
 function SW.CreateHQsAndRedirectKeyBindung()
