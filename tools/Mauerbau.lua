@@ -41,11 +41,6 @@ function SW.Walls.Init()
 	SW.Walls.DestroyTriggerId = Trigger.RequestTrigger(Events.LOGIC_EVENT_ENTITY_DESTROYED, "SW_Walls_OnDestroyed", "SW_Walls_OnDestroyedAction", 1)
 	StartSimpleJob("SW_Walls_Job")
 	SW.Walls.GUIChanges()
-	if not SW.IsMultiplayer() then
-		Tools.GiveResouces(1, 10000, 10000, 10000, 10000, 10000, 10000)
-		ResearchAllUniversityTechnologies(1)
-		for i = 1, 10 do Game.GameTimeSpeedUp() end
-	end
 end
 function SW.Walls.GUIChanges()
 	-- Make walls sellable, but without ressource return

@@ -315,7 +315,7 @@ function SW.EnableRandomWeather() --Dont use completely random weather, use pseu
 	local summerLength = 0
 	local rainLength = 0
 	local winterLength =  0
-	local debugging = true
+	local debugging = false
 	-- 30 weather periods
 	for i = 1, 30 do
 		local rng = math.random(1,currSummer + currRain + currWinter);
