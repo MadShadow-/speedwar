@@ -54,7 +54,37 @@ function SW.Bugfixes.Init()
 			local r,g,b = GUI.GetPlayerColor( pId )
     
 			local Message = "@color:"..r..","..g..","..b.." "..name.." @color:255,255,255 > ".."Ich benutze den Debugger und bin stolz drauf!"
-			--XNetwork.Chat_SendMessageToAll( Message)
+			XNetwork.Chat_SendMessageToAll( Message)
+		end
+	end
+	SW.Bugfixes.FixBattleSerfBug()
+end
+SW.Bugfixes.FormationETypes = {
+	[Entities.PU_LeaderBow1] = true,
+	[Entities.PU_LeaderBow2] = true,
+	[Entities.PU_LeaderBow3] = true,
+	[Entities.PU_LeaderBow4] = true,
+	[Entities.PU_LeaderPoleArm1] = true,
+	[Entities.PU_LeaderPoleArm2] = true,
+	[Entities.PU_LeaderPoleArm3] = true,
+	[Entities.PU_LeaderPoleArm4] = true,
+	[Entities.PU_LeaderRifle1] = true,
+	[Entities.PU_LeaderRifle2] = true,
+	[Entities.PU_LeaderSword1] = true,
+	[Entities.PU_LeaderSword2] = true,
+	[Entities.PU_LeaderSword3] = true,
+	[Entities.PU_LeaderSword4] = true
+}
+function SW.Bugfixes.FixBattleSerfBug()
+	SW.Bugfixes.GameCallback_GUI_SelectionChanged = GameCallback_GUI_SelectionChanged
+	GameCallback_GUI_SelectionChanged = function()
+		-- call the real thing first
+		SW.Bugfixes.GameCallback_GUI_SelectionChanged()
+		local sel = GUI.GetSelectedEntity()
+		-- only work if an entity is selected
+		if sel == nil then return end
+		if SW.Bugfixes.FormationETypes[Logic.GetEntityType(sel)] then
+			XGUIEng.ShowWidget("Commands_Leader",1)
 		end
 	end
 end
