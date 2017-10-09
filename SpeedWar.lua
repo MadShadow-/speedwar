@@ -184,7 +184,7 @@ function SW.Activate(_seed)
 	
 	-- village centers shall be removed and replaced by outposts
 	SW.EnableOutpostVCs();
-	
+	SW.RankSystem.ApplyGUIChanges();
 	math.randomseed(_seed);
 	SW.CallbackHacks();
 	-- leaders don't cost sold anymore
