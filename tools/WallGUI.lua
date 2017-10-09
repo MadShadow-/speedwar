@@ -382,10 +382,10 @@ function SW.WallGUI.CreateEntity(_entityType, _position, _playerId)
 		elseif _entityType == Entities.XD_WallDistorted then
 			newEntityId = SW.Walls.PlaceClosingWall(dummyId);
 		end
-		-- replace surfs
+		--[[ replace surfs
 		local newPos = GetPosition(newEntityId);
 		--Logic.CreateEntity(Entities.PU_Hero3,newPos.X,newPos.Y,0,1);
-		local serfs = {Logic.GetPlayerEntitiesInArea(1, Entities.PU_Serf, newPos.X, newPos.Y, 700, 16)};
+		local serfs = {Logic.GetPlayerEntitiesInArea(_playerId, Entities.PU_Serf, newPos.X, newPos.Y, 700, 16)};
 		local pos, player, serf;
 		local selectedUnits = {GUI.GetSelectedEntities()};
 		for i = 1, table.getn(selectedUnits) do
@@ -398,7 +398,7 @@ function SW.WallGUI.CreateEntity(_entityType, _position, _playerId)
 			player = GetPlayer(serfs[i+1]);
 			if Logic.GetSector(serfs[i+1]) == 0 then
 				serf = AI.Entity_CreateFormation(player, Entities.PU_Serf, 0, 0, pos.X, pos.Y, 0, 0, 0, 0)
-				if selectedUnits[serfs[i+1]] then
+				if selectedUnits[serfs[i+1] ] then
 					table.insert(toSelect, serf);
 				end
 				DestroyEntity(serfs[i+1]);
@@ -406,7 +406,7 @@ function SW.WallGUI.CreateEntity(_entityType, _position, _playerId)
 		end
 		for i = 1, table.getn(toSelect) do
 			GUI.SelectEntity(toSelect[i]);
-		end
+		end ]]
 	end
 	if newEntityId == nil then return end
 	if SW.WallGUI.SelectedWallDestroyed then

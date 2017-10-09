@@ -30,7 +30,7 @@ function GameCallback_OnGameStart()
 	Display.GfxSetSetFogParams(3, 0.0, 1.0, 1, 152,172,182, 3000,19500)
 	Display.GfxSetSetFogParams(2, 0.0, 1.0, 1, 102,132,132, 0,19500)
 	log = function() end;
-	ActivateDebug();
+	--ActivateDebug();
 	for i = 1, 4 do
 		Tools.GiveResouces(i, 0, 700, 500, 0, 0, 0);
 	end
@@ -104,7 +104,7 @@ function GameCallback_OnGameStart()
 			function SW_Iks()
 				if Counter.Tick2("SW_Iks", 2) and not SW.NotifyingDone then
 					SW.NotifyingDone = true;
-					Message("used job for activating"); -- remove msg!
+					--Message("used job for activating"); -- remove msg!
 					Sync.Call("SW.Activate", XGUIEng.GetSystemTime());
 					return true;
 				end
@@ -181,6 +181,10 @@ function SW.Activate(_seed)
 	SW.IsActivated = true;
 	
 	Message("SW activated");
+	
+	-- village centers shall be removed and replaced by outposts
+	SW.EnableOutpostVCs();
+	
 	math.randomseed(_seed);
 	SW.CallbackHacks();
 	-- leaders don't cost sold anymore
@@ -198,8 +202,6 @@ function SW.Activate(_seed)
 	SW.TankyHQ.Init()
 	SW.EnableStartingTechnologies();
 	SW.EnableRandomWeather();
-	-- village centers shall be removed and replaced by outposts
-	SW.EnableOutpostVCs();
 	-- outpostcosts increase with number of outposts
 	SW.EnableIncreasingOutpostCosts();
 	-- Increase exploration range of all player towers
