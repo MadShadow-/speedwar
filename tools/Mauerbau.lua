@@ -120,6 +120,7 @@ function SW.Walls.GUIChanges()
 end
 function SW.Walls.ToggleGate( _eId)
 	Trigger.DisableTrigger(SW.Walls.DestroyTriggerId)
+	Message("Toggling gate ".._eId)
 	local typee = Logic.GetEntityType( _eId)
 	local selected = (GUI.GetSelectedEntity() == _eId)
 	if typee == Entities.XD_WallStraightGate then
@@ -510,28 +511,28 @@ function SW.Walls.PlaceClosingWallNEW( _eId)
 		end
 	end
 	-- Found all corners in suitable distance
-	local posNew, angleNew, typee
+	local list2 = {}
 	for k,v in pairs(list) do
+		local posNew, angleNew, typee
 		posNew, angleNew = SW.Walls.IsWallSegmentPlaceable( v[1], v[2], 400)
 		if posNew ~= nil then
 			if Logic.GetEntityAtPosition( posNew.X, posNew.Y) == 0 then
 				typee = "Wall"
-				break
+				table.insert( list2, {posNew, angleNew, typee})
+			end
+		end
+		posNew, angleNew = SW.Walls.IsWallSegmentPlaceable( v[1], v[2], 600)
+		if posNew ~= nil then
+			if Logic.GetEntityAtPosition( posNew.X, posNew.Y) == 0 then
+				typee = "Gate"
+				table.insert( list2, {posNew, angleNew, typee})
 			end
 		end
 	end
-	if typee == nil then
-		for k,v in pairs(list) do
-			posNew, angleNew = SW.Walls.IsWallSegmentPlaceable( v[1], v[2], 600)
-			if posNew ~= nil then
-				if Logic.GetEntityAtPosition( posNew.X, posNew.Y) == 0 then
-					typee = "Gate"
-					break
-				end
-			end
-		end
-	end
-	if typee ~= nil then
+	--LuaDebugger.Break()
+	local toPlace = SW.Walls.GetNearestCandidate( pos, list2)
+	if toPlace ~= nil then
+		local posNew, angleNew, typee = toPlace[1], toPlace[2], toPlace[3]
 		SW.Walls.DbgMsg("Abschlussmauer bei "..posNew.X.." "..posNew.Y.." mit Winkel "..angleNew.." und Typ "..typee)
 		--Corners are already placed, so just place wall or gate
 		if typee == "Wall" then		-- place wall
@@ -606,6 +607,27 @@ function SW.Walls.IsWallSegmentPlaceable( _pos1, _pos2, _walllength)
 		return tablee, SW.Walls.GetAngle( _pos1.X-tablee.X, _pos1.Y-tablee.Y)
 	end
 end
+function SW.Walls.GetNearestCandidate( _pos, _list)
+	local dis
+	local currIndex = nil
+	for k,v in pairs(_list) do
+		--if currIndex == nil then
+		--	dis = (v[1].X-_pos.X)^2+(v[1].Y-_pos.Y)^2
+		--	currIndex = k
+		--end
+		local newDis = (v[1].X-_pos.X)^2+(v[1].Y-_pos.Y)^2
+		if currIndex == nil or newDis < dis then
+			currIndex = k
+			dis = newDis
+		end
+		--LuaDebugger.Break()
+	end
+	if currIndex ~= nil then
+		return _list[currIndex]
+	end
+end
+
+
 function SW.Walls.Test(_len)
 	for dx = -6, 6 do
 		for dy = -6, 6 do
