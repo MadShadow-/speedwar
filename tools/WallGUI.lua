@@ -46,13 +46,22 @@ SW.WallGUI.ScriptNames = {
 	["Bastille"] = "XXSWBastille",
 }
 
-SW.WallGUI.DummyModels = {
+SW.WallGUI.DummyEntities = {
 	["Wall"] = Entities.PB_Beautification12,
 	["EndWall"] = Entities.PB_Beautification12,
 	["Gate"] = Entities.PB_Beautification12,
 	["Windmill"] = Entities.PB_Beautification12,
 	["Blacksmith"] = Entities.PB_Blacksmith1,
 	["Bastille"] = Entities.PB_Blacksmith1,
+}
+
+SW.WallGUI.DummyModels = {
+	["Wall"] = Models.PB_Beautification12,
+	["EndWall"] = Models.PB_Beautification12,
+	["Gate"] = Models.PB_Beautification12,
+	["Windmill"] = Models.PB_Beautification12,
+	["Blacksmith"] = Models.PB_Blacksmith1,
+	["Bastille"] = Models.PB_Blacksmith1,
 }
 
 SW.WallGUI.DummyUpgradeCategory = {
@@ -248,7 +257,7 @@ function SW.WallGUI.GUIAction_PlaceBuilding(_wall)
 	if SW.WallGUI.HasPlayerEnoughResources_Feedback( SW.WallGUI.Costs[_wall] ) then
 		SW.WallGUI.WallType = _wall;
 		XGUIEng.HighLightButton( widgetId, 1 );
-		SW.WallGUI.EntityType_SetDisplayModel(SW.WallGUI.DummyModels[_wall], SW.WallGUI.Models[_wall]);
+		SW.WallGUI.EntityType_SetDisplayModel(SW.WallGUI.DummyEntities[_wall], SW.WallGUI.Models[_wall]);
 		SW.WallGUI.ModelChanged = true;
 		GUI.ActivatePlaceBuildingState( SW.WallGUI.DummyUpgradeCategory[_wall] );
 	end
@@ -285,7 +294,7 @@ function SW_WallGUI_OnEntityCreated()
 		end
 		
 		-- was our dummy placed?
-		if Logic.GetEntityType(entityId) ~= SW.WallGUI.DummyModels[SW.WallGUI.LatestWallType] then
+		if Logic.GetEntityType(entityId) ~= SW.WallGUI.DummyEntities[SW.WallGUI.LatestWallType] then
 			return;
 		end
 		
@@ -297,7 +306,7 @@ function SW_WallGUI_OnEntityCreated()
 		
 		-- yeah it was - reset the model in case it was changed
 		if SW.WallGUI.ModelChanged then
-			SW.WallGUI.EntityType_SetDisplayModel(SW.WallGUI.DummyModels[SW.WallGUI.LatestWallType], SW.WallGUI.DummyModels[SW.WallGUI.LatestWallType]);
+			SW.WallGUI.EntityType_SetDisplayModel(SW.WallGUI.DummyEntities[SW.WallGUI.LatestWallType], SW.WallGUI.DummyModels[SW.WallGUI.LatestWallType]);
 		end
 		
 		SW.WallGUI.DummysInConstruction[entityId] = 0;
@@ -330,6 +339,7 @@ function SW_WallGUI_OnEntityDestroyed()
 		if Logic.GetEntityType(entityId) ~= 583 and Logic.GetEntityType(entityId) ~= 564 then
 			return;
 		end
+		--LuaDebugger.Break();
 		-- handelt es sich um eins unserer gebäude?
 		local pos = GetPosition(entityId);
 		local relatedBuilding = SW.WallGUI.DummysInConstruction[tostring(pos.X)..tostring(pos.Y)];
@@ -386,9 +396,9 @@ function SW.WallGUI.CreateEntity(_entityType, _position, _playerId)
 		local newPos = GetPosition(newEntityId);
 		--Logic.CreateEntity(Entities.PU_Hero3,newPos.X,newPos.Y,0,1);
 		local serfs = {Logic.GetPlayerEntitiesInArea(_playerId, Entities.PU_Serf, newPos.X, newPos.Y, 700, 16)};
-		local pos, player, serf;
+		local pos, player, serf, selectedUnits;
 		if GUI.GetPlayerID() == _playerId then
-			local selectedUnits = {GUI.GetSelectedEntities()};
+			selectedUnits = {GUI.GetSelectedEntities()};
 			for i = 1, table.getn(selectedUnits) do
 				selectedUnits[ selectedUnits[i] ] = true;
 			end
@@ -421,6 +431,7 @@ function SW.WallGUI.CreateEntity(_entityType, _position, _playerId)
 end
 
 function SW.WallGUI.EntityType_SetDisplayModel(_entityType, _model)
+	--LuaDebugger.Break();
 	S5Hook.GetRawMem(9002416)[0][16][_entityType * 8 + 3][2]:SetInt(_model)
 end
 
@@ -530,12 +541,12 @@ end
 
 
 function SW.WallGUI.PayCosts( _playerId, _costs )
-	AddGold  ( _playerId, - math.min(GetGold(),   _costs[1] or 0) );
-	AddClay  ( _playerId, - math.min(GetClay(),   _costs[2] or 0) );
-	AddWood  ( _playerId, - math.min(GetWood(),   _costs[3] or 0) );
-	AddStone ( _playerId, - math.min(GetStone(),  _costs[4] or 0) );
-	AddIron  ( _playerId, - math.min(GetIron(),   _costs[5] or 0) );
-	AddSulfur( _playerId, - math.min(GetSulfur(), _costs[6] or 0) );
+	AddGold  ( _playerId, - math.min(GetGold(_playerId),   _costs[1] or 0) );
+	AddClay  ( _playerId, - math.min(GetClay(_playerId),   _costs[2] or 0) );
+	AddWood  ( _playerId, - math.min(GetWood(_playerId),   _costs[3] or 0) );
+	AddStone ( _playerId, - math.min(GetStone(_playerId),  _costs[4] or 0) );
+	AddIron  ( _playerId, - math.min(GetIron(_playerId),   _costs[5] or 0) );
+	AddSulfur( _playerId, - math.min(GetSulfur(_playerId), _costs[6] or 0) );
 end
 
 function SW.WallGUI.PostStartEntityCostAndBlockingChanges()
@@ -641,5 +652,4 @@ function SW.WallGUI.PostStartEntityCostAndBlockingChanges()
 	-- update ressource costs
 	SW.WallGUI.EntityType_SetResourceCost(1, Entities.PB_Beautification12, 0);
 	SW.WallGUI.EntityType_SetResourceCost(5, Entities.PB_Beautification12, 0);
-
 end
