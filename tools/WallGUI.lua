@@ -382,6 +382,31 @@ function SW.WallGUI.CreateEntity(_entityType, _position, _playerId)
 		elseif _entityType == Entities.XD_WallDistorted then
 			newEntityId = SW.Walls.PlaceClosingWall(dummyId);
 		end
+		-- replace surfs
+		local newPos = GetPosition(newEntityId);
+		--Logic.CreateEntity(Entities.PU_Hero3,newPos.X,newPos.Y,0,1);
+		local serfs = {Logic.GetPlayerEntitiesInArea(1, Entities.PU_Serf, newPos.X, newPos.Y, 700, 16)};
+		local pos, player, serf;
+		local selectedUnits = {GUI.GetSelectedEntities()};
+		for i = 1, table.getn(selectedUnits) do
+			selectedUnits[ selectedUnits[i] ] = true;
+		end
+		local toSelect = {};
+		local taskLists = {};
+		for i = 1, serfs[1] do
+			pos = GetPosition(serfs[i+1]);
+			player = GetPlayer(serfs[i+1]);
+			if Logic.GetSector(serfs[i+1]) == 0 then
+				serf = AI.Entity_CreateFormation(player, Entities.PU_Serf, 0, 0, pos.X, pos.Y, 0, 0, 0, 0)
+				if selectedUnits[serfs[i+1]] then
+					table.insert(toSelect, serf);
+				end
+				DestroyEntity(serfs[i+1]);
+			end
+		end
+		for i = 1, table.getn(toSelect) do
+			GUI.SelectEntity(toSelect[i]);
+		end
 	end
 	if newEntityId == nil then return end
 	if SW.WallGUI.SelectedWallDestroyed then
@@ -603,7 +628,7 @@ function SW.WallGUI.PostStartEntityCostAndBlockingChanges()
 	local tp1 = def:Offset(152/4)
 	local tp2 = def:Offset(160/4)
 	SetXY(tp1, 0, 0)
-	SetXY(tp2, 0, 0)
+	SetXY(tp2, 10, 10)
 
 	local s = Logic.WorldGetSize() / 100 - 1;
 	Logic.UpdateBlocking(0, 0, s, s);
