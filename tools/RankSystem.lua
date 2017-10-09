@@ -85,6 +85,41 @@ function SW.RankSystem.InitGUI()
 	--DEBUG END
 	SW.RankSystem.PlayerIds = listPlayer
 	SW.RankSystem.NumPlayers = numPlayer
+	SW.RankSystem.ApplyGUIChanges()
+	--[[
+	   VCMP_Window
+         VCMP_Team1
+           VCMP_Team1Name
+           VCMP_Team1Player1
+            Calls: GUIUpdate_VCTechRaceColor(1)
+           VCMP_Team1Player2
+            Calls: GUIUpdate_VCTechRaceColor(2)
+           VCMP_Team1Player3
+            Calls: GUIUpdate_VCTechRaceColor(3)
+           VCMP_Team1Player4
+            Calls: GUIUpdate_VCTechRaceColor(4)
+           VCMP_Team1Player5
+            Calls: GUIUpdate_VCTechRaceColor(5)
+           VCMP_Team1Player6
+            Calls: GUIUpdate_VCTechRaceColor(6)
+           VCMP_Team1Player7
+            Calls: GUIUpdate_VCTechRaceColor(7)
+           VCMP_Team1Player8
+            Calls: GUIUpdate_VCTechRaceColor(8)
+           VCMP_Team1TechRace
+             VCMP_Team1Progress
+              Calls: GUIUpdate_VCTechRaceProgress()
+             VCMP_Team1ProgressBG
+           VCMP_Team1PointGame
+             VCMP_Team1Points
+              Calls: GUIUpdate_GetTeamPoints()
+             VCMP_Team1PointBG
+         VCMP_Team1_Shade
+	]]
+end
+function SW.RankSystem.ApplyGUIChanges()
+	local numPlayer = SW.NrOfPlayers
+	local listPlayer = SW.Players
 	XGUIEng.ShowWidget("VCMP_Window", 1)
 	XGUIEng.ShowAllSubWidgets("VCMP_Window", 1)
 	for i = 1, numPlayer do			--Prep everything
@@ -117,36 +152,6 @@ function SW.RankSystem.InitGUI()
 		XGUIEng.SetMaterialColor("VCMP_Team"..i.."Progress",0,ColorR, ColorG, ColorB,200)
 		XGUIEng.SetText("VCMP_Team"..i.."Name", SW.RankSystem.PlayerNames[SW.RankSystem.ListOfAllyIds[i]])
 	end
-	--[[
-	   VCMP_Window
-         VCMP_Team1
-           VCMP_Team1Name
-           VCMP_Team1Player1
-            Calls: GUIUpdate_VCTechRaceColor(1)
-           VCMP_Team1Player2
-            Calls: GUIUpdate_VCTechRaceColor(2)
-           VCMP_Team1Player3
-            Calls: GUIUpdate_VCTechRaceColor(3)
-           VCMP_Team1Player4
-            Calls: GUIUpdate_VCTechRaceColor(4)
-           VCMP_Team1Player5
-            Calls: GUIUpdate_VCTechRaceColor(5)
-           VCMP_Team1Player6
-            Calls: GUIUpdate_VCTechRaceColor(6)
-           VCMP_Team1Player7
-            Calls: GUIUpdate_VCTechRaceColor(7)
-           VCMP_Team1Player8
-            Calls: GUIUpdate_VCTechRaceColor(8)
-           VCMP_Team1TechRace
-             VCMP_Team1Progress
-              Calls: GUIUpdate_VCTechRaceProgress()
-             VCMP_Team1ProgressBG
-           VCMP_Team1PointGame
-             VCMP_Team1Points
-              Calls: GUIUpdate_GetTeamPoints()
-             VCMP_Team1PointBG
-         VCMP_Team1_Shade
-	]]
 end
 function SW.RankSystem.OnRankUp( _pId)	--Gets called every time a player reaches a new rank; Currently empty
 	Message("Spieler "..SW.RankSystem.PlayerNames[_pId].." hat den Rang "..SW.RankSystem.RankNames[SW.RankSystem.Rank[_pId]].." @color:255,255,255 erreicht!")
