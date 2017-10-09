@@ -8,6 +8,7 @@ SW.WallGUI.LatestGUIState = 0;
 SW.WallGUI.ModelChanged = false;
 SW.WallGUI.DummysInConstruction = {};
 SW.WallGUI.SelectedWallDestroyed = false;
+SW.WallGUI.ScriptNameBuildingCounter = 0;
 SW.WallGUI.Costs =
 {
 	["Wall"] = {
@@ -24,6 +25,15 @@ SW.WallGUI.Costs =
 		[1] = 200,
 		[5] = 100,
 	},
+	["Blacksmith"] = {
+		[1] = 200,
+		[5] = 100,
+	},
+	["Bastille"] = {
+		[2] = 400,
+		[3] = 400,
+		[4] = 500,
+	},
 }
 
 SW.WallGUI.ScriptNameCounter = 0;
@@ -31,15 +41,46 @@ SW.WallGUI.ScriptNames = {
 	["Wall"] = "XXSWWall",
 	["EndWall"] = "XXSWWall",
 	["Gate"] = "XXSWGate",
-	["Windmill"] = "XXSWWindmill"
+	["Windmill"] = "XXSWWindmill",
+	["Blacksmith"] = "XXSWBlacksmith",
+	["Bastille"] = "XXSWBastille",
 }
+
+SW.WallGUI.DummyModels = {
+	["Wall"] = Entities.PB_Beautification12,
+	["EndWall"] = Entities.PB_Beautification12,
+	["Gate"] = Entities.PB_Beautification12,
+	["Windmill"] = Entities.PB_Beautification12,
+	["Blacksmith"] = Entities.PB_Blacksmith1,
+	["Bastille"] = Entities.PB_Blacksmith1,
+}
+
+SW.WallGUI.DummyUpgradeCategory = {
+	["Wall"] = UpgradeCategories.Beautification12,
+	["EndWall"] = UpgradeCategories.Beautification12,
+	["Gate"] = UpgradeCategories.Beautification12,
+	["Windmill"] = UpgradeCategories.Beautification12,
+	["Blacksmith"] = UpgradeCategories.Blacksmith,
+	["Bastille"] = UpgradeCategories.Blacksmith,
+}
+
+SW.WallGUI.ShortCuts = {
+	["Wall"] = "Strg + G",
+	["EndWall"] = "Strg + G",
+	["Gate"] = "Strg + G",
+	["Windmill"] = "Strg + G",
+	["Blacksmith"] = "Strg + G",
+	["Bastille"] = "Strg + G",
+};
 
 SW.WallGUI.SelectionNames =
 {
 	["Wall"] = "Mauer",
 	["EndW"] = "Mauer",
 	["Gate"] = "Tor",
-	["Wind"] = "Windrad"
+	["Wind"] = "Windrad",
+	["Blac"] = "Schmiede",
+	["Bast"] = "Standhafter Turm",
 }
 
 SW.WallGUI.CustomNames =
@@ -47,7 +88,9 @@ SW.WallGUI.CustomNames =
 	["Wall"] = "Mauer",
 	["EndWall"] = "Mauer",
 	["Gate"] = "Tor",
-	["Windmill"] = "Windrad"
+	["Windmill"] = "Windrad",
+	["Blacksmith"] = "Schmiede",
+	["Bastille"] = "Standhafter Turm",
 }
 
 SW.WallGUI.Models = {
@@ -55,6 +98,8 @@ SW.WallGUI.Models = {
 	["EndWall"] = Models.XD_WallDistorted,
 	["Gate"] = Models.XD_WallStraightGate,
 	["Windmill"] = Models.PB_Beautification12,
+	["Blacksmith"] = Models.PB_Blacksmith1,
+	["Bastille"] = Models.CB_Bastille1,
 };
 
 SW.WallGUI.ReplaceEntities = {
@@ -62,6 +107,8 @@ SW.WallGUI.ReplaceEntities = {
 	["EndWall"] = Entities.XD_WallDistorted,
 	["Gate"] = Entities.XD_WallStraightGate,
 	["Windmill"] = Entities.PB_Beautification12,
+	["Blacksmith"] = Entities.PB_Blacksmith1,
+	["Bastille"] = Entities.CB_Bastille1,
 };
 
 SW.WallGUI.WallConstructionTooltips = {
@@ -83,13 +130,21 @@ SW.WallGUI.WallConstructionTooltips = {
 		"Erbau von Toren",
 		"Ein Tor das sich nach belieben öffnen und schließen lässt."
 	},
+	{
+		"Standhafter Turm",
+		"Taktiken",
+		"Ermöglicht das bauen standhafter Türme in denen sich Militäreinheiten stationieren lassen.",
+		"In diesem Turm könnt ihr Einheiten stationieren."
+	},
 };
 
 SW.WallGUI.RequiredTechnologies = {
-	["Wall"] = Technologies.GT_Mercenaries,
+	["Wall"] = Technologies.GT_Construction,
 	["EndWall"] = Technologies.GT_StandingArmy,
 	["Gate"] = Technologies.GT_Tactics,
 	["Windmill"] = Technologies.GT_Strategies,
+	["Blacksmith"] = Technologies.GT_Alchemy,
+	["Bastille"] = Technologies.GT_StandingArmy,
 };
 
 function SW.WallGUI.Init()
@@ -101,6 +156,11 @@ function SW.WallGUI.Init()
 				[2] = XGUIEng.GetStringTableText("MenuSerf/Beautification12_disabled"),
 				[4] = XGUIEng.GetStringTableText("MenuSerf/Beautification12_normal")
 			},
+		["Blacksmith"] = {
+				[2] = XGUIEng.GetStringTableText("MenuSerf/Blacksmith_disabled"),
+				[4] = XGUIEng.GetStringTableText("MenuSerf/Blacksmith_normal")
+			},
+		["Bastille"] = SW.WallGUI.CreateTooltip(unpack(SW.WallGUI.WallConstructionTooltips[4])),
 	};
 	SW.WallGUI.GameCallback_GUI_StateChanged = GameCallback_GUI_StateChanged;
 	function GameCallback_GUI_StateChanged( _StateNameID, _Armed )
@@ -161,6 +221,7 @@ function SW.WallGUI.Init()
 			XGUIEng.ShowWidget("SWBottomOverlayBeautification",0);
 			XGUIEng.ShowWidget("SWBottomOverlay", 1);
 			XGUIEng.ShowWidget("Build_Village",0);
+			XGUIEng.ShowWidget("Build_Blacksmith",0);
 		elseif XGUIEng.IsWidgetShown("SWBottomOverlay") == 1 or XGUIEng.IsWidgetShown("SWBottomOverlayBeautification") == 1 then
 			XGUIEng.ShowWidget("SWBottomOverlay",0);
 			XGUIEng.ShowWidget("SWBottomOverlayBeautification",0);
@@ -176,6 +237,7 @@ function SW.WallGUI.Init()
 		SW.WallGUI.GUIUpdate_SelectionName();
 	end
 	
+	SW.WallGUI.PostStartEntityCostAndBlockingChanges();
 	Trigger.RequestTrigger( Events.LOGIC_EVENT_ENTITY_DESTROYED, "", "SW_WallGUI_OnEntityDestroyed", 1);
 	Trigger.RequestTrigger( Events.LOGIC_EVENT_ENTITY_CREATED, "", "SW_WallGUI_OnEntityCreated", 1);
 end
@@ -186,30 +248,27 @@ function SW.WallGUI.GUIAction_PlaceBuilding(_wall)
 	if SW.WallGUI.HasPlayerEnoughResources_Feedback( SW.WallGUI.Costs[_wall] ) then
 		SW.WallGUI.WallType = _wall;
 		XGUIEng.HighLightButton( widgetId, 1 );
-		SW.WallGUI.EntityType_SetDisplayModel(Entities.PB_Beautification12, SW.WallGUI.Models[_wall]);
+		SW.WallGUI.EntityType_SetDisplayModel(SW.WallGUI.DummyModels[_wall], SW.WallGUI.Models[_wall]);
 		SW.WallGUI.ModelChanged = true;
-		GUI.ActivatePlaceBuildingState( UpgradeCategories.Beautification12 );
+		GUI.ActivatePlaceBuildingState( SW.WallGUI.DummyUpgradeCategory[_wall] );
 	end
 end
 
 function SW.WallGUI.UpdateTooltip(_wall)
 	local widgetId = XGUIEng.GetCurrentWidgetID();
 	local playerId = GUI.GetPlayerID();
-	local costs = " ";
+	local costs = SW.WallGUI.CreateCostString( SW.WallGUI.Costs[_wall] );
 	local tooltip = " ";
 	
+	
+	-- if XGUIEng.IsButtonDisabled(widgetId) == 1 then
+		--tooltip =  XGUIEng.GetStringTableText("MenuGeneric/BuildingNotAvailable");
+		--costs = "";
+	--if Logic.GetTechnologyState( playerId, SW.WallGUI.RequiredTechnologies[_wall] ) == 0 then
 	if XGUIEng.IsButtonDisabled(widgetId) == 1 then
 		tooltip = SW.WallGUI.Tooltips[_wall][2];
 	else
 		tooltip = SW.WallGUI.Tooltips[_wall][4];
-	end
-	
-	if Logic.GetTechnologyState( playerId, SW.WallGUI.RequiredTechnologies[_wall] ) == 0 then
-		tooltip =  "MenuGeneric/BuildingNotAvailable";
-		XGUIEng.SetTextKeyName(gvGUI_WidgetID.TooltipBottomText, tooltip);
-		return;
-	else
-		costs = SW.WallGUI.CreateCostString( SW.WallGUI.Costs[_wall] );
 	end
 	
 	XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomCosts, costs);
@@ -226,7 +285,7 @@ function SW_WallGUI_OnEntityCreated()
 		end
 		
 		-- was our dummy placed?
-		if Logic.GetEntityType(entityId) ~= Entities.PB_Beautification12 then
+		if Logic.GetEntityType(entityId) ~= SW.WallGUI.DummyModels[SW.WallGUI.LatestWallType] then
 			return;
 		end
 		
@@ -238,7 +297,7 @@ function SW_WallGUI_OnEntityCreated()
 		
 		-- yeah it was - reset the model in case it was changed
 		if SW.WallGUI.ModelChanged then
-			SW.WallGUI.EntityType_SetDisplayModel(Entities.PB_Beautification12, SW.WallGUI.Models["Windmill"]);
+			SW.WallGUI.EntityType_SetDisplayModel(SW.WallGUI.DummyModels[SW.WallGUI.LatestWallType], SW.WallGUI.DummyModels[SW.WallGUI.LatestWallType]);
 		end
 		
 		SW.WallGUI.DummysInConstruction[entityId] = 0;
@@ -268,7 +327,7 @@ end
 function SW_WallGUI_OnEntityDestroyed()
 		local entityId = Event.GetEntityID();
 		-- wurde ein baugerüst für unseren dummy zerstört?
-		if Logic.GetEntityType(entityId) ~= 583 then
+		if Logic.GetEntityType(entityId) ~= 583 and Logic.GetEntityType(entityId) ~= 564 then
 			return;
 		end
 		-- handelt es sich um eins unserer gebäude?
@@ -282,7 +341,6 @@ function SW_WallGUI_OnEntityDestroyed()
 			SW.WallGUI.DummysInConstruction[tostring(pos.X)..tostring(pos.Y)] = nil;
 			return;
 		end
-		
 		-- what entity should our dummy be replaced with?
 		local player = GetPlayer(relatedBuilding[1]);
 		if SW.WallGUI.ReplaceEntities[ relatedBuilding[2] ] == Entities.PB_Beautification12 then
@@ -297,31 +355,39 @@ function SW_WallGUI_OnEntityDestroyed()
 			SW.CustomNames[Logic.GetEntityName(relatedBuilding[1])] = nil;
 			DestroyEntity( relatedBuilding[1] );
 		end
-		SW.WallGUI.CreateWall(SW.WallGUI.ReplaceEntities[ relatedBuilding[2] ], pos, player);
+		SW.WallGUI.CreateEntity(SW.WallGUI.ReplaceEntities[ relatedBuilding[2] ], pos, player);
 end
 
-function SW.WallGUI.CreateWall(_entityType, _position, _playerId)
+function SW.WallGUI.CreateEntity(_entityType, _position, _playerId)
 	-- not part of the GUI anymore
 	-- this is the logic part
 	-- to be continued by napo
 	
 	--NOW IS NAPO TIME
 	--FEAR ME
-	local newWallId;
-	local dummyId = Logic.CreateEntity( Entities.XD_ScriptEntity, _position.X, _position.Y, 0, _playerId)
-	if _entityType == Entities.XD_WallStraight then
-		newWallId = SW.Walls.PlaceNormalWall( dummyId)
-	elseif _entityType == Entities.XD_WallStraightGate then
-		newWallId = SW.Walls.PlaceGate( dummyId)
-	elseif _entityType == Entities.XD_WallDistorted then
-		newWallId = SW.Walls.PlaceClosingWall( dummyId)
+	local newEntityId;
+	if _entityType == Entities.CB_Bastille1 then
+		newEntityId = Logic.CreateEntity(Entities.CB_Bastille1, _position.X, _position.Y, 0, _playerId);
+		SW.WallGUI.ScriptNameBuildingCounter = SW.WallGUI.ScriptNameBuildingCounter + 1;
+		local scriptname = "XXSWBastille" .. SW.WallGUI.ScriptNameBuildingCounter; 
+		SetEntityName(newEntityId, scriptname);
+		SW.CustomNames[scriptname] = SW.WallGUI.CustomNames["Bastille"];
+	else
+		-- walls
+		local dummyId = Logic.CreateEntity(Entities.XD_ScriptEntity, _position.X, _position.Y, 0, _playerId);
+		if _entityType == Entities.XD_WallStraight then
+			newEntityId = SW.Walls.PlaceNormalWall(dummyId);
+		elseif _entityType == Entities.XD_WallStraightGate then
+			newEntityId = SW.Walls.PlaceGate(dummyId);
+		elseif _entityType == Entities.XD_WallDistorted then
+			newEntityId = SW.Walls.PlaceClosingWall(dummyId);
+		end
 	end
-	if newWallId == nil then return end
+	if newEntityId == nil then return end
 	if SW.WallGUI.SelectedWallDestroyed then
-		GUI.SelectEntity(newWallId);
+		GUI.SelectEntity(newEntityId);
 		SW.WallGUI.SelectedWallDestroyed = false;
 	end
-	--Logic.CreateEntity(_entityType, _position.X, _position.Y, 0, _playerId);
 end
 
 function SW.WallGUI.EntityType_SetDisplayModel(_entityType, _model)
@@ -524,7 +590,7 @@ function SW.WallGUI.PostStartEntityCostAndBlockingChanges()
 		return S5Hook.GetRawMem(9002416)[0][16][e*8+2]
 	end
 	
-	-- now use all the functions above and do the actually blocking exchange
+	-- now use all the functions above and do the actual blocking exchange
 	local def = GetLogicDef(Entities.PB_Beautification12)
 	baList = MemList:new(def:Offset(136/4), 16)
 	for subElm in baList:iterate() do

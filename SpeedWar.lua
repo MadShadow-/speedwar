@@ -30,7 +30,7 @@ function GameCallback_OnGameStart()
 	Display.GfxSetSetFogParams(3, 0.0, 1.0, 1, 152,172,182, 3000,19500)
 	Display.GfxSetSetFogParams(2, 0.0, 1.0, 1, 102,132,132, 0,19500)
 	log = function() end;
-	--ActivateDebug();
+	ActivateDebug();
 	for i = 1, 4 do
 		Tools.GiveResouces(i, 0, 700, 500, 0, 0, 0);
 	end
@@ -76,9 +76,7 @@ function GameCallback_OnGameStart()
 	};
 	S5Hook.SetCustomNames(SW.CustomNames);
 	
-	S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml")
-	
-	SW.WallGUI.Init();
+	--S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml")
 	
 	SW.IsActivated = false;
 	
@@ -248,8 +246,8 @@ function SW.Activate(_seed)
 	SW.Bugfixes.Init()
 	-- Enable increased ressource gain
 	SW.RefineryPush.Init()
-	-- Decrease wall blocking and disable normal costs
-	SW.WallGUI.PostStartEntityCostAndBlockingChanges()
+	-- Activate the GUI for walls
+	SW.WallGUI.Init()
 	-- Just debug stuff
 	SW.DebuggingStuff()		--DO NOT REMOVE NOW; REMOVE IN FINAL VERSION AFTER TALKING WITH NAPO
 	-- Enable building walls
@@ -429,6 +427,7 @@ end
 function SW.EnableOutpostVCs()
 	-- load in archive while developing *-* --
 	S5Hook.AddArchive("extra2/shr/maps/user/speedwar/archive.bba");
+	S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml");
 	S5Hook.ReloadEntities();
 	S5Hook.RemoveArchive();
 	--Message("EnableOutpostVCs");
@@ -1205,7 +1204,14 @@ function SW.RandomPosForPlayer(_player)
 	local worldSize = Logic.WorldGetSize()
 	local ranX, ranY, sectorID
 	local sectorValid, minDistanceValid;
+	local spawnAttempts = 0;
 	while not success do
+		-- infinite loop protection
+		spawnAttempts = spawnAttempts + 1;
+		if spawnAttempts > 1000 then
+			-- reset reserved start positon table to enable a free spawn
+			SW.RandomStartPositions = {};
+		end
 		ranX = math.random()*worldSize
 		ranY = math.random()*worldSize
 		-- falls die neue zufalls pos zu nahe an einer bestehenden start pos liegt muss neu gewürfelt werden
@@ -1226,7 +1232,15 @@ function SW.RandomPosForPlayer(_player)
 		end
 		if sectorValid and minDistanceValid then
 			success = true
-			GUI.CreateMinimapMarker(ranX,ranY,0);
+			if GUI.GetPlayerID() == _player then
+				GUI.CreateMinimapMarker(ranX,ranY,0);
+			else
+				if Logic.GetDiplomacyState(GUI.GetPlayerID(),_player) == Diplomacy.Hostile then
+					GUI.CreateMinimapMarker(ranX,ranY,3);
+				else
+					GUI.CreateMinimapMarker(ranX,ranY,0);
+				end
+			end
 			table.insert(SW.RandomStartPositions,{X=ranX,Y=ranY});
 			for i = 1, 8 do
 				Logic.CreateEntity( Entities.PU_Serf, ranX, ranY, 0, _player)
