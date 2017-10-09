@@ -140,6 +140,7 @@ function SW.RankSystem.ApplyGUIChanges()
 	-- Only show progress of allies
 	local currPlayer = GUI.GetPlayerID()
 	--Find all allies
+	SW.RankSystem.ListOfAllyIds = {}
 	for i = 1, numPlayer do
 		if listPlayer[i] == currPlayer or Logic.GetDiplomacyState( currPlayer, listPlayer[i]) == Diplomacy.Friendly then
 			table.insert( SW.RankSystem.ListOfAllyIds, listPlayer[i])
