@@ -74,12 +74,12 @@ SW.WallGUI.DummyUpgradeCategory = {
 }
 
 SW.WallGUI.ShortCuts = {
-	["Wall"] = "Strg + G",
-	["EndWall"] = "Strg + G",
-	["Gate"] = "Strg + G",
-	["Windmill"] = "Strg + G",
-	["Blacksmith"] = "Strg + G",
-	["Bastille"] = "Strg + G",
+	["Wall"] = "Q",
+	["EndWall"] = "Ö",
+	["Gate"] = "F",
+	["Windmill"] = "",
+	["Blacksmith"] = "C",
+	["Bastille"] = "",
 };
 
 SW.WallGUI.SelectionNames =
@@ -141,7 +141,7 @@ SW.WallGUI.WallConstructionTooltips = {
 	},
 	{
 		"Standhafter Turm",
-		"Taktiken",
+		"Rang: Feldherr",
 		"Ermöglicht das bauen standhafter Türme in denen sich Militäreinheiten stationieren lassen.",
 		"In diesem Turm könnt ihr Einheiten stationieren."
 	},
@@ -157,6 +157,14 @@ SW.WallGUI.RequiredTechnologies = {
 };
 
 function SW.WallGUI.Init()
+
+	-- prepare GUI
+	--XGUIEng.DisableButton("SWBuildWall",1);
+	--XGUIEng.DisableButton("SWBuildEndWall",1);
+	--XGUIEng.DisableButton("SWBuildGate",1);
+	--XGUIEng.DisableButton("SWBuildBlacksmith",1);
+	--XGUIEng.DisableButton("SWBuildBastille",1);
+	
 	SW.WallGUI.Tooltips = {
 		["Wall"] = SW.WallGUI.CreateTooltip(unpack(SW.WallGUI.WallConstructionTooltips[1])),
 		["EndWall"] = SW.WallGUI.CreateTooltip(unpack(SW.WallGUI.WallConstructionTooltips[2])),
@@ -353,7 +361,8 @@ function SW_WallGUI_OnEntityDestroyed()
 		end
 		-- what entity should our dummy be replaced with?
 		local player = GetPlayer(relatedBuilding[1]);
-		if SW.WallGUI.ReplaceEntities[ relatedBuilding[2] ] == Entities.PB_Beautification12 then
+		if SW.WallGUI.ReplaceEntities[ relatedBuilding[2] ] == Entities.PB_Beautification12
+		or SW.WallGUI.ReplaceEntities[ relatedBuilding[2] ] == Entities.PB_Blacksmith1 then
 			--> a simple windwall
 			return;
 		else
@@ -394,7 +403,6 @@ function SW.WallGUI.CreateEntity(_entityType, _position, _playerId)
 		end
 		-- replace surfs
 		local newPos = GetPosition(newEntityId);
-		--Logic.CreateEntity(Entities.PU_Hero3,newPos.X,newPos.Y,0,1);
 		local serfs = {Logic.GetPlayerEntitiesInArea(_playerId, Entities.PU_Serf, newPos.X, newPos.Y, 700, 16)};
 		local pos, player, serf, selectedUnits;
 		if GUI.GetPlayerID() == _playerId then

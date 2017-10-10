@@ -120,8 +120,15 @@ function ActivateDebug()
 	DebugTroops = {};
 	CT = function()
 		local x,y = GUI.Debug_GetMapPositionUnderMouse();
-		table.insert(DebugTroops, Tools.CreateGroup(2, Entities.PU_LeaderSword2, 8, x, y, 100));
+		table.insert(DebugTroops, Tools.CreateGroup(1, Entities.PU_LeaderCavalry2, 8, x, y, 100));
 		SetHostile(1,2);
+	end
+	CT2 = function()
+		local x,y = GUI.Debug_GetMapPositionUnderMouse();
+		table.insert(DebugTroops, Tools.CreateGroup(1, Entities["PV_Cannon"..math.random(1,4)], 8, x, y, 100));
+	end
+	for i = 1,4 do
+		Tools.CreateGroup(1,Entities["PV_Cannon"..i],8,25000,25000,100);
 	end
 	DT = function()
 		for i = table.getn(DebugTroops), 1, -1 do
@@ -130,14 +137,15 @@ function ActivateDebug()
 		end
 	end
 	Input.KeyBindDown(Keys.W, "CT()",2);
+	Input.KeyBindDown(Keys.R, "CT2()",2);
 	Input.KeyBindDown(Keys.E, "DT()",2);
 	Input.KeyBindDown(Keys.Q, "SpeedUpGame()",2);
 	--Input.KeyBindDown(Keys.W, "GUI.ActivatePlaceBuildingState(UpgradeCategories.Outpost)", 2);
-	Input.KeyBindDown(Keys.R, "Framework.RestartMap()", 2);
+	--Input.KeyBindDown(Keys.R, "Framework.RestartMap()", 2);
 	local g = 10000;
 	for i = 1,8 do
 		Tools.GiveResouces(i, g,g,g,g,g,g);
-		--ResearchAllUniversityTechnologies(i);
+		ResearchAllUniversityTechnologies(i);
 	end
 	Camera.ZoomSetFactorMax( 2)
 end
@@ -250,6 +258,7 @@ function SW.Activate(_seed)
 	SW.RefineryPush.Init()
 	-- Activate the GUI for walls
 	SW.WallGUI.Init()
+	-- Activate Bastille Mod
 	-- Just debug stuff
 	SW.DebuggingStuff()		--DO NOT REMOVE NOW; REMOVE IN FINAL VERSION AFTER TALKING WITH NAPO
 	-- Enable building walls
