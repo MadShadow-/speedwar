@@ -146,6 +146,7 @@ function SW.Walls.ToggleGate( _eId)
 end
 --Calculates the angle of a given vector relative to the x-Axis, ranging from 0 to 2 Pi
 function SW.Walls.GetAngle( x, y)
+	if x == 0 and y == 0 then return 0 end
 	--Consider (x,y) as normed vector, then cos alpha = x, sin alpha = y
 	local cosAlpha = math.acos( x/ math.sqrt(x*x + y*y))
 	local sinAlpha = math.asin( y/ math.sqrt(x*x + y*y))
