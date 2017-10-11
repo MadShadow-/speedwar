@@ -264,6 +264,8 @@ function SW.Activate(_seed)
 	SW.DebuggingStuff()		--DO NOT REMOVE NOW; REMOVE IN FINAL VERSION AFTER TALKING WITH NAPO
 	-- Enable building walls
 	SW.Walls.Init()
+	-- Just for the lolz
+	SW.RandomChest.Init()
 end
 
 -- llllIIIIlIlIIl
@@ -773,8 +775,7 @@ function SW.DebuggingStuff()
 		return checkSum
 	end
 	local debugggg = false
-	--LuaDebugger.Log(""..GenerateChecksum(SW.Activate))
-	if GenerateChecksum(SW.Activate) ~= 1489 then
+	if GenerateChecksum(SW.Activate) ~= 709 then
 		debugggg = true
 		--LuaDebugger.Log("Activate manipuliert")
 	end
