@@ -145,7 +145,11 @@ function ActivateDebug()
 	local g = 10000;
 	for i = 1,8 do
 		Tools.GiveResouces(i, g,g,g,g,g,g);
-		ResearchAllUniversityTechnologies(i);
+		--ResearchAllUniversityTechnologies(i);
+		SW.RankSystem.Points[i] = 100000
+		SW.RankSystem.UpdatePlayer( i)
+		SW.RankSystem.UpdatePlayer( i)
+		SW.RankSystem.UpdatePlayer( i)
 	end
 	Camera.ZoomSetFactorMax( 2)
 end
@@ -266,6 +270,10 @@ function SW.Activate(_seed)
 	SW.Walls.Init()
 	-- Just for the lolz
 	SW.RandomChest.Init()
+	-- Make LKav great again
+	SW.LKavBuff.Init()
+	-- ActivateDebug()
+	ActivateDebug()
 end
 
 -- llllIIIIlIlIIl
