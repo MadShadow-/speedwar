@@ -32,6 +32,8 @@ function SW_LKavBuff_OnEntityHurtEntity()
 	end
 	if SW.LKavBuff.LastAttack[att] == nil then											--never attacked a settler?
 		SW.LKavBuff.ApplyDamage( Event.GetEntityID2(), SW.LKavBuff.FirstStrikeBonus)
+		SW.LKavBuff.LastAttack[att] = time
+		return
 	end
 	if SW.LKavBuff.LastAttack[att] + SW.LKavBuff.FirstStrikeRecharge < time then     	--enough time went by?
 		SW.LKavBuff.ApplyDamage( Event.GetEntityID2(), SW.LKavBuff.FirstStrikeBonus)
