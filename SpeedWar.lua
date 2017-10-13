@@ -263,7 +263,7 @@ function SW.Activate(_seed)
 	-- Activate the GUI for walls
 	SW.WallGUI.Init()
 	-- Activate Bastille Mod
-	--SW.Bastille.Activate()
+	SW.Bastille.Activate()
 	-- Just debug stuff
 	SW.DebuggingStuff()		--DO NOT REMOVE NOW; REMOVE IN FINAL VERSION AFTER TALKING WITH NAPO
 	-- Enable building walls
