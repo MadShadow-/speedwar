@@ -70,7 +70,8 @@ end
 function SW.LKavBuff.ApplyDamage( _eId, _dmg)
 	-- Zugriff auf SoldatenHP:
 	-- S5Hook.GetEntityMem( _eId)[31][3][27]:GetInt()
-	if Logic.IsLeader(_eId) == 1 then
+	if Logic.IsLeader(_eId) == 1 or (string.find(Logic.GetEntityTypeName(Logic.GetEntityType(_eId)),"Soldier") ~= nil)then
+		if true then return end
 		local solHP = S5Hook.GetEntityMem( _eId)[31][3][27]:GetInt()
 		if solHP >= _dmg then
 			S5Hook.GetEntityMem( _eId)[31][3][27]:SetInt( solHP - _dmg)
@@ -83,6 +84,10 @@ function SW.LKavBuff.ApplyDamage( _eId, _dmg)
 	end
 end
 
+--TODO:
+-- Fix crash
+-- Make soldiers drop money too
+-- Are serfs settlers?
 
 
 

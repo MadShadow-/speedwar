@@ -273,7 +273,7 @@ function SW.Activate(_seed)
 	-- Make LKav great again
 	SW.LKavBuff.Init()
 	-- ActivateDebug()
-	ActivateDebug()
+	-- ActivateDebug()
 end
 
 -- llllIIIIlIlIIl
