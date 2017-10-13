@@ -1,8 +1,8 @@
 SW = SW or {}
 SW.LKavBuff = {}
-SW.LKavBuff.FirstStrikeBonus = 50
+SW.LKavBuff.FirstStrikeBonus = 500
 SW.LKavBuff.FirstStrikeRecharge = 30
-SW.LKavBuff.GoldPerKill = 10
+SW.LKavBuff.GoldPerKill = 100
 SW.LKavBuff.MaxTimeDiff = 2
 SW.LKavBuff.GoodTypes = {
 	[Entities.PU_LeaderCavalry1] = true,
@@ -10,7 +10,13 @@ SW.LKavBuff.GoodTypes = {
 	[Entities.PU_SoldierCavalry1] = true,
 	[Entities.PU_SoldierCavalry2] = true,
 }
+SW.LKavBuff.SoldierTypes = {}
 function SW.LKavBuff.Init()
+	for k,v in pairs(Entities) do
+		if string.find(k, "Soldier") then
+			SW.LKavBuff.SoldierTypes[v] = true
+		end
+	end
 	SW.LKavBuff.LastAttacker = {}
 	SW.LKavBuff.LastAttack = {} --key = eId, value = timestamp
 	Trigger.RequestTrigger(Events.LOGIC_EVENT_ENTITY_HURT_ENTITY, "SW_LKavBuff_IsSettlerA", "SW_LKavBuff_OnEntityHurtEntity", 1)
@@ -25,20 +31,45 @@ end
 function SW_LKavBuff_OnEntityHurtEntity()
 	local time = Logic.GetTime()
 	local att = Event.GetEntityID1()
-	SW.LKavBuff.LastAttacker[Event.GetEntityID2()] = { att, time}
+	local def = Event.GetEntityID2()
+	--LuaDebugger.Log(att.." of type "..Logic.GetEntityTypeName(Logic.GetEntityType(att)).." attacking "..def.." of type "..Logic.GetEntityTypeName(Logic.GetEntityType(def)))
+	if SW.LKavBuff.SoldierGetLeader(def) ~= 0 then
+		local leader = SW.LKavBuff.SoldierGetLeader(def)
+		local data = {Logic.GetSoldiersAttachedToLeader( leader)}
+		for i = 2, data[1]+1 do
+			SW.LKavBuff.LastAttacker[data[i]] = { att, time}
+		end
+		SW.LKavBuff.LastAttacker[leader] = { att, time}
+	elseif Logic.IsLeader( def) == 1 then
+		local data = {Logic.GetSoldiersAttachedToLeader( def)}
+		for i = 2, data[1]+1 do
+			SW.LKavBuff.LastAttacker[data[i]] = { att, time}
+		end
+		SW.LKavBuff.LastAttacker[def] = { att, time}
+	else
+		SW.LKavBuff.LastAttacker[def] = { att, time}
+	end
 	-- Now check for timer if attacker is LKav
 	if SW.LKavBuff.GoodTypes[Logic.GetEntityType(att)] == nil then	--attacker is good type?
 		return
 	end
 	if SW.LKavBuff.LastAttack[att] == nil then											--never attacked a settler?
-		SW.LKavBuff.ApplyDamage( Event.GetEntityID2(), SW.LKavBuff.FirstStrikeBonus)
+		SW.LKavBuff.ApplyDamage( def, SW.LKavBuff.FirstStrikeBonus)
 		SW.LKavBuff.LastAttack[att] = time
 		return
 	end
 	if SW.LKavBuff.LastAttack[att] + SW.LKavBuff.FirstStrikeRecharge < time then     	--enough time went by?
-		SW.LKavBuff.ApplyDamage( Event.GetEntityID2(), SW.LKavBuff.FirstStrikeBonus)
+		SW.LKavBuff.ApplyDamage( def, SW.LKavBuff.FirstStrikeBonus)
 	end
 	SW.LKavBuff.LastAttack[att] = time
+end
+function SW.LKavBuff.SoldierGetLeader(_eId)
+	if SW.LKavBuff.SoldierTypes[Logic.GetEntityType(_eId)] then
+		-- Index 127 via S5Hook.GetEntityMem
+		return Logic.GetEntityScriptingValue( _eId, 69)
+	else 
+		return 0 
+	end
 end
 function SW_LKavBuff_IsSettler() --Is settler dying?
 	if Logic.IsSettler(Event.GetEntityID()) == 1 then
@@ -68,20 +99,49 @@ function SW_LKavBuff_OnEntityDestroyed()
 	end
 end
 function SW.LKavBuff.ApplyDamage( _eId, _dmg)
-	-- Zugriff auf SoldatenHP:
-	-- S5Hook.GetEntityMem( _eId)[31][3][27]:GetInt()
-	if Logic.IsLeader(_eId) == 1 or (string.find(Logic.GetEntityTypeName(Logic.GetEntityType(_eId)),"Soldier") ~= nil)then
-		if true then return end
-		local solHP = S5Hook.GetEntityMem( _eId)[31][3][27]:GetInt()
-		if solHP >= _dmg then
-			S5Hook.GetEntityMem( _eId)[31][3][27]:SetInt( solHP - _dmg)
-		else
-			S5Hook.GetEntityMem( _eId)[31][3][27]:SetInt(0)
-			Logic.HurtEntity( _eId, math.min(_dmg - solHP, Logic.GetEntityHealth( _eId)-1))
+	--LuaDebugger.Log("Hurting ".._eId.." of type "..Logic.GetEntityTypeName(Logic.GetEntityType(_eId)))
+	--LuaDebugger.Log(SW.LKavBuff.SoldierGetLeader(_eId))
+	if SW.LKavBuff.SoldierGetLeader(_eId) ~= 0 then
+		_eId = SW.LKavBuff.SoldierGetLeader(_eId)
+		SW.LKavBuff.ApplyDamageToLeader( _eId, _dmg)
+		return
+	end
+	if IsDead( _eId) then return end
+	if Logic.IsLeader(_eId) == 1 then
+		SW.LKavBuff.ApplyDamageToLeader( _eId, _dmg)
+		return
+	end
+	Logic.HurtEntity( _eId, _dmg)
+end
+function SW.LKavBuff.ApplyDamageToLeader( _eId, _dmg)
+	if IsDead( _eId) then return end
+	--LuaDebugger.Log("Hurting ".._eId.." of type "..Logic.GetEntityTypeName(Logic.GetEntityType(_eId)).." liek leader.")
+	local typee = S5Hook.GetEntityMem( _eId)[31][3][0]:GetInt()
+	if typee ~= 7823840 then
+		--Message("Tried to hurt nonleader like leader.")
+		return
+	end
+	local solHP = S5Hook.GetEntityMem( _eId)[31][3][27]:GetInt()
+	--LuaDebugger.Log(solHP)
+	if solHP >= _dmg then
+		S5Hook.GetEntityMem( _eId)[31][3][27]:SetInt( solHP - _dmg)
+	else
+		S5Hook.GetEntityMem( _eId)[31][3][27]:SetInt(0)
+		Logic.HurtEntity( _eId, math.min(_dmg - solHP, Logic.GetEntityHealth( _eId)-1))
+	end
+end
+function SW.LKavBuff.Test(_s)
+	local pos = GetPosition(GUI.GetSelectedEntity())
+	if _s == "LKav" then
+		for i = 1, 5 do
+			Tools.CreateGroup( 1, Entities.PU_LeaderCavalry1, 3, pos.X, pos.Y, 0)
 		end
 	else
-		Logic.HurtEntity( _eId, _dmg)
+		for i = 1, 5 do
+			Tools.CreateGroup( 2, Entities.PU_LeaderSword1, 4, pos.X, pos.Y, 0)
+		end
 	end
+	SetHostile(1,2)
 end
 
 --TODO:

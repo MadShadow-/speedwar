@@ -8,6 +8,9 @@ SW.RandomChest.OpeningRange = 500
 SW.RandomChest.Action =  {}
 SW.RandomChest.Keys = {}
 SW.RandomChest.ListOfChests = {}
+SW.RandomChest.SolarEclipseJobID = nil
+SW.RandomChest.SolarEclipseParam = 0
+SW.RandomChest.SolarEclipseTime = 60
 function SW.RandomChest.Init()
 	for k,v in pairs(SW.RandomChest.Action) do
 		table.insert(SW.RandomChest.Keys, k)
@@ -59,7 +62,9 @@ end
 function SW.RandomChest.ChestFound( _x, _y)
 	for i = 1, 8 do
 		for eId in S5Hook.EntityIterator(Predicate.OfPlayer(i), Predicate.InCircle( _x, _y, SW.RandomChest.OpeningRange)) do
-			return i
+			if Logic.IsSettler(eId) == 1 then
+				return i
+			end
 		end
 	end
 	return 0
@@ -113,26 +118,116 @@ function SW.RandomChest.Action.Tree( _pId, _x, _y)
 	local eId = Logic.CreateEntity(Entities.XD_ResourceTree, _x, _y, 0, 0)
 	Logic.SetModelAndAnimSet( eId, Models.XD_Fir1)
 	S5Hook.GetEntityMem( eId)[25]:SetFloat(5)
-	S5Hook.GetEntityMem( eId)[67]:SetInt(1000)
+	S5Hook.GetEntityMem( eId)[67]:SetInt(5000)
 	--Message( eId)
 	--for i = 0, 100 do
 	--	LuaDebugger.Log(i.." "..S5Hook.GetEntityMem(eId)[i]:GetInt())
 	--end
 end
-function SW.RandomChest.Action.SolarEclipse( _pId, _x, _y)		--TODO
-	if GUI.GetPlayerID() == _pId then
-		Message("Darin war nix!")
+function SW.RandomChest.Action.SolarEclipse( _pId, _x, _y)
+	if SW.RandomChest.SolarEclipseJobID ~= nil then
+		if GUI.GetPlayerID() == _pId then
+			Message("Darin war nix!")
+		end
+		return
 	end
+	if GUI.GetPlayerID() == _pId then
+		Message("Darin war eine Sonnenfinsternis!")
+	else
+		Message("Jemand hat eine Sonnenfinsternis gefunden!")
+	end
+	SW.RandomChest.SolarEclipseParam = 0
+	SW.RandomChest.SolarEclipseJobID = StartSimpleHiResJob("SW_RandomChest_SolarEclipseJob")
 end
-
+function SW_RandomChest_SolarEclipseJob()
+	SW.RandomChest.SolarEclipseParam = SW.RandomChest.SolarEclipseParam + 0.1
+	if SW.RandomChest.SolarEclipseParam >= 60 then
+		SW.RandomChest.SolarEclipseJobID = nil
+		return true
+	end
+	local state = 2*SW.RandomChest.SolarEclipseParam/SW.RandomChest.SolarEclipseTime - 1   --varies from -1 to 1 throughout the eclipse
+	-- formula for darkness calc: darkness(-1) = darkness(1) = 0
+	--							  darkness(x) = -(x+1)(x-1)
+	SW.RandomChest.SolarEclipseSetGFX( 1 + (state-1)*(state+1))
+end
+function SW.RandomChest.SolarEclipseSetGFX(_scale)
+	if _scale > 1 then
+		_scale = 1
+	elseif _scale < 0 then
+		_scale = 0
+	end
+	Display.GfxSetSetLightParams(1,  0.0, 1.0, 40, -15, -50,  30+math.floor(90*_scale),30+math.floor(80*_scale),60+math.floor(50*_scale),  math.floor(255*_scale), math.floor(254*_scale), math.floor(230*_scale))
+	Display.GfxSetSetLightParams(3,  0.0, 1.0,  40, -15, -75,  25+math.floor(75*_scale),30+math.floor(80*_scale),60+math.floor(50*_scale), math.floor(250*_scale), math.floor(250*_scale), math.floor(250*_scale))
+	Display.GfxSetSetLightParams(2,  0.0, 1.0, 40, -15, -50,  30+math.floor(90*_scale),30+math.floor(80*_scale),60+math.floor(50*_scale),  math.floor(255*_scale), math.floor(254*_scale), math.floor(230*_scale))
+end
+function SW.RandomChest.Action.NobleMan( _pId, _x, _y)
+	if GUI.GetPlayerID() == _pId then
+		Message("Darin war ein mächtiger Krieger!")
+	end
+	local eId = Logic.CreateEntity(Entities.PU_LeaderPoleArm3, _x, _y, 0, 0)
+	S5Hook.GetEntityMem( eId)[25]:SetFloat(1.8)
+end
+function SW.RandomChest.Action.WildMan( _pId, _x, _y)
+	if GUI.GetPlayerID() == _pId then
+		Message("Darin war ein Wilder!")
+	end
+	local eId = Logic.CreateEntity(Entities.CU_Evil_LeaderBearman1, _x, _y, 0, 0)
+	S5Hook.GetEntityMem( eId)[25]:SetFloat(2)
+	SW.SetMovementspeed( eId, 600)
+end
+SW.RandomChest.GoetheText = {
+	"Habe nun, ach! Philosophie,",
+	"Juristerei und Medizin,",
+	"Und leider auch Theologie",
+	"Durchaus studiert, mit heißem Bemühn.",
+	"Da steh ich nun, ich armer Tor!",
+	"Und bin so klug als wie zuvor;",
+	"Heiße Magister, heiße Doktor gar",
+	"Und ziehe schon an die zehen Jahr",
+	"Herauf, herab und quer und krumm",
+	"Meine Schüler an der Nase herum –",
+	"Und sehe, daß wir nichts wissen können!",
+	"Das will mir schier das Herz verbrennen.",
+	"Zwar bin ich gescheiter als all die Laffen,",
+	"Doktoren, Magister, Schreiber und Pfaffen;",
+	"Mich plagen keine Skrupel noch Zweifel,",
+	"Fürchte mich weder vor Hölle noch Teufel –",
+	"Dafür ist mir auch alle Freud entrissen,",
+	"Bilde mir nicht ein, was Rechts zu wissen,",
+	"Bilde mir nicht ein, ich könnte was lehren,",
+	"Die Menschen zu bessern und zu bekehren.",
+	"Auch hab ich weder Gut noch Geld,",
+	"Noch Ehr und Herrlichkeit der Welt;"
+}
+function SW.RandomChest.Action.Goethe( _pId, _x, _y)
+	if GUI.GetPlayerID() == _pId then
+		Message("Darin war die Gelehrtentragödie!")
+	end
+	_G["SW_RandomChest_Goethe".._pId.."Counter"] = 0
+	_G["SW_RandomChest_Goethe".._pId.."Job"] = function()
+		_G["SW_RandomChest_Goethe".._pId.."Counter"] = _G["SW_RandomChest_Goethe".._pId.."Counter"] + 1
+		local text = SW.RandomChest.GoetheText[_G["SW_RandomChest_Goethe".._pId.."Counter"]]
+		if text ~= nil then
+			if _pId == GUI.GetPlayerID() then
+				Message(text)
+			end
+		else
+			return true
+		end
+	end
+	StartSimpleJob("SW_RandomChest_Goethe".._pId.."Job")
+end
+function SW.RandomChest.Action.Statue( _pId, _x, _y)
+	if GUI.GetPlayerID() == _pId then
+		Message("Darin war eine Statue unseres geliebten Herrschers!")
+	end
+	local eId = Logic.CreateEntity(Entities.XD_Rock1, _x, _y, 0, 0)
+	Logic.SetModelAndAnimSet( eId, Models.PB_Beautification01)
+	S5Hook.GetEntityMem( eId)[25]:SetFloat(2.5)
+end
 --Ideen:
---	SONIC
 --	Ein eisiger Winter
 --	Eine Läuterung?
---	Ewiges Feuer
 --	Konfetti
---	Ein Stein
 --	Endraläer Krustenbrot
---	Eine Sonnenfinsternis
---	Ein Baum
 --	Ein Ring, sie zu knechten, sie alle zu finden, ins Dunkel zu treiben und ewig zu binden
