@@ -13,7 +13,7 @@
 ]]
 SW = SW or {};
 SW.Bastille = {};
-SW.Bastille.Tracking = {Pending = {}, Tracked = {}, PendingDuration = 10};
+SW.Bastille.Tracking = {};
 SW.Bastille.EnterRange = 1000;
 SW.Bastille.MaxTroopsPerResort = 12; -- if you want to change this, GUI has to be changed as well
 SW.Bastille.Resorts = {};
@@ -37,6 +37,15 @@ function SW.Bastille.Activate()
 			--XGUIEng.ShowWidget("SWBottomOverlayLeader", 1);
 		end
 		SW.Bastille.GameCallback_GUI_SelectionChanged();
+	end
+	
+	-- for napos pillage script
+	if SW.PillageEntityTypeCost then
+		SW.PillageEntityTypeCost[Entities.CB_Bastille1] = {
+			[ResourceType.Wood]= 400,
+			[ResourceType.Clay]= 400,
+			[ResourceType.Stone]= 500,
+		}; 
 	end
 	
 	SW.Bastille.LatestGUIState = 0;
@@ -100,72 +109,45 @@ function SW.Bastille.Activate()
 end
 
 function SW.Bastille.TrackGroup(_leaders, _bastille)
-	table.insert(SW.Bastille.Tracking.Pending, {Count=0, Leaders = _leaders, Bastille = _bastille});
-	if JobIsRunning(SW.Bastille.Tracking.ControlPendingJobId) == 0 then
-		SW.Bastille.Tracking.ControlPendingJobId = StartSimpleJob("SW_Bastille_Tracking_ControlPending");
+	for i = 1, table.getn(_leaders) do
+		SW.Bastille.Tracking[_leaders[i]] = {Bastille = _bastille};
+	end
+	if JobIsRunning(SW.Bastille.ControlTrackingJobId) == 0 then
+		SW.Bastille.ControlTrackingJobId = StartSimpleJob("SW_Bastille_ControlTracking");
 	end
 end
 
-function SW_Bastille_Tracking_ControlPending()
-	LuaDebugger.Log("Pending...");
-	local t;
-	local pendingGroups = table.getn(SW.Bastille.Tracking.Pending);
-	if pendingGroups == 0 then
-		LuaDebugger.Log("end pending job");
-		return true;
-	end
-	for i = pendingGroups, 1, -1 do
-		t = SW.Bastille.Tracking.Pending[i];
-		for j = 1, table.getn(t.Leaders) do
-			if IsAlive(t.Leaders[j]) then
-				if Logic.LeaderGetCurrentCommand(t.Leaders[j]) == 6 then
-					table.insert(SW.Bastille.Tracking.Tracked, t);
-					table.remove(SW.Bastille.Tracking.Pending, i);
-					if JobIsRunning(SW.Bastille.Tracking.ControlTrackingJobId) == 0 then
-						SW.Bastille.Tracking.ControlTrackingJobId = StartSimpleJob("SW_Bastille_Tracking_ControlTracking");
-					end
-					break;
+function SW_Bastille_ControlTracking()
+	local numberOfLeaders = 0;
+	for leaderId, t in pairs(SW.Bastille.Tracking) do
+		if IsAlive(leaderId) then
+			if Logic.LeaderGetCurrentCommand(leaderId) == 6 then
+				if IsNear(leaderId, t.Bastille, SW.Bastille.EnterRange) then
+					SW.Bastille.LeaderEnterBastille(leaderId, t.Bastille);
+					SW.Bastille.Tracking[leaderId] = nil;
 				end
+			else
+				SW.Bastille.Tracking[leaderId] = nil;
 			end
-		end
-		if t.Count < SW.Bastille.Tracking.PendingDuration then
-			t.Count = t.Count + 1;
 		else
-			table.remove(SW.Bastille.Tracking.Pending, i);
+			SW.Bastille.Tracking[leaderId] = nil;
 		end
+		numberOfLeaders = numberOfLeaders + 1;
 	end
-end
-
-function SW_Bastille_Tracking_ControlTracking()
-	LuaDebugger.Log("Tracking...");
-	local t;
-	local trackingGroups = table.getn(SW.Bastille.Tracking.Tracked);
-	if trackingGroups == 0 then
-		LuaDebugger.Log("end tracking job");
+	
+	if numberOfLeaders == 0 then
 		return true;
-	end
-	local pos;
-	for i = trackingGroups, 1, -1 do
-		t = SW.Bastille.Tracking.Tracked[i];
-		for j = table.getn(t.Leaders), 1, -1 do
-			if IsAlive(t.Leaders[j]) and IsNear(t.Leaders[j], t.Bastille, SW.Bastille.EnterRange) then
-				SW.Bastille.LeaderEnterBastille(t.Leaders[j], t.Bastille);
-				table.remove(t.Leaders, j);
-			end
-		end
-		if table.getn(t.Leaders) == 0 then
-			table.remove(SW.Bastille.Tracking.Tracked, i);
-		end
 	end
 end
 
 function SW.Bastille.LeaderEnterBastille(_leader, _bastille)
-	LuaDebugger.Log("Leader ".._leader.." enters bastille");
 	if SW.Bastille.Resorts[_bastille] == nil then
 		SW.Bastille.Resorts[_bastille] = {};
 	end
 	if SW.Bastille.Resorts[_bastille][SW.Bastille.MaxTroopsPerResort] then
-		Message("Euer Standhafter Turm ist voll!");
+		if GetPlayer(_bastille) == GUI.GetPlayerID() then
+			Message("Euer Standhafter Turm ist voll!");
+		end
 		return;
 	end
 	
@@ -187,72 +169,6 @@ function SW.Bastille.LeaderEnterBastille(_leader, _bastille)
 	if GUI.GetSelectedEntity() == _bastille then
 		SW.Bastille.UpdateCompleteGUI()
 	end
-end
-
-function SW.Bastille.GUIAction_ReleaseAllUnits()
-	local sel = GUI.GetSelectedEntity();
-	if SW.Bastille.Resorts[sel] == nil then
-		return;
-	end
-	local pos, info;
-	while(SW.Bastille.Resorts[sel][1]) do
-		if not SW.Bastille.ReleaseUnit(sel, 1) then
-			-- can't remove all leaders due to attraction limit
-			break;
-		end
-	end
-	SW.Bastille.UpdateCompleteGUI();
-end
-
-function SW.Bastille.GUIUpate_HealthBar(_id)
-	local CurrentWidgetID = XGUIEng.GetWidgetID("SWBOBEntity".._id.."_health");
-	local sel = GUI.GetSelectedEntity();
-	
-	if SW.Bastille.Resorts[sel] == nil 
-	or SW.Bastille.Resorts[sel][_id] == nil then
-		XGUIEng.SetProgressBarValues(CurrentWidgetID,0,1);
-	else
-		local PlayerID = GUI.GetPlayerID()
-		local ColorR, ColorG, ColorB = GUI.GetPlayerColor( PlayerID )
-		
-		local CurrentHealth = SW.Bastille.Resorts[sel][_id].Health;
-		local Maxhealth = SW.Bastille.Resorts[sel][_id].MaxHealth
-		
-		if SW.Bastille.Resorts[sel][_id].IsHero == 0 then
-			
-			local AmountOfSoldiers = SW.Bastille.Resorts[sel][_id].Soldiers
-			local MaxAmountOfSoldiers = SW.Bastille.Resorts[sel][_id].MaxSoldiers
-					
-			CurrentHealth = CurrentHealth + (AmountOfSoldiers * 200)
-			Maxhealth = Maxhealth + (MaxAmountOfSoldiers * 200)
-			
-		end
-		
-		XGUIEng.SetMaterialColor(CurrentWidgetID,0,ColorR, ColorG, ColorB,255)
-		
-		XGUIEng.SetProgressBarValues(CurrentWidgetID,CurrentHealth, Maxhealth)
-	end
-
-end
-
-SW.Bastille.Tooltips = {
-	["EnterBastille"] = "",
-};
-
-function SW.Bastille.UpdateTooltip(_tooltip)
-end
-
-function SW.Bastille.GUIAction_ReleaseUnit(_id)
-	local sel = GUI.GetSelectedEntity();
-	if SW.Bastille.Resorts[GUI.GetSelectedEntity()] == nil
-	or SW.Bastille.Resorts[GUI.GetSelectedEntity()][_id] == nil then
-		-- no units in this resort
-		return;
-	end	
-	if not SW.Bastille.ReleaseUnit(sel, _id) then
-		return;
-	end
-	SW.Bastille.UpdateCompleteGUI()
 end
 
 function SW.Bastille.ReleaseUnit(_bastille, _id)
@@ -303,7 +219,32 @@ function SW.Bastille.SpawnReleasedUnit(_playerId, _bastille, _id, _leaderType, _
 	end
 end
 
-function SW.Bastille.GUITooltip_Update(_id)
+function SW.Bastille.GUIAction_ReleaseAllUnits()
+	local sel = GUI.GetSelectedEntity();
+	if SW.Bastille.Resorts[sel] == nil then
+		return;
+	end
+	local pos, info;
+	while(SW.Bastille.Resorts[sel][1]) do
+		if not SW.Bastille.ReleaseUnit(sel, 1) then
+			-- can't remove all leaders due to attraction limit
+			break;
+		end
+	end
+	SW.Bastille.UpdateCompleteGUI();
+end
+
+function SW.Bastille.GUIAction_ReleaseUnit(_id)
+	local sel = GUI.GetSelectedEntity();
+	if SW.Bastille.Resorts[GUI.GetSelectedEntity()] == nil
+	or SW.Bastille.Resorts[GUI.GetSelectedEntity()][_id] == nil then
+		-- no units in this resort
+		return;
+	end	
+	if not SW.Bastille.ReleaseUnit(sel, _id) then
+		return;
+	end
+	SW.Bastille.UpdateCompleteGUI()
 end
 
 function SW.Bastille.GUIUpdate_UnitButton(_id)
@@ -355,13 +296,78 @@ function SW.Bastille.GUIUpdate_UnitButton(_id)
 	XGUIEng.TransferMaterials(SourceButton, CurrentWidgetID)
 end
 
-function SW.Bastille.GUIAction_EnterBastille()
-	GUIAction_Command(5)
+function SW.Bastille.GUIUpdate_HealthBar(_id)
+	local CurrentWidgetID = XGUIEng.GetWidgetID("SWBOBEntity".._id.."_health");
+	local sel = GUI.GetSelectedEntity();
+	
+	if SW.Bastille.Resorts[sel] == nil 
+	or SW.Bastille.Resorts[sel][_id] == nil then
+		XGUIEng.SetProgressBarValues(CurrentWidgetID,0,1);
+	else
+		local PlayerID = GUI.GetPlayerID()
+		local ColorR, ColorG, ColorB = GUI.GetPlayerColor( PlayerID )
+		
+		local CurrentHealth = SW.Bastille.Resorts[sel][_id].Health;
+		local Maxhealth = SW.Bastille.Resorts[sel][_id].MaxHealth
+		
+		if SW.Bastille.Resorts[sel][_id].IsHero == 0 then
+			
+			local AmountOfSoldiers = SW.Bastille.Resorts[sel][_id].Soldiers
+			local MaxAmountOfSoldiers = SW.Bastille.Resorts[sel][_id].MaxSoldiers
+					
+			CurrentHealth = CurrentHealth + (AmountOfSoldiers * 200)
+			Maxhealth = Maxhealth + (MaxAmountOfSoldiers * 200)
+			
+		end
+		
+		XGUIEng.SetMaterialColor(CurrentWidgetID,0,ColorR, ColorG, ColorB,255)
+		
+		XGUIEng.SetProgressBarValues(CurrentWidgetID,CurrentHealth, Maxhealth)
+	end
+
+end
+
+SW.Bastille.TooltipTexts = {
+	["releaseAll"] = "@color:255,165,0 Zu den Waffen! @cr @color:220,220,220 Alle Einheiten verlassen den Turm sofort."
+};
+
+function SW.Bastille.GUIUpdate_Tooltip(_id)
+	-- overwrite with empty strings
+	XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomCosts, "");
+	XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomShortCut, "");
+	
+	local tooltipDescr = "";
+	if SW.Bastille.TooltipTexts[_id] then
+		tooltipDescr =  SW.Bastille.TooltipTexts[_id];
+	else
+		local sel = GUI.GetSelectedEntity()
+		if SW.Bastille.Resorts[sel] == nil 
+		or SW.Bastille.Resorts[sel][_id] == nil then
+			tooltipDescr = "@color:152,251,152 Freier Platz @cr @color:220,220,220 Hier hat noch eine Einheit Platz im Turm." ..
+						   " Sendet einen Trupp mit dem 'Bewachen'-Befehl auf einen standhaften Turm um die Einheit dort unterzubringen."
+		else
+			local t = SW.Bastille.Resorts[sel][_id];
+			local soldiers = "";
+			if t.Soldiers > 0 then
+				soldiers = "(" .. t.Soldiers .. "/" .. t.MaxSoldiers .. ")";
+			end
+				
+			tooltipDescr = "@color:152,251,152 " .. XGUIEng.GetStringTableText("names/" .. Logic.GetEntityTypeName(t.Type)) ..
+				" " .. soldiers .. " @cr @color:220,220,220 Mit einem Klick auf diesen Button muss die stationierte Einheit ihren warmen Platz im Turm verlassen.";
+		end
+	end
+	
+	XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomText, tooltipDescr);
 end
 
 function SW.Bastille.UpdateCompleteGUI()
 	for i = 1, 12 do
-		SW.Bastille.GUIUpate_HealthBar(i);
 		SW.Bastille.GUIUpdate_UnitButton(i);
+		SW.Bastille.GUIUpdate_HealthBar(i);
+		SW.Bastille.GUIUpdate_Tooltip(i);
 	end
+end
+
+function SW.Bastille.CallbackRankTwoReached()
+	XGUIEng.DisableButton("SWBuildBastille", 0);
 end

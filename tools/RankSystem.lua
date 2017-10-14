@@ -16,6 +16,19 @@ SW.RankSystem.Rank = {} --Key: PlayerId, Value: Current rank, 1 to 4
 SW.RankSystem.PlayerIds = {}
 SW.RankSystem.PlayerNames = {}
 SW.RankSystem.ListOfAllyIds = {}		-- ONLY LOCAL, DIFFERENT VALUES FOR DIFFERENT TEAMS!
+SW.RankSystem.CallbackOnRankUp =
+{
+	-- reaching rank 2
+	[2] = function()
+		SW.Bastille.CallbackRankTwoReached();
+	end,
+	-- reaching rank 3
+	[3] = function()
+	end,
+	-- reaching rank 4
+	[4] = function()
+	end,
+};
 function SW.RankSystem.Init()
 	for i = 1, 8 do
 		SW.RankSystem.Points[i] = 0
@@ -156,6 +169,10 @@ function SW.RankSystem.ApplyGUIChanges()
 end
 function SW.RankSystem.OnRankUp( _pId)	--Gets called every time a player reaches a new rank; Currently empty
 	Message("Spieler "..SW.RankSystem.PlayerNames[_pId].." hat den Rang "..SW.RankSystem.RankNames[SW.RankSystem.Rank[_pId]].." @color:255,255,255 erreicht!")
+	-- calling callbacks
+	if SW.RankSystem.CallbackOnRankUp[SW.RankSystem.Rank[_pId]] then
+		SW.RankSystem.CallbackOnRankUp[SW.RankSystem.Rank[_pId]]();
+	end
 	if SW.RankSystem.Rank[_pId] == 4 then
 		XGUIEng.SetProgressBarValues("VCMP_Team"..SW.RankSystem.GetGUIIdByPlayerId(_pId).."Progress", 1, 1)
 	else

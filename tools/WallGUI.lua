@@ -26,8 +26,8 @@ SW.WallGUI.Costs =
 		[5] = 100,
 	},
 	["Blacksmith"] = {
-		[1] = 200,
-		[5] = 100,
+		[2] = 200,
+		[4] = 200,
 	},
 	["Bastille"] = {
 		[2] = 400,
@@ -123,25 +123,25 @@ SW.WallGUI.ReplaceEntities = {
 SW.WallGUI.WallConstructionTooltips = {
 	{
 		"Mauer",
-		"Wehrpflicht",
+		"Konstruktion",
 		"Erbauen eines einfachen Mauerfragments",
 		"Ein Mauerstück mit dem ihr eine Basismauer errichten könnt. Die einzelnen Stücke verbinden sich automatisch."
 	},
 	{
 		"Abschlussmauer",
-		"Stehendes Heer",
+		"Konstruktion",
 		"Erbau einer Abschlussmauer",
 		"Schließt Breschen in der Mauer und kann benutzt werden, um die Mauer in die selbe Richtung fortzusetzen."
 	},
 	{
 		"Tor",
-		"Taktiken",
+		"Konstruktion",
 		"Erbau von Toren",
 		"Ein Tor das sich nach belieben öffnen und schließen lässt."
 	},
 	{
 		"Standhafter Turm",
-		"Rang: Feldherr",
+		"Rang: " .. SW.BuildingTooltips.RankNames[2],
 		"Ermöglicht das bauen standhafter Türme in denen sich Militäreinheiten stationieren lassen.",
 		"In diesem Turm könnt ihr Einheiten stationieren."
 	},
@@ -159,11 +159,11 @@ SW.WallGUI.RequiredTechnologies = {
 function SW.WallGUI.Init()
 
 	-- prepare GUI
-	--XGUIEng.DisableButton("SWBuildWall",1);
-	--XGUIEng.DisableButton("SWBuildEndWall",1);
-	--XGUIEng.DisableButton("SWBuildGate",1);
-	--XGUIEng.DisableButton("SWBuildBlacksmith",1);
-	--XGUIEng.DisableButton("SWBuildBastille",1);
+	XGUIEng.DisableButton("SWBuildWall",1);
+	XGUIEng.DisableButton("SWBuildEndWall",1);
+	XGUIEng.DisableButton("SWBuildGate",1);
+	XGUIEng.DisableButton("SWBuildBlacksmith",1);
+	XGUIEng.DisableButton("SWBuildBastille",1);
 	
 	SW.WallGUI.Tooltips = {
 		["Wall"] = SW.WallGUI.CreateTooltip(unpack(SW.WallGUI.WallConstructionTooltips[1])),
@@ -180,7 +180,7 @@ function SW.WallGUI.Init()
 		["Bastille"] = SW.WallGUI.CreateTooltip(unpack(SW.WallGUI.WallConstructionTooltips[4])),
 	};
 	SW.WallGUI.GameCallback_GUI_StateChanged = GameCallback_GUI_StateChanged;
-	function GameCallback_GUI_StateChanged( _StateNameID, _Armed )
+	GameCallback_GUI_StateChanged = function( _StateNameID, _Armed )
 		if SW.WallGUI.DummyPlaced then
 			Sync.Call("SW.WallGUI.PayCosts", GUI.GetPlayerID(), SW.WallGUI.Costs[SW.WallGUI.LatestWallType]);
 			Sync.Call("SW.WallGUI.AddWallInConstructionToQueue", SW.WallGUI.LatestEntity, SW.WallGUI.LatestWallType);
@@ -197,6 +197,22 @@ function SW.WallGUI.Init()
 			if not SW.WallGUI.HasPlayerEnoughResources( SW.WallGUI.Costs[SW.WallGUI.WallType] ) then
 				GUI.CancelState();
 			end
+		end
+	end
+	
+	-- TODO: Currently hardcoded, should somehow end up in a config table
+	SW.WallGUI.GameCallback_OnTechnologyResearched = GameCallback_OnTechnologyResearched;
+	GameCallback_OnTechnologyResearched = function( _playerId , _technologyType)
+		SW.WallGUI.GameCallback_OnTechnologyResearched(_playerId, _technologyType)
+		if _playerId ~= GUI.GetPlayerID() then
+			return;
+		end
+		if _technologyType == Technologies.GT_Construction then
+			XGUIEng.DisableButton("SWBuildWall", 0);
+			XGUIEng.DisableButton("SWBuildEndWall", 0);
+			XGUIEng.DisableButton("SWBuildGate", 0);
+		elseif _technologyType == Technologies.GT_Alchemy then
+			XGUIEng.DisableButton("SWBuildBlacksmith", 0);
 		end
 	end
 
