@@ -29,6 +29,14 @@ function GameCallback_OnGameStart()
 	-- how about some vision?
 	Display.GfxSetSetFogParams(3, 0.0, 1.0, 1, 152,172,182, 3000,19500)
 	Display.GfxSetSetFogParams(2, 0.0, 1.0, 1, 102,132,132, 0,19500)
+	
+	-- extra für simi
+	if LuaDebugger == nil or LuaDebugger.Log == nil then
+		LuaDebugger = LuaDebugger or {};
+		LuaDebugger.Log = function(_text) Message("UNUSEFULL DEBUG LOG:" .. tostring(_text)) end
+		LuaDebugger.Break = function() end
+	end
+	
 	log = function() end;
 	--ActivateDebug();
 	for i = 1, 4 do
