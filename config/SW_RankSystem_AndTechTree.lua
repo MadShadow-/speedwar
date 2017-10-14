@@ -4,9 +4,9 @@ SW.RankSystem = SW.RankSystem or {}
 
 SW.RankSystem.RankNames = {
 	"Siedler",
-	"@color:255,79,200: Krieger",
-	"@color:0,140,2: Feldherr",
-	"@color:115,209,65: Eroberer"
+	"@color:255,255,51: Krieger",
+	"@color:255,153,51: Feldherr",
+	"@color:255,0,51: Eroberer"
 }
 SW.BuildingTooltips.RankNames = {
 	"Siedler",
