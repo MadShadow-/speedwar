@@ -99,9 +99,6 @@ function SW_LKavBuff_OnEntityDestroyed()
 	local attPId = GetPlayer(lastHitter[1])
 	AddGold( attPId, SW.LKavBuff.GoldPerKill)
 	SW.LKavBuff.Looted[attPId] = SW.LKavBuff.Looted[attPId] + SW.LKavBuff.GoldPerKill
-	if attPId == GUI.GetPlayerID() then
-		Message("Eure leichte Kavallerie hat "..SW.LKavBuff.GoldPerKill.." Gold gefunden!")
-	end
 end
 function SW.LKavBuff.ApplyDamage( _eId, _dmg)
 	--LuaDebugger.Log("Hurting ".._eId.." of type "..Logic.GetEntityTypeName(Logic.GetEntityType(_eId)))

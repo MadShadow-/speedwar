@@ -64,6 +64,8 @@ function SW_ProgressWindow_UpdateScore()
 	
 	local percentage = math.floor((curPoints / threshold) * 100);
 	XGUIEng.SetText("SWGPPercentage", "@center " .. percentage .. "%");
+	
+	XGUIEng.SetText("SWGPLKavMoney", "@center Taler erbeutet: " .. tostring(SW.LKavBuff.Looted[GUI.GetPlayerID()]));
 end
 
 function SW.ProgressWindow.GUIAction_ShowProgressWindow()
