@@ -121,9 +121,11 @@ function SW.TankyHQ.SpreadDamage( _list, _toSpread, _hqId) --returns damage that
 		local currHP = Logic.GetEntityHealth(newList[index][1])
 		local maxHP = Logic.GetEntityMaxHealth(newList[index][1])
 		local toTransfer = math.min( math.floor(currHP - maxHP*SW.TankyHQ.Threshold), _toSpread - spreaded)
+		-- current toTransfer = amount of HP is able to give
+		toTransfer = math.floor(math.floor(toTransfer/SW.TankyHQ.PenaltyFactor)*SW.TankyHQ.PenaltyFactor)
 		Logic.HurtEntity( newList[index][1], toTransfer)
 		table.insert( SW.TankyHQ.DataTransferVisualization, { start = GetPosition(newList[index][1]), target = GetPosition( _hqId), t = 0})
-		spreaded = spreaded + _toSpread
+		spreaded = spreaded + math.floor(toTransfer/SW.TankyHQ.PenaltyFactor)
 		table.remove( newList, index)
 	end
 	--[[for i = 1, table.getn(newList) do
