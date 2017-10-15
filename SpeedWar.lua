@@ -44,7 +44,7 @@ function GameCallback_OnGameStart()
 		TroopSpawnKeys = true,
 	};
 	
-	for i = 1, 4 do
+	for i = 1, 8 do
 		Tools.GiveResouces(i, 0, 700, 500, 0, 0, 0);
 	end
 	
