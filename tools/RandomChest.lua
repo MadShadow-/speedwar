@@ -139,6 +139,13 @@ function SW.RandomChest.Action.SolarEclipse( _pId, _x, _y)
 	SW.RandomChest.SolarEclipseParam = 0
 	SW.RandomChest.SolarEclipseJobID = StartSimpleHiResJob("SW_RandomChest_SolarEclipseJob")
 end
+function SW.RandomChest.Action.Bomb( _pId, _x, _y)
+	if GUI.GetPlayerID() == _pId then
+		Message("Darin war eine Bombe!")
+	end
+	local bombId = Logic.CreateEntity(Entities.XD_Bomb1, _x, _y, 0, 0)
+	S5Hook.GetEntityMem(bombId)[31][0][4]:SetInt(600) --wait a minute...
+end
 function SW_RandomChest_SolarEclipseJob()
 	SW.RandomChest.SolarEclipseParam = SW.RandomChest.SolarEclipseParam + 0.1
 	if SW.RandomChest.SolarEclipseParam >= 60 then
@@ -164,14 +171,14 @@ function SW.RandomChest.Action.NobleMan( _pId, _x, _y)
 	if GUI.GetPlayerID() == _pId then
 		Message("Darin war ein mächtiger Krieger!")
 	end
-	local eId = Logic.CreateEntity(Entities.PU_LeaderPoleArm3, _x, _y, 0, 0)
+	local eId = Logic.CreateEntity(Entities.PU_LeaderPoleArm3, _x, _y, 0, _pId)
 	S5Hook.GetEntityMem( eId)[25]:SetFloat(1.8)
 end
 function SW.RandomChest.Action.WildMan( _pId, _x, _y)
 	if GUI.GetPlayerID() == _pId then
 		Message("Darin war ein Wilder!")
 	end
-	local eId = Logic.CreateEntity(Entities.CU_Evil_LeaderBearman1, _x, _y, 0, 0)
+	local eId = Logic.CreateEntity(Entities.CU_Evil_LeaderBearman1, _x, _y, 0, _pId)
 	S5Hook.GetEntityMem( eId)[25]:SetFloat(2)
 	SW.SetMovementspeed( eId, 600)
 end
