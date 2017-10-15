@@ -441,14 +441,14 @@ function SW.EnableRandomWeatherNEW()
 		currentState = finalState
 		SW.RandomWeatherAddElement( finalState, length)
 	end
-	if LuaDebugger.Log then
+	if false then
 		LuaDebugger.Log(total[1].." "..total[2].." "..total[3])
 		local suptotal = total[1]+total[2]+total[3]
 		LuaDebugger.Log(total[1]/suptotal.." "..total[2]/suptotal.." "..total[3]/suptotal)
 	end
 end
 function SW.RandomWeatherAddElement( _stateId, _length)
-	if LuaDebugger.Log then
+	if false then
 		LuaDebugger.Log("Adding state ".._stateId.." with length ".._length)
 	end
 	AddWeatherElement( _length, _stateId, 1)

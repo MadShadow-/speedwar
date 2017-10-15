@@ -1,8 +1,8 @@
 SW = SW or {}
 SW.LKavBuff = {}
-SW.LKavBuff.FirstStrikeBonus = 500
+SW.LKavBuff.FirstStrikeBonus = 30
 SW.LKavBuff.FirstStrikeRecharge = 30
-SW.LKavBuff.GoldPerKill = 100
+SW.LKavBuff.GoldPerKill = 30
 SW.LKavBuff.MaxTimeDiff = 2
 SW.LKavBuff.GoodTypes = {
 	[Entities.PU_LeaderCavalry1] = true,

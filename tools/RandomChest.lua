@@ -205,6 +205,9 @@ function SW.RandomChest.Action.Goethe( _pId, _x, _y)
 	end
 	_G["SW_RandomChest_Goethe".._pId.."Counter"] = 0
 	_G["SW_RandomChest_Goethe".._pId.."Job"] = function()
+		if Counter.Tick2("SW_RandomChest_GoetheCounter".._pId, 2) then
+			return
+		end
 		_G["SW_RandomChest_Goethe".._pId.."Counter"] = _G["SW_RandomChest_Goethe".._pId.."Counter"] + 1
 		local text = SW.RandomChest.GoetheText[_G["SW_RandomChest_Goethe".._pId.."Counter"]]
 		if text ~= nil then
