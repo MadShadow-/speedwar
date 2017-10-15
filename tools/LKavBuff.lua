@@ -4,6 +4,10 @@ SW.LKavBuff.FirstStrikeBonus = 30
 SW.LKavBuff.FirstStrikeRecharge = 30
 SW.LKavBuff.GoldPerKill = 30
 SW.LKavBuff.MaxTimeDiff = 2
+SW.LKavBuff.Looted = {}
+for i = 1, 8 do
+	SW.LKavBuff.Looted[i] = 0
+end
 SW.LKavBuff.GoodTypes = {
 	[Entities.PU_LeaderCavalry1] = true,
 	[Entities.PU_LeaderCavalry2] = true,
@@ -94,6 +98,7 @@ function SW_LKavBuff_OnEntityDestroyed()
 	--Everything ok? Give gold to attacker
 	local attPId = GetPlayer(lastHitter[1])
 	AddGold( attPId, SW.LKavBuff.GoldPerKill)
+	SW.LKavBuff.Looted[attPId] = SW.LKavBuff.Looted[attPId] + SW.LKavBuff.GoldPerKill
 	if attPId == GUI.GetPlayerID() then
 		Message("Eure leichte Kavallerie hat "..SW.LKavBuff.GoldPerKill.." Gold gefunden!")
 	end
