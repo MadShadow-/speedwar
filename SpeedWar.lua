@@ -282,6 +282,8 @@ function SW.Activate(_seed)
 	if debugging.Debug then
 		ActivateDebug()
 	end
+	-- Allow ress checking
+	SW.RessCheck.Init()
 end
 
 function SW.EnableStartingTechnologies()
@@ -698,7 +700,7 @@ function SW.DebuggingStuff()
 		return checkSum
 	end
 	local debugggg = false
-	if GenerateChecksum(SW.Activate) ~= 709 then
+	if GenerateChecksum(SW.Activate) ~= 1536 then
 		debugggg = true
 		--LuaDebugger.Log("Activate manipuliert")
 	end
