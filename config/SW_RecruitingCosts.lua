@@ -1,5 +1,10 @@
 SW = SW or {};
 SW.RecruitingCosts = SW.RecruitingCosts or {};
+SW.RecruitingCosts.Extra = {
+	["PU_Serf"] = {
+		[ResourceType.Wood] = 15
+	}
+};
 SW.RecruitingCosts.Level1And2 = { --New costs for first half of tech tree
 	["PU_LeaderBow"] = {
 		[ResourceType.Gold] = 50,

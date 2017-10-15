@@ -15,16 +15,13 @@ function GameCallback_OnGameStart()
 	IncludeGlobals("Comfort")
 
 	if XNetwork.Manager_DoesExist() == 0 then		
-		for i=1,8,1 do
-			MultiplayerTools.DeleteFastGameStuff(i)
-		end
 		local PlayerID = GUI.GetPlayerID()
 		Logic.PlayerSetIsHumanFlag( PlayerID, 1 )
 		Logic.PlayerSetGameStateToPlaying( PlayerID )
 	end
 	
 	LocalMusic.UseSet = HIGHLANDMUSIC
-	AddPeriodicSummer( 2 * 60);
+	Camera.ZoomSetFactorMax(2);
 	SetupHighlandWeatherGfxSet()
 	-- how about some vision?
 	Display.GfxSetSetFogParams(3, 0.0, 1.0, 1, 152,172,182, 3000,19500)
@@ -37,24 +34,46 @@ function GameCallback_OnGameStart()
 		LuaDebugger.Break = function() end
 	end
 	
+	-- central debug property point
+	-- to disable/enable debug options, only use this table
 	log = function() end;
-	--ActivateDebug();
+	debugging = {
+		Debug = false,
+		LevelUpToMaxRank = true,
+		ErrorLogging = true,
+		TroopSpawnKeys = true,
+	};
+	
 	for i = 1, 4 do
 		Tools.GiveResouces(i, 0, 700, 500, 0, 0, 0);
 	end
 	
 	SW.Players = {};
+	SW.AttractedPlayerSlots = {};
 	if SW.IsMultiplayer() then
 		for playerId = 1,8 do
 			if XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(playerId) == 1 then
 				table.insert(SW.Players, playerId);
+				SW.AttractedPlayerSlots[playerId] = {GameStarted=false;};
 			end
 		end
 	else
 		SW.Players = {1};
 	end
 	SW.NrOfPlayers = table.getn(SW.Players);
-
+	
+	SW.Host = 1;
+	SW.PlayerId = GUI.GetPlayerID();
+	if SW.IsMultiplayer() then
+		for playerId = 1,8 do
+			if XNetwork.GameInformation_GetNetworkAddressByPlayerID(playerId)
+			== XNetwork.Host_UserInSession_GetHostNetworkAddress() then
+				SW.Host = playerId
+				break;
+			end
+		end
+	end
+	SW.IsHost = (SW.Host == SW.PlayerId);
 
 	-- Create HQs and redirect keybindings
 	SW.CreateHQsAndRedirectKeyBindung();
@@ -65,101 +84,90 @@ function GameCallback_OnGameStart()
 	SW.SetupMPLogic();
 	Sync.Init();
 	
-	SW.RotFlipBack = 0;
 	Camera.RotSetFlipBack(0);
-	SW.ToggleRotFlipBack = function()
-		Message("Pessed");
-		SW.RotFlipBack = 1 - SW.RotFlipBack;
-		Camera.RotSetFlipBack(SW.RotFlipBack)
-	end
 
 	local ret = InstallS5Hook();
-
 	if (ret) then
 		SW.OnS5HookLoaded();
 	end;
 
 	-- für alle custom names die wir brauchen - wird von WallGUI verwendet
-	SW.CustomNames = {
-	};
+	SW.CustomNames = {};
 	S5Hook.SetCustomNames(SW.CustomNames);
 	
-	--S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml")
-	
 	SW.IsActivated = false;
-	
 	if SW.NrOfPlayers == 1 then
 		-- playing alone - no sync needed
 		SW.Activate(XGUIEng.GetSystemTime());
 	else
-		-- try message sync
-		-- every player notifies the other about his "arrival"
-		-- first player ingame counts nr of "arrivals" and as soon
-		SW.NotifiedPlayers = 0;
-		-- NotifyingDone determines whether Activate call has been made
-		SW.NotifyingDone = false;
-		function SW.NotifyPlayer()
-			SW.NotifiedPlayers = SW.NotifiedPlayers + 1;
-			if SW.NotifiedPlayers == SW.NrOfPlayers and not SW.NotifyingDone then
-				SW.NotifyingDone = true;
-				Sync.Call("SW.Activate", XGUIEng.GetSystemTime());
-			end
+		SW.ActivateCalled = false;
+		SW_GameStartedCallback = function()
+			Sync.CallNoSync("SW_ReceivedGameStartedCallbackMessage", GUI.GetPlayerID());
 		end
-		Sync.CallNoSync("SW.NotifyPlayer");
-		
-		-- fallbacksystem: if notify player messages fail - use this
-		if GUI.GetPlayerID() == 1 then
-			function SW_Iks()
-				if Counter.Tick2("SW_Iks", 2) and not SW.NotifyingDone then
-					SW.NotifyingDone = true;
-					--Message("used job for activating"); -- remove msg!
-					Sync.Call("SW.Activate", XGUIEng.GetSystemTime());
-					return true;
+		SW_ReceivedGameStartedCallbackMessage = function(_playerId)
+			SW.AttractedPlayerSlots[_playerId].GameStarted = true;
+			local canStartGame = true;
+			for playerId, info in pairs(SW.AttractedPlayerSlots) do
+				if not info.GameStarted then
+					canStartGame = false;
+					break;
 				end
 			end
-			StartSimpleJob("SW_Iks");
+			if canStartGame then
+				if SW.IsHost and not SW.ActivateCalled then
+					SW.ActivateCalled = true;
+					Sync.CallNoSync("SW.StopGameStartedCallbackJob");
+					Sync.Call("SW.Activate", XGUIEng.GetSystemTime());
+				end
+			end
 		end
+		SW.StopGameStartedCallbackJob = function()
+			EndJob(SW.GameStartedCallbackJobId);
+		end
+		SW.GameStartedCallbackJobId = StartSimpleJob("SW_GameStartedCallback");
 	end
-	Camera.ZoomSetFactorMax( 2)
 end
 
 function ActivateDebug()
-	log = function(_text) LuaDebugger.Log(_text) end
-	DebugTroops = {};
-	CT = function()
-		local x,y = GUI.Debug_GetMapPositionUnderMouse();
-		table.insert(DebugTroops, Tools.CreateGroup(1, Entities.PU_LeaderCavalry2, 8, x, y, 100));
-		SetHostile(1,2);
-	end
-	CT2 = function()
-		local x,y = GUI.Debug_GetMapPositionUnderMouse();
-		table.insert(DebugTroops, Tools.CreateGroup(1, Entities["PV_Cannon"..math.random(1,4)], 8, x, y, 100));
-	end
-	for i = 1,4 do
-		Tools.CreateGroup(1,Entities["PV_Cannon"..i],8,25000,25000,100);
-	end
-	DT = function()
-		for i = table.getn(DebugTroops), 1, -1 do
-			Tools.DestroyGroupByLeader(DebugTroops[i]);
-			table.remove(DebugTroops, i);
-		end
-	end
-	Input.KeyBindDown(Keys.W, "CT()",2);
-	Input.KeyBindDown(Keys.R, "CT2()",2);
-	Input.KeyBindDown(Keys.E, "DT()",2);
 	Input.KeyBindDown(Keys.Q, "SpeedUpGame()",2);
-	--Input.KeyBindDown(Keys.W, "GUI.ActivatePlaceBuildingState(UpgradeCategories.Outpost)", 2);
-	--Input.KeyBindDown(Keys.R, "Framework.RestartMap()", 2);
+	if debugging.ErrorLogging then
+		log = function(_text) LuaDebugger.Log(_text) end
+	end
+	if debugging.TroopSpawnKeys then
+		DebugTroops = {};
+		CT = function()
+			local x,y = GUI.Debug_GetMapPositionUnderMouse();
+			table.insert(DebugTroops, Tools.CreateGroup(1, Entities.PU_LeaderCavalry2, 8, x, y, 100));
+			SetHostile(1,2);
+		end
+		CT2 = function()
+			local x,y = GUI.Debug_GetMapPositionUnderMouse();
+			table.insert(DebugTroops, Tools.CreateGroup(2, Entities.PU_LeaderCavalry2, 8, x, y, 100));
+		end
+		for i = 1,4 do
+			Tools.CreateGroup(1,Entities["PV_Cannon"..i],8,25000,25000,100);
+		end
+		DT = function()
+			for i = table.getn(DebugTroops), 1, -1 do
+				Tools.DestroyGroupByLeader(DebugTroops[i]);
+				table.remove(DebugTroops, i);
+			end
+		end
+		Input.KeyBindDown(Keys.W, "CT()",2);
+		Input.KeyBindDown(Keys.E, "CT2()",2);
+		Input.KeyBindDown(Keys.R, "DT()",2);
+	end
 	local g = 10000;
 	for i = 1,8 do
 		Tools.GiveResouces(i, g,g,g,g,g,g);
 		--ResearchAllUniversityTechnologies(i);
-		SW.RankSystem.Points[i] = 100000
-		SW.RankSystem.UpdatePlayer( i)
-		SW.RankSystem.UpdatePlayer( i)
-		SW.RankSystem.UpdatePlayer( i)
+		if debugging.LevelUpToMaxRank then
+			SW.RankSystem.Points[i] = 100000
+			SW.RankSystem.UpdatePlayer( i)
+			SW.RankSystem.UpdatePlayer( i)
+			SW.RankSystem.UpdatePlayer( i)
+		end
 	end
-	Camera.ZoomSetFactorMax( 2)
 end
 -- ##############################################################################################
 -- ##
@@ -218,7 +226,7 @@ function SW.Activate(_seed)
 		SW.MaxPlayers = table.getn(SW.Players)
 	end
 	
-	SW.EnableRankSystem();
+	SW.RankSystem.Init();
 	SW.TankyHQ.Init()
 	SW.EnableStartingTechnologies();
 	SW.EnableRandomWeather();
@@ -232,16 +240,6 @@ function SW.Activate(_seed)
 	SW.EnableReducedConstructionCosts();
 	-- same as for construction costs
 	SW.EnableReducedUpgradeCosts();
-	--SW.SetConstructionTime( Entities.PB_Residence1, 5)
-	-- Units cost less
-	local costTable_ = {
-		[ResourceType.Wood] = 15
-	}
-	SW.SetRecruitingCosts( Entities.PU_Serf, costTable_)
-	-- BURN MF BURN
-	--ExpandingFire:Init{ErrLvl = 0, AffectedPlayers = {1,2,3,4,5,6}}
-	--local _, hqId = Logic.GetPlayerEntities( 1, Entities.PB_Headquarters1, 1)
-	--ExpandingFire:IgniteBuilding(hqId)
 	-- Genetische Dispositionen für alle! :D
 	SW.EnableGeneticDisposition()
 	-- Dying entities leaves remains
@@ -253,13 +251,11 @@ function SW.Activate(_seed)
 	-- Random StartPos
 	SW.EnableRandomStart()
 	-- Defeatcondition - all entities of player destroyed
-	--SW.CreateDefeatCondition() -- deprecated
 	SW.DefeatCondition_Create()
 	-- Faster construction and upgrade for buildings
 	SW.EnableFasterBuild()
 	-- Fix sell building bug
 	SW.EnableSellBuildingFix()
-	--StartSimpleJob("WipeThemAll")
 	-- Activate Fire
 	--SW.FireMod.Init()
 	-- Enable tech tree
@@ -283,30 +279,9 @@ function SW.Activate(_seed)
 	-- Window to display rank progress
 	SW.ProgressWindow.Init()
 	-- ActivateDebug()
-	-- ActivateDebug()
-end
-
--- llllIIIIlIlIIl
-function SW.EnableRankSystem()
-	SW.RankSystem.Init()
-	if true then return end
-	SW.RankSystem = {};
-	
-	-- 1 Kill = 2 points
-	-- 1 Building = 20 Points
-	-- to be balanced
-	SW.RankSystem.PointsToNextRank = {
-		[2] = 400, -- 20 buildings or 200 kills
-		[3] = 1200, -- 60 buildings or 600 kills
-		[4] = 2000,  -- 100 buildings or 1000 kills
-	};
-	SW.RankSystem.RankOfPlayer = {}
-	SW.RankSystem.PointsOfPlayer = {}
-	for i = 1, SW.NrOfPlayers do
-		SW.RankSystem.RankOfPlayer[SW.Players[i]] = 1;
-		SW.RankSystem.PointsOfPlayer[SW.Players[i]] = 0;
+	if debugging.Debug then
+		ActivateDebug()
 	end
-	
 end
 
 function SW.EnableStartingTechnologies()
@@ -323,77 +298,7 @@ function SW.EnableStartingTechnologies()
 	end
 end
 
-
-function SW.EnableRandomWeather() --Dont use completely random weather, use pseudo random distribution; Event didnt kick in->Increase chances of kicking in
-	-- HOOK TIME
-	SW.EnableRandomWeatherNEW()
-	if true then return end
-	--chance: 50% summer, 25% rain, 25% snow
-	local baseChanceSummer = 50
-	local baseChanceRain = 25
-	local baseChanceWinter = 25
-	local penaltyFactor = 1.4	--Factor by which chances increases if event didnt hit}
-	local rangeSummer = {45, 180}
-	local rangeRain = {45, 120}
-	local rangeWinter = {75, 90}
-	local currSummer = baseChanceSummer
-	local currRain = baseChanceRain
-	local currWinter = baseChanceWinter
-	local summerCount = 0
-	local rainCount = 0
-	local winterCount = 0
-	local summerLength = 0
-	local rainLength = 0
-	local winterLength =  0
-	local debugging = false
-	-- 30 weather periods
-	for i = 1, 30 do
-		local rng = math.random(1,currSummer + currRain + currWinter);
-		if rng <= currSummer then
-			local length = math.random(rangeSummer[1],rangeSummer[2])
-			AddPeriodicSummer( length);
-			--Summer added, increase chance of rain and snow, reset summer chance
-			currSummer = baseChanceSummer
-			currRain = math.floor(currRain * penaltyFactor)
-			currWinter = math.floor(currWinter * penaltyFactor)
-			summerCount = summerCount + 1
-			summerLength = summerLength + length
-			if debugging then
-				LuaDebugger.Log("Added summer of length "..length)
-			end
-		elseif rng <= currSummer + currRain then
-			local length = math.random(rangeRain[1],rangeRain[2])
-			AddPeriodicRain( length);
-			--Rain added, increase chance of summer and snow, reset rain chance
-			currRain = baseChanceRain
-			currSummer = math.floor(currSummer * penaltyFactor)
-			currWinter = math.floor(currWinter * penaltyFactor)
-			rainCount = rainCount + 1
-			rainLength = rainLength + length
-			if debugging then
-				LuaDebugger.Log("Added rain of length "..length)
-			end
-		else
-			local length = math.random(rangeWinter[1],rangeWinter[2])
-			AddPeriodicWinter( length);
-			--Winter added, increase chance of rain and summer, reset winter chance
-			currWinter = baseChanceWinter
-			currRain = math.floor(currRain * penaltyFactor)
-			currSummer = math.floor(currSummer * penaltyFactor)
-			winterCount = winterCount + 1
-			winterLength = winterLength + length
-			if debugging then
-				LuaDebugger.Log("Added winter of length "..length)
-			end
-		end
-	end
-	if debugging then
-		LuaDebugger.Log(summerCount.." summers with summed up length "..summerLength)
-		LuaDebugger.Log(rainCount.." rain periods with summed up length "..rainLength)
-		LuaDebugger.Log(winterCount.." winters with summed up length "..winterLength)
-	end
-end
-function SW.EnableRandomWeatherNEW()
+function SW.EnableRandomWeather()
 	-- New algorithm:
 	-- 3 weather states, always start with some summer
 	-- next weather period has to be another state
@@ -937,6 +842,9 @@ function SW_OnEntityHurtMR()
 end
 
 function SW.UnifyRecruitingCosts()
+	for entityType, costTable in pairs(SW.RecruitingCosts.Extra) do
+		SW.SetRecruitingCosts( Entities[entityType], costTable);
+	end
 	local techTreeSize = {}
 	for k1,v1 in pairs(SW.RecruitingCosts.Level1And2) do
 		local techTreeNum = 0
@@ -1273,8 +1181,12 @@ function SW.RandomPosForPlayer(_player)
 				end
 			end
 			table.insert(SW.RandomStartPositions,{X=ranX,Y=ranY});
+			local newEnt;
+			local oldEnt;
 			for i = 1, 8 do
-				Logic.CreateEntity( Entities.PU_Serf, ranX, ranY, 0, _player)
+				oldEnt = newEnt;
+				newEnt = AI.Entity_CreateFormation(_player, Entities.PU_Serf, 0, 0, ranX+math.random(-200,200), ranY+math.random(-200,200), 0, ranX, ranY, 0)
+				Logic.EntityLookAt(newEnt, oldEnt);
 				if GUI.GetPlayerID() == _player then
 					Camera.ScrollSetLookAt(ranX,ranY);
 				end
@@ -1284,7 +1196,6 @@ function SW.RandomPosForPlayer(_player)
 end
 
 function SW.CreateHQsAndRedirectKeyBindung()
-	
 	local player;
 	local hqId;
 	for i = 1, table.getn(SW.Players) do
@@ -1301,26 +1212,6 @@ function SW.CreateHQsAndRedirectKeyBindung()
 			SW.KeyBindings_SelectUnit( _uc, _pId)
 		end
 	end
-end
-
-
-function SW.SetRandomSeed(_seed)
-	--[[if true then return end;
-	if SW.IsMultiplayer() then 
-		local currSeed = 0
-		local FatNum = 312431
-		for i = 1, 8 do
-			if XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i) == 1 then
-				local currName = XNetwork.GameInformation_GetLogicPlayerUserName(i)
-				local length = string.len( currName)
-				local entry = math.mod( i*FatNum, length)+1
-				local myNum = string.byte(currName, entry)
-				currSeed = currSeed * 256 + myNum
-			end	
-		end
-		--Message( currSeed)
-		math.randomseed( currSeed)
-	end]]
 end
 
 --[[
