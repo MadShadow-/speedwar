@@ -318,9 +318,9 @@ function SW.EnableRandomWeather()
 	baseChance[2] = 25					--Chance rain
 	baseChance[3] = 25					--Chance winter
 	local range = {}
-	range[1] = {60, 180}				--Lower and upper limit for summer period
-	range[2] = {45, 80}					--Lower and upper limit for rain period
-	range[3] = {60, 75}					--Lower and upper limit for winter period
+	range[1] = {180, 300}				--Lower and upper limit for summer period
+	range[2] = {60, 180}					--Lower and upper limit for rain period
+	range[3] = {80, 240}					--Lower and upper limit for winter period
 	local startSummerLength = 120 		--2 minutes of starting summer
 	local numOfPeriods = 50
 	-- END OF CONFIG, DO NOT CHANGE
