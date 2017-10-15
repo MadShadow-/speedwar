@@ -21,12 +21,15 @@ SW.RankSystem.CallbackOnRankUp =
 	-- reaching rank 2
 	[2] = function()
 		SW.Bastille.CallbackRankTwoReached();
+		SW.ProgressWindow.RankUpGUIUpdate();
 	end,
 	-- reaching rank 3
 	[3] = function()
+		SW.ProgressWindow.RankUpGUIUpdate();
 	end,
 	-- reaching rank 4
 	[4] = function()
+		SW.ProgressWindow.RankUpGUIUpdate();
 	end,
 };
 function SW.RankSystem.Init()

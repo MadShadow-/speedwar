@@ -2,17 +2,23 @@ SW = SW or {}
 SW.BuildingTooltips = SW.BuildingTooltips or {}
 SW.RankSystem = SW.RankSystem or {}
 
-SW.RankSystem.RankNames = {
-	"Siedler",
-	"@color:255,255,51: Krieger",
-	"@color:255,153,51: Feldherr",
-	"@color:255,0,51: Eroberer"
-}
+SW.RankSystem.RankColors = {
+	"@color:139,69,19",
+	"@color:255,255,51",
+	"@color:255,153,51",
+	"@color:255,0,51",
+};
 SW.BuildingTooltips.RankNames = {
 	"Siedler",
 	"Krieger",
 	"Feldherr",
 	"Eroberer"
+}
+SW.RankSystem.RankNames = {
+	SW.RankSystem.RankColors[1]..": "..SW.BuildingTooltips.RankNames[1],
+	SW.RankSystem.RankColors[2]..": "..SW.BuildingTooltips.RankNames[2],
+	SW.RankSystem.RankColors[3]..": "..SW.BuildingTooltips.RankNames[3],
+	SW.RankSystem.RankColors[4]..": "..SW.BuildingTooltips.RankNames[4]
 }
 SW.RankSystem.RankThresholds = {
 	500,

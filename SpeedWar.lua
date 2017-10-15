@@ -280,6 +280,8 @@ function SW.Activate(_seed)
 	SW.RandomChest.Init()
 	-- Make LKav great again
 	SW.LKavBuff.Init()
+	-- Window to display rank progress
+	SW.ProgressWindow.Init()
 	-- ActivateDebug()
 	-- ActivateDebug()
 end

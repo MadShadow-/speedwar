@@ -64,7 +64,7 @@ function SW.Bastille.Activate()
 			local bastilles = {Logic.GetPlayerEntitiesInArea(GUI.GetPlayerID(), Entities.CB_Bastille1, x, y, 1000, 16)};
 			if bastilles[1] > 0 then
 				-- find bastille closest to mouse click
-				local closestD, closestB, pos, currentD = 1000000000;
+				local closestD, currentB, pos, currentD = 1000000000;
 				for i = 2, bastilles[1]+1 do
 					pos = GetPosition(bastilles[i])
 					currentD = ((pos.X-x)^2 + (pos.Y-y)^2);
