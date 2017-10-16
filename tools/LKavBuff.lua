@@ -146,6 +146,15 @@ function SW.LKavBuff.Test(_s)
 	end
 	SetHostile(1,2)
 end
+function SW.LKavBuff.GenerateArmies()
+	local spawnA = { X = 32300, Y = 59200}
+	local spawnB = { X = 26900, Y = 52300}
+	for i = 1, 15 do
+		Attack( Tools.CreateGroup( 1, Entities.PU_LeaderCavalry1, 3, spawnA.X, spawnA.Y, 0), spawnB)
+		Attack( Tools.CreateGroup( 2, Entities.PU_LeaderCavalry1, 3, spawnB.X, spawnB.Y, 0), spawnB)
+	end
+	SetHostile( 1, 2)
+end
 
 --TODO:
 -- Fix crash

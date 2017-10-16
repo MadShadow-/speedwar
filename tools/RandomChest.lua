@@ -236,6 +236,7 @@ function SW.RandomChest.Action.Statue( _pId, _x, _y)
 	S5Hook.GetEntityMem( eId)[25]:SetFloat(2.5)
 end
 --Ideen:
+--	CTHULHU
 --	Ein eisiger Winter
 --	Eine Läuterung?
 --	Konfetti

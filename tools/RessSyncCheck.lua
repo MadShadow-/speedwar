@@ -76,7 +76,9 @@ function SW.RessCheck.GenerateCheckSum( _pId, _eType, _considerHealth, _consider
 	if type(_eType) == "table" then
 		sum = 0
 		for i = _eType[1],_eType[2] do
-			sum = SW.RessCheck.CheckSumAddNumber( sum, SW.RessCheck.GenerateCheckSum( _pId, i, _considerHealth, _considerPos))
+			if Logic.GetEntityTypeName(i) ~= nil then
+				sum = SW.RessCheck.CheckSumAddNumber( sum, SW.RessCheck.GenerateCheckSum( _pId, i, _considerHealth, _considerPos))
+			end
 		end
 		return sum
 	end
@@ -105,10 +107,21 @@ end
 function SW.RessCheck.CheckSumAddNumber( _sum, _number)
 	_sum = math.floor(math.abs(_sum))+1
 	_number = math.floor(math.abs(_number))+1
-	return math.mod(_sum*SW.RessCheck.GetGCD(_sum,_number), 2017)+1			--use GCD to destroy commutativity, Mod to limit size of number
+	return math.mod(_sum*SW.RessCheck.GetGCD(_sum,_number)+_number, 2017)+1			--use GCD to destroy associativity/commutativity, Mod to limit size of number
 end
-function SW.RessCheck.GetGCD( _a, _b)				--TODO
-	return _a+_b
+function SW.RessCheck.GetGCD( _a, _b)
+	if _a < _b then			--guarantee _a >= _b 
+		local temp = _a
+		_a = _b
+		_b = temp
+	end
+	if _b == 1 then
+		return 1
+	end
+	if _b == 0 then
+		return _a
+	end
+	return SW.RessCheck.GetGCD( _b, _a-_b)
 end
 --[[
 Log: "2: 1 und ich haben verschiedene Ress fuer 1"
