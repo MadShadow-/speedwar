@@ -293,6 +293,10 @@ function SW.Activate(_seed)
 	end
 	-- Allow ress checking
 	SW.RessCheck.Init()
+	-- Makes YOUR life easier with CTRL
+	SW.QoL.Init()
+	-- Block weather change for some time after manual change
+	SW.WeatherBlock.Init()
 end
 
 function SW.EnableStartingTechnologies()
@@ -709,7 +713,7 @@ function SW.DebuggingStuff()
 		return checkSum
 	end
 	local debugggg = false
-	if GenerateChecksum(SW.Activate) ~= 1536 then
+	if GenerateChecksum(SW.Activate) ~= 234 then
 		debugggg = true
 		--LuaDebugger.Log("Activate manipuliert")
 	end
