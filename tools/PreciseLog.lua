@@ -11,6 +11,13 @@ SW.PreciseLog = {}
 SW.PreciseLog.Keeping = 10000
 SW.PreciseLog.Data = {}
 SW.PreciseLog.CurrIndex = 0
+function SW.PreciseLog.TrackCreateEntity()
+	SW.PreciseLog.CreateEntity = Logic.CreateEntity
+	Logic.CreateEntity = function( _eType, _x, _y, _rot, _pId)
+		SW.PreciseLog.CreateEntity( _eType, _x, _y, _rot, _pId)
+		SW.PreciseLog.Log("CreateEntity: "..tostring(_eType).." "..tostring(_x).." "..tostring(_y).." "..tostring(_rot).." "..tostring(_pId))
+	end
+end
 function SW.PreciseLog.Log(_s)
 	SW.PreciseLog.CurrIndex = SW.PreciseLog.GetNextIndex(SW.PreciseLog.CurrIndex)
 	SW.PreciseLog.Data[SW.PreciseLog.CurrIndex] = _s
@@ -38,3 +45,4 @@ function SW.PreciseLog.GetPriorIndex(_n)
 		return SW.PreciseLog.Keeping
 	end
 end
+SW.PreciseLog.TrackCreateEntity()
