@@ -14,8 +14,8 @@ SW.PreciseLog.CurrIndex = 0
 function SW.PreciseLog.TrackCreateEntity()
 	SW.PreciseLog.CreateEntity = Logic.CreateEntity
 	Logic.CreateEntity = function( _eType, _x, _y, _rot, _pId)
-		SW.PreciseLog.CreateEntity( _eType, _x, _y, _rot, _pId)
 		SW.PreciseLog.Log("CreateEntity: "..tostring(_eType).." "..tostring(_x).." "..tostring(_y).." "..tostring(_rot).." "..tostring(_pId))
+		return SW.PreciseLog.CreateEntity( _eType, _x, _y, _rot, _pId)
 	end
 end
 function SW.PreciseLog.Log(_s)
