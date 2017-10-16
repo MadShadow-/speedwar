@@ -791,7 +791,7 @@ function SW_OnEntityDestroyedMR()
 	if not SW.IsInCombatMR( eId) then --Kein Kampf? Kein GRAB!
 		return
 	end
-	local myDegRng = math.random(1,360);
+	local myDegRng = math.mod(math.mod(eId,360)*47,360);
 	local myRng = math.rad( myDegRng)
 	local mySin = math.sin( myRng)
 	local myCos = math.cos(myRng)
@@ -832,7 +832,6 @@ function SW_JobMR()
 	end
 end
 function SW.IsInCombatMR( _eId)
-	if true then return true end
 	local eType = Logic.GetEntityType( _eId)
 	if SW.MortalRemainsSoldierTypes[eType] then
 		_eId = S5Hook.GetEntityMem( _eId)[127]:GetInt()

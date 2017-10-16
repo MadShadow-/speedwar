@@ -162,6 +162,11 @@ function SW.LKavBuff.GenerateArmies()
 	end
 	SetHostile( 1, 2)
 end
+function SW.LKavBuff.MassSpawn()
+	for i = 1, 100 do
+		Tools.CreateGroup( 1, Entities.PU_LeaderSword1, 4, 32300, 59200, 0)
+	end
+end
 
 --TODO:
 -- Fix crash
