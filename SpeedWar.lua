@@ -126,6 +126,15 @@ function GameCallback_OnGameStart()
 		end
 		SW.GameStartedCallbackJobId = StartSimpleJob("SW_GameStartedCallback");
 	end
+	
+	SW.MPGame_ApplicationCallback_SyncChanged = MPGame_ApplicationCallback_SyncChanged;
+	MPGame_ApplicationCallback_SyncChanged = function(_Message, _SyncMode)
+		if _SyncMode == 0 then
+			Game.GameTimeSetFactor(0);
+		end
+		SW.MPGame_ApplicationCallback_SyncChanged(_Message, _SyncMode);
+	end
+	
 end
 
 function ActivateDebug()
