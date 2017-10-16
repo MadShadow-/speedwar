@@ -434,6 +434,7 @@ function SW.Walls.OnWallDestroyed( _eId)
 end
 -- _pos is playerID
 function SW.Walls.CreateEntity( _eType, _x, _y, _rot, _pos)
+	SW.PreciseLog.Log("Mauerbau: Creating "..(Logic.GetEntityTypeName(_eType) or "unknown").." at X=".._x.." Y=".._y.." rot=".._rot.." for player ".._pos)
 	if _eType == Entities.XD_WallCorner then	--Place real corner, hide it with model, create fake corner
 		local eId = Logic.CreateEntity( _eType, _x, _y, _rot, _pos)
 		Logic.SetModelAndAnimSet( eId, Models.XD_Rock1)

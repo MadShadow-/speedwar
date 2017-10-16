@@ -900,6 +900,7 @@ function SW_OnEntityDestroyedPILLAGE()
 	end
 end
 function SW.PillageRewardPlayer( _eType, _pId)
+	SW.PreciseLog.Log("Pillage: Rewarding ".._pId.." for "..(Logic.GetEntityTypeName(_eType) or "unknown"))
 	local costTable = SW.PillageEntityTypeCost[_eType]
 	if costTable == nil then return; end
 	local stringg = "Ihr habt ein Gebäude zerstört! Ihr erhaltet "

@@ -66,7 +66,50 @@ function SW.RessCheck.GenerateStringForPlayer( _pId)
 	return s
 end
 
-
+-- Allow easier check sums
+-- _pId == 0 => no Predicate.OfPlayer in checksum		|| _pId ~= 0 => use only this player for checkSum
+-- _eType == 0 => all entityTypes
+-- if _eType is table: consider entityTypesIds with _eType[1] <= TypeID <= _eType[2]
+-- _considerHealth == true => use currentHealth of entity for calculation
+-- _considerPos == true => use position in checksum
+function SW.RessCheck.GenerateCheckSum( _pId, _eType, _considerHealth, _considerPos)
+	if type(_eType) == "table" then
+		sum = 0
+		for i = _eType[1],_eType[2] do
+			sum = SW.RessCheck.CheckSumAddNumber( sum, SW.RessCheck.GenerateCheckSum( _pId, i, _considerHealth, _considerPos))
+		end
+		return sum
+	end
+	local preds = {}
+	if _pId ~= 0 then
+		table.insert(preds, Predicate.OfPlayer(_pId))
+	end
+	if _eType ~= 0 then
+		table.insert(preds, Predicate.OfType(_eType))
+	end
+	local sum = 0
+	for eId in S5Hook.EntityIterator(unpack{preds}) do
+		sum = SW.RessCheck.CheckSumAddNumber( sum, eId)
+		sum = SW.RessCheck.CheckSumAddNumber( sum, Logic.GetEntityType(eId))
+		if _considerHealth then
+			sum = SW.RessCheck.CheckSumAddNumber( sum, Logic.GetEntityHealth(eId))
+		end
+		if _considerPos then
+			local pos = GetPosition(eId)
+			sum = SW.RessCheck.CheckSumAddNumber( sum, pos.X)
+			sum = SW.RessCheck.CheckSumAddNumber( sum, pos.Y)
+		end
+	end
+	return sum
+end
+function SW.RessCheck.CheckSumAddNumber( _sum, _number)
+	_sum = math.floor(math.abs(_sum))+1
+	_number = math.floor(math.abs(_number))+1
+	return math.mod(_sum*SW.RessCheck.GetGCD(_sum,_number), 2017)+1			--use GCD to destroy commutativity, Mod to limit size of number
+end
+function SW.RessCheck.GetGCD( _a, _b)				--TODO
+	return _a+_b
+end
 --[[
 Log: "2: 1 und ich haben verschiedene Ress fuer 1"
 Log: "2: RS1  Wood0 SilverRaw0 Iron0 Knowledge0 GoldRaw0 Gold0 ClayRaw700 SulfurRaw0 WoodRaw500 Faith0 Stone0 StoneRaw0 Clay0 IronRaw0 Silver0 Sulfur0 WeatherEnergy0"

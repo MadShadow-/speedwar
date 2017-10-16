@@ -97,12 +97,12 @@ function SW_LKavBuff_OnEntityDestroyed()
 	end
 	--Everything ok? Give gold to attacker
 	local attPId = GetPlayer(lastHitter[1])
+	SW.PreciseLog.Log("LKav: Gold to "..attPId)
 	AddGold( attPId, SW.LKavBuff.GoldPerKill)
 	SW.LKavBuff.Looted[attPId] = SW.LKavBuff.Looted[attPId] + SW.LKavBuff.GoldPerKill
 end
 function SW.LKavBuff.ApplyDamage( _eId, _dmg)
-	--LuaDebugger.Log("Hurting ".._eId.." of type "..Logic.GetEntityTypeName(Logic.GetEntityType(_eId)))
-	--LuaDebugger.Log(SW.LKavBuff.SoldierGetLeader(_eId))
+	SW.PreciseLog.Log("LKav: Damaging ".._eId.." of type "..(Logic.GetEntityTypeName(Logic.GetEntityType(_eId)) or "unknown").." of player "..Logic.EntityGetPlayer(_eId))
 	if SW.LKavBuff.SoldierGetLeader(_eId) ~= 0 then
 		_eId = SW.LKavBuff.SoldierGetLeader(_eId)
 		SW.LKavBuff.ApplyDamageToLeader( _eId, _dmg)
@@ -113,18 +113,19 @@ function SW.LKavBuff.ApplyDamage( _eId, _dmg)
 		SW.LKavBuff.ApplyDamageToLeader( _eId, _dmg)
 		return
 	end
+	SW.PreciseLog.Log("LKav: DirectHit")
 	Logic.HurtEntity( _eId, _dmg)
 end
 function SW.LKavBuff.ApplyDamageToLeader( _eId, _dmg)
 	if IsDead( _eId) then return end
-	--LuaDebugger.Log("Hurting ".._eId.." of type "..Logic.GetEntityTypeName(Logic.GetEntityType(_eId)).." liek leader.")
+	SW.PreciseLog.Log("LKav: Hurting ".._eId.." of type "..Logic.GetEntityTypeName(Logic.GetEntityType(_eId)).." like leader.")
 	local typee = S5Hook.GetEntityMem( _eId)[31][3][0]:GetInt()
 	if typee ~= 7823840 then
-		--Message("Tried to hurt nonleader like leader.")
+		SW.PreciseLog.Log("LKav: Tried to hurt nonleader like leader.")
 		return
 	end
 	local solHP = S5Hook.GetEntityMem( _eId)[31][3][27]:GetInt()
-	--LuaDebugger.Log(solHP)
+	SW.PreciseLog.Log("LKav: SolHP"..solHP)
 	if solHP >= _dmg then
 		S5Hook.GetEntityMem( _eId)[31][3][27]:SetInt( solHP - _dmg)
 	else
