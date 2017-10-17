@@ -787,7 +787,7 @@ function SW_IsSettlerMROH()
 end
 SW.MortalRemainsSoldierTypes = {}
 SW.MortalRemainsRocks = {}
-SW.MortalRemainsRecentlyHurt = {} --Entries: {id, time}
+SW.MortalRemainsRecentlyHurt = {} --Entries: key = eId, value = timeStamp
 SW.MortalRemainsEntitiesToPlace = {} --Entries: {[1] = ModelType, [2] = X, [3] = Y, [4] = rot}
 function SW_OnEntityDestroyedMR()
 	local eId = Event.GetEntityID()
@@ -806,13 +806,13 @@ function SW_OnEntityDestroyedMR()
 	--	table.insert( SW.MortalRemainsEntitiesToPlace, {"XD_BoneHuman"..math.random(1,8), pos.X + offsetX, pos.Y + offsetY, myDegRng})
 	--end
 	-- Gräber by mordred
-	for k,v in pairs(SW.MortalRemainsTable) do
+	for i = 1, table.getn(SW.MortalRemainsTable) do
+		local v = SW.MortalRemainsTable[i]
 		--Transform offsetX, offsetY into new offsets with rotation
 		local offsetX = myCos*v[2] - mySin*v[3]
 		local offsetY = mySin*v[2] + myCos*v[3]
 		table.insert( SW.MortalRemainsEntitiesToPlace, {v[1], pos.X + offsetX, pos.Y + offsetY, myDegRng+v[4]})
-	end --
-	
+	end
 end
 function SW_JobMR()
 	for i = table.getn(SW.MortalRemainsEntitiesToPlace), 1, -1 do
@@ -822,12 +822,12 @@ function SW_JobMR()
 		table.insert( SW.MortalRemainsRocks, myEId)
 		table.remove( SW.MortalRemainsEntitiesToPlace, i)
 	end
-	for i = table.getn(SW.MortalRemainsRecentlyHurt), 1, -1 do
-		SW.MortalRemainsRecentlyHurt[i].time = SW.MortalRemainsRecentlyHurt[i].time - 1
-		if SW.MortalRemainsRecentlyHurt[i].time < 0 then
-			table.remove( SW.MortalRemainsRecentlyHurt, i)
-		end
-	end
+	--for i = table.getn(SW.MortalRemainsRecentlyHurt), 1, -1 do
+	--	SW.MortalRemainsRecentlyHurt[i].time = SW.MortalRemainsRecentlyHurt[i].time - 1
+	--	if SW.MortalRemainsRecentlyHurt[i].time < 0 then
+	--		table.remove( SW.MortalRemainsRecentlyHurt, i)
+	--	end
+	--end
 	if table.getn(SW.MortalRemainsRocks) > 1000 then
 		for i = 1, 50 do
 			DestroyEntity( SW.MortalRemainsRocks[1])
@@ -838,12 +838,10 @@ end
 function SW.IsInCombatMR( _eId)
 	local eType = Logic.GetEntityType( _eId)
 	if SW.MortalRemainsSoldierTypes[eType] then
-		_eId = S5Hook.GetEntityMem( _eId)[127]:GetInt()
+		_eId = Logic.GetEntityScriptingValue( _eId, 69)
 	end
-	for k,v in SW.MortalRemainsRecentlyHurt do
-		if _eId == v.id then
-			return true
-		end
+	if Logic.GetTimeMs() < (SW.MortalRemainsRecentlyHurt[_eId] or 0) + 3000 then
+		return true
 	end
 	return false
 end
@@ -851,9 +849,9 @@ function SW_OnEntityHurtMR()
 	local opfer = Event.GetEntityID2()
 	local eType = Logic.GetEntityType( opfer)
 	if SW.MortalRemainsSoldierTypes[eType] then
-		opfer = S5Hook.GetEntityMem( opfer)[127]:GetInt()
+		opfer = Logic.GetEntityScriptingValue( opfer, 69)
 	end
-	table.insert( SW.MortalRemainsRecentlyHurt, { id = opfer, time = 3})
+	SW.MortalRemainsRecentlyHurt[id] = Logic.GetTimeMs()
 end
 
 function SW.UnifyRecruitingCosts()

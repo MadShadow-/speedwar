@@ -565,8 +565,8 @@ function SW.Walls.PlaceClosingWallNEW( _eId)
 	local wallId = nil
 	local cornerPos = GetPosition(candidate)
 	local n1, possId1 = Logic.GetPlayerEntitiesInArea( player, Entities.XD_WallStraight, cornerPos.X, cornerPos.Y, 400, 5)
-	local n2, possId2 = Logic.GetPlayerEntitiesInArea( player, Entities.XD_WallStraight, cornerPos.X, cornerPos.Y, 400, 5)
-	local n3, possId3 = Logic.GetPlayerEntitiesInArea( player, Entities.XD_WallStraight, cornerPos.X, cornerPos.Y, 400, 5)
+	local n2, possId2 = Logic.GetPlayerEntitiesInArea( player, Entities.XD_WallStraightGate, cornerPos.X, cornerPos.Y, 500, 5)
+	local n3, possId3 = Logic.GetPlayerEntitiesInArea( player, Entities.XD_WallStraightGate_Closed, cornerPos.X, cornerPos.Y, 500, 5)
 	if n1 == 1 then wallId = possId1
 	elseif n2 == 1 then wallId = possId2
 	elseif n3 == 1 then wallId = possId3 end
