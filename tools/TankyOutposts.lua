@@ -68,12 +68,10 @@ function SW_TankyHQ_ConditionOnCreated()
 end
 function SW_TankyHQ_ActionOnCreated()	--Register newly created outposts, find outposts for new buildings
 	local eId = Event.GetEntityID()
-	--LuaDebugger.Log(""..eId)
 	if Logic.GetEntityType( eId) == Entities.PB_Outpost1 then
 		SW.TankyHQ.OnNewHQ( eId)
 	else	--Is a outpost nearby? Add to list of near buildings
 		for k,v in pairs(SW.TankyHQ.Data) do
-			--LuaDebugger.Log("k: "..k.." eId: "..eId)
 			if SW.TankyHQ.GetDistance( k, eId) <= SW.TankyHQ.Range then
 				if GetPlayer(k) == GetPlayer(eId) then
 					table.insert( v, eId)
@@ -98,7 +96,6 @@ function SW.TankyHQ.Tick()	--Gets called each second, manages damage spread
 			local currHP = Logic.GetEntityHealth( k)
 			local maxHP = Logic.GetEntityMaxHealth( k)
 			if currHP < maxHP then
-				--LuaDebugger.Log("Need to heal "..k)
 				local spreaded = SW.TankyHQ.SpreadDamage( v, math.ceil(SW.TankyHQ.DissipationSpeed*(maxHP-currHP)), k)
 			end
 		end
@@ -117,7 +114,6 @@ function SW.TankyHQ.SpreadDamage( _list, _toSpread, _hqId) --returns damage that
 	end
 	-- use some form of heat transfer from HQ( _toSpread) to nearby buildings
 	-- buildings with 100% HP are cold, less percentual HP -> warmer building
-	LuaDebugger.Log( _toSpread)
 	while spreaded < _toSpread do
 		local index = SW.TankyHQ.GetBestEntry( newList)
 		if index == 0 then break end
@@ -127,7 +123,6 @@ function SW.TankyHQ.SpreadDamage( _list, _toSpread, _hqId) --returns damage that
 		local ableToHeal = math.ceil( ableToSend/SW.TankyHQ.PenaltyFactor)
 		local toHeal = math.min( ableToHeal, _toSpread - spreaded)
 		local toHurt = math.ceil( toHeal*SW.TankyHQ.PenaltyFactor)
-		LuaDebugger.Log(ableToSend.." "..toHeal)
 		Logic.HurtEntity( newList[index][1], toHurt)
 		table.insert( SW.TankyHQ.DataTransferVisualization, { start = GetPosition(newList[index][1]), target = GetPosition( _hqId), t = 0, heal = toHeal, healTarget = _hqId})
 		spreaded = spreaded + toHeal
@@ -185,7 +180,6 @@ function SW.TankyHQ.GenerateEffect(_entry)
 	-- alpha = progress made; 0 to 1
 	local x = _entry.start.X + (_entry.target.X - _entry.start.X)*alpha
 	local y = _entry.start.Y + (_entry.target.Y - _entry.start.Y)*alpha
-	--Message("x "..x.." y "..y)
 	Logic.CreateEffect( GGL_Effects.FXSalimHeal, x, y, 1)
 end
 function SW.TankyHQ.ApplyHeal( _id, _heal)
