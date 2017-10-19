@@ -155,7 +155,7 @@ function SW.GetRecruitingCosts( _eType)
 end
 --HelperFunc: Increases experience of given entity
 function SW.AddExperiencePoints( _eId, _exp)
-	if Logic.IsLeader(id) == 0 then
+	if Logic.IsLeader(_eId) == 0 then
 		return
 	end
 	--Exp stored in S5Hook.GetEntityMem( _eId)[31][3][32]:GetInt()

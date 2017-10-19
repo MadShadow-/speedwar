@@ -155,10 +155,10 @@ function SW.LKavBuff.GenerateArmies()
 	local spawnA = { X = 32300, Y = 59200}
 	local spawnB = { X = 26900, Y = 52300}
 	for i = 1, 15 do
-		local eId = Tools.CreateGroup( 1, Entities.PU_LeaderCavalry1, 3, spawnA.X, spawnA.Y, 0)
-		Tools.DestroyGroupByLeader(eId)
-		--Attack( Tools.CreateGroup( 1, Entities.PU_LeaderCavalry1, 3, spawnA.X, spawnA.Y, 0), spawnB)
-		--Attack( Tools.CreateGroup( 2, Entities.PU_LeaderCavalry1, 3, spawnB.X, spawnB.Y, 0), spawnA)
+		--local eId = Tools.CreateGroup( 1, Entities.PU_LeaderCavalry1, 3, spawnA.X, spawnA.Y, 0)
+		--Tools.DestroyGroupByLeader(eId)
+		Attack( Tools.CreateGroup( 1, Entities.PU_LeaderCavalry1, 3, spawnA.X, spawnA.Y, 0), spawnB)
+		Attack( Tools.CreateGroup( 2, Entities.PU_LeaderCavalry1, 3, spawnB.X, spawnB.Y, 0), spawnA)
 	end
 	SetHostile( 1, 2)
 end

@@ -47,7 +47,8 @@ function SW.Bugfixes.Init()
 		SW.Bugfixes.GUIAction_BlessSettlers(_blessCategory)
 		SW.Bugfixes.BlessingData[player][_blessCategory] = timee
 	end
-	if LuaDebugger.Log then
+	if LuaDebugger.FakeDebugger == nil then
+		LuaDebugger.Log("TEST")
 		if XNetwork ~= nil and XNetwork.Manager_DoesExist() == 1 then
 			local pId = GUI.GetPlayerID()
 			local name = XNetwork.GameInformation_GetLogicPlayerUserName( pId )

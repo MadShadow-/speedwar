@@ -32,6 +32,7 @@ function GameCallback_OnGameStart()
 		LuaDebugger = LuaDebugger or {};
 		LuaDebugger.Log = function(_text) Message("UNUSEFULL DEBUG LOG:" .. tostring(_text)) end
 		LuaDebugger.Break = function() end
+		LuaDebugger.FakeDebugger = true
 	end
 	
 	-- central debug property point
@@ -702,6 +703,11 @@ end
 
 --		DEBUG STUFF; REMOVE IN FINAL VERSION
 function SW.DebuggingStuff()
+	-- Stuff worth protecting:
+	--		Functions in SW-table
+	--		Functions in GUI-table
+	--		Functions in _G with "GUI" in it
+	--		GameCallback_OnGameStart
 	-- Creates check sums of SW.Activate and GUI.SellBuilding
 	-- Used to call out bad people in multiplayer games
 	GenerateChecksum = function(_f)
@@ -713,7 +719,9 @@ function SW.DebuggingStuff()
 		return checkSum
 	end
 	local debugggg = false
-	if GenerateChecksum(SW.Activate) ~= 234 then
+	--LuaDebugger.Log(GenerateChecksum(SW.Activate))
+	--LuaDebugger.Log(GenerateChecksum(GUI.SellBuilding))
+	if GenerateChecksum(SW.Activate) ~= 618 then
 		debugggg = true
 		--LuaDebugger.Log("Activate manipuliert")
 	end
@@ -787,6 +795,7 @@ function SW_IsSettlerMROH()
 end
 SW.MortalRemainsSoldierTypes = {}
 SW.MortalRemainsRocks = {}
+SW.MortalRemainsRocks_CurrIndex = 1
 SW.MortalRemainsRecentlyHurt = {} --Entries: key = eId, value = timeStamp
 SW.MortalRemainsEntitiesToPlace = {} --Entries: {[1] = ModelType, [2] = X, [3] = Y, [4] = rot}
 function SW_OnEntityDestroyedMR()
@@ -814,26 +823,36 @@ function SW_OnEntityDestroyedMR()
 		table.insert( SW.MortalRemainsEntitiesToPlace, {v[1], pos.X + offsetX, pos.Y + offsetY, myDegRng+v[4]})
 	end
 end
+function SW.MortalRemainsAddToRockTable( _eId)
+	if SW.MortalRemainsRocks[SW.MortalRemainsRocks_CurrIndex] == nil then	--fresh index? write eId down
+		SW.MortalRemainsRocks[SW.MortalRemainsRocks_CurrIndex] = _eId
+	elseif IsExisting(SW.MortalRemainsRocks[SW.MortalRemainsRocks_CurrIndex]) then
+		DestroyEntity(SW.MortalRemainsRocks[SW.MortalRemainsRocks_CurrIndex])
+		SW.MortalRemainsRocks[SW.MortalRemainsRocks_CurrIndex] = _eId
+	else
+		SW.MortalRemainsRocks[SW.MortalRemainsRocks_CurrIndex] = _eId
+	end
+	--increase index
+	--mapping:
+	-- 1 -> 2
+	-- 999 -> 1000
+	-- 1000 -> 1
+	SW.MortalRemainsRocks_CurrIndex = math.mod(SW.MortalRemainsRocks_CurrIndex, 1000)+1
+end
 function SW_JobMR()
 	for i = table.getn(SW.MortalRemainsEntitiesToPlace), 1, -1 do
 		local v = SW.MortalRemainsEntitiesToPlace[i]
 		local myEId = Logic.CreateEntity( Entities.XD_Rock1, v[2], v[3], v[4], 0)
 		Logic.SetModelAndAnimSet( myEId, Models[v[1]])
-		table.insert( SW.MortalRemainsRocks, myEId)
-		table.remove( SW.MortalRemainsEntitiesToPlace, i)
+		SW.MortalRemainsAddToRockTable( myEId)
 	end
+	SW.MortalRemainsEntitiesToPlace = {}		--All entities placed
 	--for i = table.getn(SW.MortalRemainsRecentlyHurt), 1, -1 do
 	--	SW.MortalRemainsRecentlyHurt[i].time = SW.MortalRemainsRecentlyHurt[i].time - 1
 	--	if SW.MortalRemainsRecentlyHurt[i].time < 0 then
 	--		table.remove( SW.MortalRemainsRecentlyHurt, i)
 	--	end
 	--end
-	if table.getn(SW.MortalRemainsRocks) > 1000 then
-		for i = 1, 50 do
-			DestroyEntity( SW.MortalRemainsRocks[1])
-			table.remove( SW.MortalRemainsRocks, 1)
-		end
-	end
 end
 function SW.IsInCombatMR( _eId)
 	local eType = Logic.GetEntityType( _eId)
@@ -851,7 +870,7 @@ function SW_OnEntityHurtMR()
 	if SW.MortalRemainsSoldierTypes[eType] then
 		opfer = Logic.GetEntityScriptingValue( opfer, 69)
 	end
-	SW.MortalRemainsRecentlyHurt[id] = Logic.GetTimeMs()
+	SW.MortalRemainsRecentlyHurt[opfer] = Logic.GetTimeMs()
 end
 
 function SW.UnifyRecruitingCosts()
