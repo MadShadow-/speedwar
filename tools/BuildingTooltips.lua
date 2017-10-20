@@ -659,6 +659,14 @@ function SW.BuildingTooltips.FixNeededBuilding()			--Used to give the currBuildi
 	SW.BuildingTooltips.GUIUpdate_TechnologyButtons = GUIUpdate_TechnologyButtons
 	GUIUpdate_TechnologyButtons = function( _button, _tech, _eType)
 		SW.BuildingTooltips.GUIUpdate_TechnologyButtons( _button, _tech, _eType) --call original
+		-- is technology modded? then enable buttons once requirements are met
+		if SW.BuildingTooltips.RData[_tech] then
+			if SW.BuildingTooltips.IsUnlocked( GUI.GetPlayerID(), SW.BuildingTooltips.RData[_tech]) then
+				XGUIEng.DisableButton( _button, 0)
+			else
+				XGUIEng.DisableButton( _button, 1)
+			end
+		end
 		if XGUIEng.IsButtonDisabled( _button) == 0 then
 			if SW.BuildingTooltips.RData[_tech] then
 				if SW.BuildingTooltips.RData[_tech].currBuilding then
