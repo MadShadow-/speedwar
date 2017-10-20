@@ -76,12 +76,17 @@ SW.RefineryPush.ConfigMines = {
 	[Entities.PB_SulfurMine2] = 20,
 	[Entities.PB_SulfurMine3] = 24
 }
+SW.RefineryPush.Orig = {}
+SW.RefineryPush.Orig.Config = {}
+SW.RefineryPush.Orig.ConfigWorker = {}
+SW.RefineryPush.Orig.ConfigMines = {}
 --S5Hook.GetRawMem(9002416)[0][16][Entities.PB_IronMine1*8+5][2][4]:SetInt(50)
 --> S5Hook.GetRawMem(9002416)[0][16][Entities.PB_IronMine1*8+5][2][0]:GetInt()
 --7821340
 function SW.RefineryPush.Init()
 	for k,v in pairs(SW.RefineryPush.Config) do
 		if S5Hook.GetRawMem(9002416)[0][16][k*8+5][2][0]:GetInt() == 7818276 then
+			SW.RefineryPush.Orig.Config[k] = S5Hook.GetRawMem(9002416)[0][16][k*8+5][2][5]:GetFloat()
 			S5Hook.GetRawMem(9002416)[0][16][k*8+5][2][5]:SetFloat(v)
 		else
 			Message("SW.RefineryPush: Failed to set value for "..Logic.GetEntityTypeName(k))
@@ -89,12 +94,37 @@ function SW.RefineryPush.Init()
 	end
 	for k,v in pairs(SW.RefineryPush.ConfigWorker) do
 		if S5Hook.GetRawMem(9002416)[0][16][k*8+5][4][0]:GetInt() == 7809936 then
+			SW.RefineryPush.Orig.ConfigWorker[k] = S5Hook.GetRawMem(9002416)[0][16][k*8+5][4][24]:GetInt()
 			S5Hook.GetRawMem(9002416)[0][16][k*8+5][4][24]:SetInt(v)
 		else
 			Message("SW.RefineryPush: Failed to set value for "..Logic.GetEntityTypeName(k))
 		end
 	end
 	for k,v in pairs(SW.RefineryPush.ConfigMines) do
+		if S5Hook.GetRawMem(9002416)[0][16][k*8+5][2][0]:GetInt() == 7821340 then
+			SW.RefineryPush.Orig.ConfigMines[k] = S5Hook.GetRawMem(9002416)[0][16][k*8+5][2][4]:GetInt()
+			S5Hook.GetRawMem(9002416)[0][16][k*8+5][2][4]:SetInt(v)
+		else
+			Message("SW.RefineryPush: Failed to set value for "..Logic.GetEntityTypeName(k))
+		end
+	end
+end
+function SW.RefineryPush.Reset()
+	for k,v in pairs(SW.RefineryPush.Orig.Config) do
+		if S5Hook.GetRawMem(9002416)[0][16][k*8+5][2][0]:GetInt() == 7818276 then
+			S5Hook.GetRawMem(9002416)[0][16][k*8+5][2][5]:SetFloat(v)
+		else
+			Message("SW.RefineryPush: Failed to set value for "..Logic.GetEntityTypeName(k))
+		end
+	end
+	for k,v in pairs(SW.RefineryPush.Orig.ConfigWorker) do
+		if S5Hook.GetRawMem(9002416)[0][16][k*8+5][4][0]:GetInt() == 7809936 then
+			S5Hook.GetRawMem(9002416)[0][16][k*8+5][4][24]:SetInt(v)
+		else
+			Message("SW.RefineryPush: Failed to set value for "..Logic.GetEntityTypeName(k))
+		end
+	end
+	for k,v in pairs(SW.RefineryPush.Orig.ConfigMines) do
 		if S5Hook.GetRawMem(9002416)[0][16][k*8+5][2][0]:GetInt() == 7821340 then
 			S5Hook.GetRawMem(9002416)[0][16][k*8+5][2][4]:SetInt(v)
 		else
