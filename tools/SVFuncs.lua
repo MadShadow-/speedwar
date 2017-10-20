@@ -9,6 +9,8 @@ SW.ScriptingValueBackup.UpgradeTime = SW.ScriptingValueBackup.UpgradeTime or {};
 SW.ScriptingValueBackup.ConstructionTime = SW.ScriptingValueBackup.ConstructionTime or {};
 SW.ScriptingValueBackup.Exploration = SW.ScriptingValueBackup.Exploration or {};
 SW.ScriptingValueBackup.RecruitingTime = SW.ScriptingValueBackup.RecruitingTime or {};
+SW.ScriptingValueBackup.AttractionProvided = SW.ScriptingValueBackup.AttractionProvided or {}
+SW.ScriptingValueBackup.AttractionNeeded = SW.ScriptingValueBackup.AttractionNeeded or {}
 function SW.ResetScriptingValueChanges()
 	for k,v in pairs(SW.ScriptingValueBackup.ConstructionCosts) do
 		SW.SetConstructionCosts(k, v);
@@ -31,9 +33,12 @@ function SW.ResetScriptingValueChanges()
 	for k, v in pairs(SW.ScriptingValueBackup.Exploration) do
 		SW.SetExploration(k,v);
 	end;
-	for k, v in pairs(SW.ScriptingValueBackup.RecruitingTime) do
-		SW.SetRecruitingTime(k,v);
-	end;
+	for k, v in pairs(SW.ScriptingValueBackup.AttractionProvided) do
+		SW.SetAttractionPlaceProvided(k,v);
+	end
+	for k, v in pairs(SW.ScriptingValueBackup.AttractionNeeded) do
+		SW.SetAttractionPlaceNeeded(k,v);
+	end
 end;
 
 --HelperFunc: Set Movement speed of given entity
@@ -265,47 +270,83 @@ function SW.GetRecruitingTime( _eType)
 	if behTable[0] ~= 7834420 then return 0 end		--GGL::CBarrackBehavior == 7834420
 	return behTable[9]:GetFloat()
 end
+
+-- Gets how many attraction slot this entity uses
+function SW.GetAttractionPlaceNeeded( _eType)
+	if Logic.GetEntityTypeName(_eType) ~= nil then
+		S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][136]:GetInt()
+	end
+end
 -- Sets how many attraction slot this entity uses
 function SW.SetAttractionPlaceNeeded( _eType, _slots)
 	if Logic.GetEntityTypeName(_eType) ~= nil then
+		SW.ScriptingValueBackup.AttractionNeeded[_eType] = SW.ScriptingValueBackup.AttractionNeeded[_eType] or SW.GetAttractionPlaceNeeded( _eType)
 		S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][136]:SetInt(_slots)
 	end
 end
+-- Gets how many attraction slots this entity provides
+function SW.GetAttractionPlaceProvided( _eType)
+	S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][44]:GetInt()
+end
 -- Sets how many attraction slots this entity provides
-function SW.SetAttractionPlaceProvided( _eType, _place)
+function SW.SetAttractionPlaceProvided( _eType)
+	SW.ScriptingValueBackup.AttractionProvided[_eType] = SW.ScriptingValueBackup.AttractionProvided[_eType] or SW.GetAttractionPlaceProvided( _eType)
 	S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][44]:SetInt(_place)
+end
+
+
+
+
+function SW.SetMotivationBoost( _eType, _mot)				--DO NOT CALL; ITS PURE EVIL; SUMMONS CTHULHU
+	S5Hook.GetRawMem(9002416)[0][16][_type*8+5][2][26][4]:GetFloat()
 end
 
 -- Searches in memory for this value
 -- starts with given pointer and tries to follow every pointer it finds
 --S5Hook.GetRawMem(9002416)[0][16][71*8+5][2]:GetInt()
---SW.MemoryCrawlerFloat( S5Hook.GetRawMem(9002416)[0][16][71*8+5][2], 0.04, 50, 3)
+--SW.MemoryCrawlerFloat( S5Hook.GetRawMem(9002416)[0][16][82*8+5][2], 0.04, 100, 3)
 function SW.MemoryCrawlerFloat( _startPoint, _val, _width, _depth, ...)
 	S5Hook.SetPreciseFPU()
 	for i = 0, _width do
 		if SW.MemoryCrawlerIsPointer( _startPoint[i]:GetInt()) and _depth > 0 then
 			LuaDebugger.Log("Following pointer ".._startPoint[i]:GetInt().." with depth ".._depth)
 			--LuaDebugger.Break()
-			SW.MemoryCrawlerFloat( _startPoint[i], _val, _width, _depth-1, unpack{arg}, i)
+			if arg[1] ~= nil then
+				SW.MemoryCrawlerFloat( _startPoint[i], _val, _width, _depth-1, unpack(arg), i)
+			else
+				SW.MemoryCrawlerFloat( _startPoint[i], _val, _width, _depth-1, i)
+			end
 		else
-			if math.abs(_val - _startPoint[i]:GetFloat()) < 0.01 then
-				LuaDebugger.Break()
-				local s = ""
-				for k,v in ipairs(arg) do
-					s = s..v.." "
-				end
-				s = s..i
-				LuaDebugger.Log( s)
+			if math.abs(_val - _startPoint[i]:GetFloat()) < 0.001 then
+				LuaDebugger.Log("Val found: ".._startPoint[i]:GetFloat())
+				LuaDebugger.Log("Arg[1]: "..tostring(arg[1]))
+				LuaDebugger.Log("Arg[2]: "..tostring(arg[2]))
+				LuaDebugger.Log("Arg[3]: "..tostring(arg[3]))
+				LuaDebugger.Log( i)
 			end
 		end
 	end
 end
-
+SW.MemoryCrawlerBlackList = {
+	[401926152] = true,
+	[410058508] = true
+}
 function SW.MemoryCrawlerIsPointer( _val)
-	if _val > 7000000 and _val < 600000000 and (not (_val > 10000000 and _val < 350000000))then
+	if _val > 5000000 and _val < 450000000 and (not (_val > 10000000 and _val < 350000000))then
 		if math.mod(_val,4) == 0 then
-			return true
+			if SW.MemoryCrawlerBlackList[_val] == nil then
+				return true
+			end
 		end
 	end
 	return false
 end
+
+--[[
+Log: "Val found: 0.03999999910593"
+Log: "Arg[1]: 26"
+Log: "Arg[2]: nil"
+Log: "Arg[3]: nil"
+Log: 4
+
+]]
