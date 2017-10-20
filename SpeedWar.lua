@@ -1263,7 +1263,7 @@ end
 --[[
 	Mad[01.07.17 12:31]: causes crashes at restart, seems to happen if troops attacked a building -> disabled
 	Napo[21.10.17]: reenabled to test stuff
-	]]
+
 if not Framework.RestartMap_Orig then
 	Framework.RestartMap_Orig = Framework.RestartMap;
 	Framework.RestartMap = function()
@@ -1290,11 +1290,25 @@ if not Framework.CloseGame_Orig then
 		S5Hook.ReloadEntities();
 		SW.ResetScriptingValueChanges();
 		--LuaDebugger.Break();
+		--
+		S5Hook.AddArchive("extra2/shr/maps/user/speedwar/backtotheroots.bba");
 		Trigger.DisableTriggerSystem( 1)
 		Framework.CloseGame_Orig();
 	end
 end
-
+ -- ]]
+ 
+ if not Framework.CloseGame_Orig then
+	Framework.CloseGame_Orig = Framework.CloseGame;
+	Framework.CloseGame = function()
+		SW.ResetScriptingValueChanges();
+		S5Hook.AddArchive("extra2/shr/maps/user/speedwar/backtotheroots.bba");
+		S5Hook.ReloadEntities();
+		S5Hook.RemoveArchive();
+		Trigger.DisableTriggerSystem( 1)
+		Framework.CloseGame_Orig();
+	end
+end
 function AddTribute( _tribute )
 		assert( type( _tribute ) == "table", "Tribut muß ein Table sein" );
 		assert( type( _tribute.text ) == "string", "Tribut.text muß ein String sein" );
