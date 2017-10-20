@@ -187,17 +187,17 @@ SW.BuildingTooltips.RData = { --Data for research tooltips
 		currBuilding = {Entities.PB_Barracks2, Technologies.UP1_Barracks}
 	},
 	--Tech trees black smith
-	--First armor techs on tier 2
-	--First dmg tech, second armor tech on tier 3, lvl2 smith
+	--First armor techs on tier 1
+	--First dmg tech, second armor tech on tier 2, lvl2 smith
 	--Second dmg tech, third armor tech on tier 4, lvl3 smith
 	--MasterOfSmithery -> IronCasting
 	--LeatherMailArmor -> ChainMailArmor -> PlateMailArmor
 	--SoftArcherArmor -> PaddedArcherArmor -> LeatherArcherArmor
 	[Technologies.T_SoftArcherArmor] = {
-		Tier = 2,
+		Tier = 1,
 	},
 	[Technologies.T_PaddedArcherArmor] = {
-		Tier = 3, 
+		Tier = 2, 
 		Techs = {Technologies.T_SoftArcherArmor},
 		currBuilding = { Entities.PB_Blacksmith2, Technologies.UP1_Blacksmith}
 	},
@@ -207,10 +207,10 @@ SW.BuildingTooltips.RData = { --Data for research tooltips
 		currBuilding = { Entities.PB_Blacksmith3, Technologies.UP2_Blacksmith}
 	},
 	[Technologies.T_LeatherMailArmor] = {
-		Tier = 2,
+		Tier = 1,
 	},
 	[Technologies.T_ChainMailArmor] = {
-		Tier = 3, 
+		Tier = 2, 
 		Techs = {Technologies.T_LeatherMailArmor},
 		currBuilding = { Entities.PB_Blacksmith2, Technologies.UP1_Blacksmith}
 	},
@@ -220,13 +220,20 @@ SW.BuildingTooltips.RData = { --Data for research tooltips
 		currBuilding = { Entities.PB_Blacksmith3, Technologies.UP2_Blacksmith}
 	},
 	[Technologies.T_MasterOfSmithery] = {
-		Tier = 3,
+		Tier = 2,
 		currBuilding = { Entities.PB_Blacksmith2, Technologies.UP1_Blacksmith}
 	},
 	[Technologies.T_IronCasting] = {
 		Tier = 4,
 		Techs = {Technologies.MasterOfSmithery},
 		currBuilding = { Entities.PB_Blacksmith3, Technologies.UP2_Blacksmith}
+	},
+	-- make weather change possible on tier 2
+	[Technologies.T_WeatherForecast] = {
+		Tier = 2,
+	},
+	[Technologies.T_ChangeWeather] = {
+		Tier = 2,
 	}
 } 
 SW.BuildingTooltips.UData = { --Data for research tooltips
@@ -236,10 +243,10 @@ SW.BuildingTooltips.UData = { --Data for research tooltips
 	[Technologies.UP1_Stables] = {		--Give stable upgrade on tier 3 for free
 		Tier = 3,
 	},
-	[Technologies.UP1_Alchemist] = {	--Weather change on tier 2 possible
-		Tier = 2,
-		Techs = {Technologies.GT_Alloying}
-	},
+	--[Technologies.UP1_Alchemist] = {	--Weather change on tier 2 possible
+	--	Tier = 2,
+	--	Techs = {Technologies.GT_Alloying}
+	--},
 	[Technologies.UP2_Tower] = {		--Gate cannon towers behind tier 4
 		Techs = {Technologies.GT_Chemistry},
 	},
@@ -249,8 +256,14 @@ SW.BuildingTooltips.UData = { --Data for research tooltips
 	[Technologies.UP1_Monastery] = {	--Allow lvl2 chapel on tier 2 in order to keep smiths and alchemists satisfied - Necessary?
 		Techs = {Technologies.GT_Trading},
 	},
+	[Technologies.UP2_Monastery] = {	--Allow lvl3 chapel on tier 3 in order to be less annoying - Necessary?
+		Techs = {Technologies.GT_Printing},
+	},
 	[Technologies.UP1_Tower] = {
 		Tier = 3,
 		Techs = {Technologies.GT_StandingArmy}
+	},
+	[Technologies.UP1_Brickworks] = {	--Lvl2 Brickworks with tier 3
+		Techs = {Technologies.GT_ChainBlock}
 	}
 } 

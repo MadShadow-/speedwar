@@ -275,3 +275,32 @@ end
 function SW.SetAttractionPlaceProvided( _eType, _place)
 	S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][44]:SetInt(_place)
 end
+
+-- Searches in memory for this value
+-- starts with given pointer and tries to follow every pointer it finds
+function SW.MemoryCrawlerFloat( _startPoint, _val, _width, _depth, ...)
+	S5Hook.SetPreciseFPU()
+	for i = 0, _width do
+		if SW.MemoryCrawlerIsPointer( _startPoint[i]:GetInt()) and _width > 0 then
+			SW.MemoryCrawlerFloat( _startPoint[i], _val, _width, _depth-1, unpack{arg}, i)
+		else
+			if math.abs(_val - _startPoint[i]:GetFloat()) < 0.01 then
+				local s = ""
+				for k,v in ipairs(arg) do
+					s = s..v.." "
+				end
+				s = s..i
+				LuaDebugger.Log( s)
+			end
+		end
+	end
+end
+
+function SW.MemoryCrawlerIsPointer( _val)
+	if _val > 7000000 and _val < 600000000 then
+		if math.mod(_val,4) == 0 then
+			return true
+		end
+	end
+	return false
+end
