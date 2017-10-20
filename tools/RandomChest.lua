@@ -12,6 +12,7 @@ SW.RandomChest.ListOfChests = {}
 SW.RandomChest.SolarEclipseJobID = nil
 SW.RandomChest.SolarEclipseParam = 0
 SW.RandomChest.SolarEclipseTime = 60
+SW.RandomChest.ListOfRelevantEntities = {}
 function SW.RandomChest.Init()
 	for k,v in pairs(SW.RandomChest.Action) do
 		table.insert(SW.RandomChest.Keys, k)
@@ -84,7 +85,7 @@ function SW_RandomChest_Job()
 				end
 			end
 		end
-	else
+	elseif version == 2 then
 		local n = table.getn(SW.RandomChest.ListOfChests)
 		local v,x,y, eX, eY
 		for eId in S5Hook.EntityIterator(Predicate.OfCategory(EntityCategories.Serf)) do		--no good predicates for this use ):
@@ -93,7 +94,7 @@ function SW_RandomChest_Job()
 				v = SW.RandomChest.ListOfChests[i]
 				x, y = v[1], v[2]
 				if math.abs(eX-x)+math.abs(eY-y) <= SW.RandomChest.OpeningRange then
-						SW.RandomChest.OnChestFound( v, GetPlayer(eId))
+					SW.RandomChest.OnChestFound( v, GetPlayer(eId))
 					DestroyEntity( v[4])
 					local stoneId = Logic.CreateEntity( Entities.XD_Rock1, v[1], v[2], 0, 0)
 					Logic.SetModelAndAnimSet( stoneId, Models.XD_ChestOpen)
@@ -119,9 +120,39 @@ function SW_RandomChest_Job()
 				end
 			end
 		end
+	else
+		if Counter.Tick2("SWRandomChestRecalcList",10) then
+			SW.RandomChest.ListOfRelevantEntities = {}
+			for eId in S5Hook.EntityIterator(Predicate.OfCategory(EntityCategories.Leader)) do
+				table.insert(SW.RandomChest.ListOfRelevantEntities, eId)
+			end
+			for eId in S5Hook.EntityIterator(Predicate.OfCategory(EntityCategories.Serf)) do
+				table.insert(SW.RandomChest.ListOfRelevantEntities, eId)
+			end
+		end
+		local n = table.getn(SW.RandomChest.ListOfChests)
+		local v,x,y, eX, eY, eId
+		for j = 1, table.getn(SW.RandomChest.ListOfRelevantEntities) do
+			eId = SW.RandomChest.ListOfRelevantEntities[j]
+			eX, eY = Logic.EntityGetPos( eId)
+			for i = n, 1, -1 do
+				v = SW.RandomChest.ListOfChests[i]
+				x, y = v[1], v[2]
+				if math.abs(eX-x)+math.abs(eY-y) <= SW.RandomChest.OpeningRange then
+					SW.RandomChest.OnChestFound( v, GetPlayer(eId))
+					DestroyEntity( v[4])
+					local stoneId = Logic.CreateEntity( Entities.XD_Rock1, v[1], v[2], 0, 0)
+					Logic.SetModelAndAnimSet( stoneId, Models.XD_ChestOpen)
+					table.remove( SW.RandomChest.ListOfChests, i)
+					n = n - 1
+					break		-- a entity may find only 1 chest per second
+				end
+			end
+		end
 	end
 	local t2 = XGUIEng.GetSystemTime()
 	SW.RandomChest.JobTimeNeeded = t2-t1
+	SW.PreciseLog.Log("RandomChestJob: "..t2-t1)
 end
 function SW.RandomChest.OnChestFound( _data, _pId)
 	if GUI.GetPlayerID() == _pId then

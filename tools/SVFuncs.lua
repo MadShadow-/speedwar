@@ -265,3 +265,9 @@ function SW.GetRecruitingTime( _eType)
 	if behTable[0] ~= 7834420 then return 0 end		--GGL::CBarrackBehavior == 7834420
 	return behTable[9]:GetFloat()
 end
+-- Sets how many attraction slot this entity uses
+function SW.SetAttractionPlaceNeeded( _eType, _slots)
+	if Logic.GetEntityTypeName(_eType) ~= nil then
+		S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][136]:SetInt(_slots)
+	end
+end
