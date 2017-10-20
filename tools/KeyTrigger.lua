@@ -22,7 +22,6 @@ function SW.KeyTrigger.Add(_keyCode, _callback)
 end
 
 function SW.KeyTrigger.Trigger(_keyCode, _keyIsUp)
-	LuaDebugger.Log(_keyCode);
 	if not SW.KeyTrigger.Callbacks[_keyCode] then
 		return;
 	end
