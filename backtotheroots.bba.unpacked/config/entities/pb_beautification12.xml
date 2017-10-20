@@ -91,7 +91,10 @@
 	<Behavior>
 	    <Logic classname="GGL::CAffectMotivationBehaviorProps">
 	        <Class>GGL::CAffectMotivationBehavior</Class>
-	        <MotivationEffect>0.00</MotivationEffect>
+	        <MotivationEffect>0.04</MotivationEffect>
 	    </Logic>
 	</Behavior>
+
+
+
 </root>

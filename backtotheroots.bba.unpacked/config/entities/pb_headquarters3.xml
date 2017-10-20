@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<root>
+	<Display classname="ED::CDisplayEntityProps">
+		  <Class>ED::CDisplayBuilding</Class>
+		  <Model>PB_Headquarters3</Model>
+	</Display>
+	<Logic classname="GGL::CGLBuildingProps">
+		  <Class>GGL::CBuilding</Class>
+		  <AccessCategory>AccessCategoryBuilding</AccessCategory>
+		  <NeedsPlayer>true</NeedsPlayer>
+		  <ForceNoPlayer>false</ForceNoPlayer>
+		  <MaxHealth>4100</MaxHealth>
+		  
+<!--MaxHealth>100</MaxHealth-->
+		  <ArmorClass>ArmorClassFortification</ArmorClass> 
+		  <ArmorAmount>8</ArmorAmount>
+		  
+		
+  <!-- Armor -->
+		  <ModifyArmor>
+		  	<Technology>T_Masonry</Technology>		  
+		</ModifyArmor>     
+				
+		
+  <!-- Exploration-->
+		  <ModifyExploration>
+        	<Technology>T_CityGuard</Technology>
+        </ModifyExploration>   
+		
+        <Category>Headquarters</Category>
+        <Category>DefendableBuilding</Category>
+        <Category>SerfConversionBuilding</Category>
+        <Category>IronSupplier</Category>
+		  <Category>ClaySupplier</Category>
+		  <Category>StoneSupplier</Category>
+		  <Category>SulfurSupplier</Category>
+		  <Category>GoldSupplier</Category>
+		  <Category>WoodSupplier</Category>
+        <Upgrade>
+            <Category>Headquarters</Category>
+        </Upgrade>
+        <CanBeSold>false</CanBeSold>
+		  
+
+    
+<!--NumberOfAttractableSettlers>25</NumberOfAttractableSettlers-->
+		  <Exploration>50</Exploration>		
+        <ConstructionInfo>
+        	
+
+      
+
+      <!--Time>10</Time>
+            <Cost>
+				<Clay>1000</Clay>
+				<Wood></Wood>
+				<Stone>1000</Stone>
+				<Gold></Gold>
+				<Iron></Iron>
+				<Sulfur></Sulfur>
+           </Cost-->
+            <BuilderSlot>
+                <Position>
+                    <X>400</X>
+                    <Y>-700</Y>
+                </Position>
+                <Orientation>90</Orientation>
+            </BuilderSlot>
+            <BuilderSlot>
+                <Position>
+                    <X>100</X>
+                    <Y>-700</Y>
+                </Position>
+                <Orientation>90</Orientation>
+            </BuilderSlot>
+            <BuilderSlot>
+                <Position>
+                    <X>-100</X>
+                    <Y>-700</Y>
+                </Position>
+                <Orientation>90</Orientation>
+            </BuilderSlot>
+            <BuilderSlot>
+                <Position>
+                    <X>-400</X>
+                    <Y>-700</Y>
+                </Position>
+                <Orientation>90</Orientation>
+            </BuilderSlot>
+            <BuilderSlot>
+                <Position>
+                    <X>-700</X>
+                    <Y>-500</Y>
+                </Position>
+                <Orientation>0</Orientation>
+            </BuilderSlot>
+            <BuilderSlot>
+                <Position>
+                    <X>-700</X>
+                    <Y>-200</Y>
+                </Position>
+                <Orientation>0</Orientation>
+            </BuilderSlot>            
+            
+            <BuilderSlot>
+                <Position>
+                    <X>-700</X>
+                    <Y>200</Y>
+                </Position>
+                <Orientation>0</Orientation>
+            </BuilderSlot>
+            <BuilderSlot>
+                <Position>
+                    <X>-700</X>
+                    <Y>500</Y>
+                </Position>
+                <Orientation>0</Orientation>
+            </BuilderSlot>       
+            <ConstructionSite>ZB_ConstructionSite1</ConstructionSite>
+        </ConstructionInfo>
+        <LeavePos>
+            <X>-700</X>
+            <Y>-100</Y>
+        </LeavePos>
+        <ApproachPos>
+            <X>-700</X>
+            <Y>40</Y>
+        </ApproachPos>
+		  <ApproachR>0</ApproachR>		
+        
+
+    
+
+    
+
+    <!--NOT working for buy serfs!-->
+        <DoorPos>
+            <X>200</X>
+            <Y>50</Y>			
+        </DoorPos>
+        <Blocked1>
+            <X>-600</X>
+            <Y>600</Y>
+        </Blocked1>
+        <Blocked2>
+            <X>600</X>
+            <Y>-600</Y>
+        </Blocked2>
+        <TerrainPos1>
+            <X>-700</X>
+            <Y>700</Y>
+        </TerrainPos1>
+        <TerrainPos2>
+            <X>700</X>
+            <Y>-700</Y>
+        </TerrainPos2>      
+	</Logic>
+	<Behavior>
+		  <Logic classname="EGL::CGLEBehaviorProps">
+			  <Class>EGL::GLEBehaviorMultiSubAnims</Class>
+		</Logic>
+		  <Display classname="ED::CBehaviorProps">
+			  <Class>ED::CDisplayBehaviorBuildingAnimation</Class>
+		</Display>
+	</Behavior>
+    <Behavior>
+        <Logic classname="GGL::CKeepBehaviorProperties">
+            <Class>GGL::CKeepBehavior</Class>
+            <NumSerfs>1000</NumSerfs>
+        </Logic>
+    </Behavior>
+	<Behavior>
+		  <Logic classname="EGL::CGLEBehaviorProps">
+			  <Class>GGL::CBuildingBehavior</Class>
+		</Logic>
+		  <Display classname="GD::CBuildingBehaviorProps">
+			  <Class>GD::CBuildingBehavior</Class>
+			  <Banner>Default</Banner>
+			  <NumDamageEffects>63</NumDamageEffects>
+			  <NumDestroyEffects>39</NumDestroyEffects>
+		</Display>
+	</Behavior>
+	
+	<Behavior>
+		  <Logic classname="GGL::CLimitedAttachmentBehaviorProperties">
+			  <Class>GGL::CLimitedAttachmentBehavior</Class>           
+            <Attachment>
+                <Type>ATTACHMENT_DEFENDER_BUILDING</Type>
+                <Limit>400</Limit>
+            </Attachment>
+		</Logic>		 
+	</Behavior>
+	
+	<Behavior>
+	    <Logic classname="GGL::CDefendableBuildingBehaviorProps">
+	        <Class>GGL::CDefendableBuildingBehavior</Class>
+	    </Logic>
+	</Behavior>
+
+
+
+
+</root>

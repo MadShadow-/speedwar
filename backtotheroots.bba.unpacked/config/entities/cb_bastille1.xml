@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<root>
+	<Display classname="ED::CDisplayEntityProps">
+		<Class>ED::CDisplayBuilding</Class>
+		<Model>CB_Bastille1</Model>
+	</Display>
+	<Logic classname="GGL::CGLBuildingProps">
+		<Class>GGL::CBuilding</Class>
+		<AccessCategory>AccessCategoryBuilding</AccessCategory>
+
+		<NeedsPlayer>true</NeedsPlayer>
+		<ForceNoPlayer>false</ForceNoPlayer>
+		<MaxHealth>600</MaxHealth>
+		<ArmorClass>ArmorClassFortification</ArmorClass> 
+		<ArmorAmount>5</ArmorAmount>   
+		
+        <!--Upgrade>
+            <Type>PB_Bastille2</Type>            
+        </Upgrade-->
+		<Exploration>20</Exploration>
+        <ApproachPos>
+            <X>-100</X>
+            <Y>-400</Y>
+        </ApproachPos>
+		<ApproachR>0</ApproachR>
+        <DoorPos>
+            <X>-100</X>
+            <Y>-100</Y>			
+        </DoorPos>
+        <Blocked1>
+            <X>-400</X>
+            <Y>300</Y>
+        </Blocked1>
+        <Blocked2>
+            <X>300</X>
+            <Y>-300</Y>
+        </Blocked2>
+        <TerrainPos1>
+            <X>-500</X>
+            <Y>400</Y>
+        </TerrainPos1>
+        <TerrainPos2>
+            <X>400</X>
+            <Y>-400</Y>
+        </TerrainPos2>        
+	</Logic>
+	<Behavior>
+		<Logic classname="EGL::CGLEBehaviorProps">
+			<Class>EGL::GLEBehaviorMultiSubAnims</Class>
+		</Logic>
+		<Display classname="ED::CBehaviorProps">
+			<Class>ED::CDisplayBehaviorBuildingAnimation</Class>
+		</Display>
+	</Behavior>
+	<Behavior>
+		<Logic classname="EGL::CGLEBehaviorProps">
+			<Class>GGL::CBuildingBehavior</Class>
+		</Logic>
+		<Display classname="GD::CBuildingBehaviorProps">
+			<Class>GD::CBuildingBehavior</Class>
+			<Banner>DefaultBend</Banner>
+			  <NumDamageEffects>14</NumDamageEffects>
+			  <NumDestroyEffects>12</NumDestroyEffects>
+		</Display>
+
+	</Behavior>
+</root>
