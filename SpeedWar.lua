@@ -1302,6 +1302,8 @@ end
 	Framework.CloseGame_Orig = Framework.CloseGame;
 	Framework.CloseGame = function()
 		SW.ResetScriptingValueChanges();
+		SW.RefineryPush.Reset();
+		SW.ResetBuildingMaxHealth();
 		S5Hook.AddArchive("extra2/shr/maps/user/speedwar/backtotheroots.bba");
 		S5Hook.ReloadEntities();
 		S5Hook.RemoveArchive();
