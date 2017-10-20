@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<root>
+	<Display classname="ED::CDisplayEntityProps">
+		  <Class>ED::CDisplayBuilding</Class>
+		  <Model>PB_Beautification12</Model>
+	</Display>
+	<Logic classname="GGL::CGLBuildingProps">
+		  <Class>GGL::CBuilding</Class>
+		  <AccessCategory>AccessCategoryBuilding</AccessCategory>
+		  <NeedsPlayer>true</NeedsPlayer>
+		  <ForceNoPlayer>false</ForceNoPlayer>
+		  <MaxHealth>300</MaxHealth>
+		  <ArmorClass>ArmorClassFortification</ArmorClass> 
+		  <ArmorAmount>0</ArmorAmount>   
+		
+  
+  
+  <!--ModifyArmor>
+		  	<Technology>GT_Architecture</Technology>		  
+		  </ModifyArmor-->             
+        <Upgrade>
+            <Category>Beautification12</Category>            
+        </Upgrade>
+		  <Exploration>12</Exploration>
+        <ConstructionInfo>
+            <Time>20</Time>
+            <Cost>
+				    <Clay/>
+				    <Wood/>
+				    <Stone>0</Stone>
+				    <Gold>200</Gold>
+				    <Iron>100</Iron>
+				    <Sulfur/>
+            </Cost>
+            <BuilderSlot>
+                <Position>
+                    <X>-150</X>
+                    <Y>150</Y>
+                </Position>
+                <Orientation>1</Orientation>
+            </BuilderSlot>
+             
+            <ConstructionSite>ZB_ConstructionSiteTower1</ConstructionSite>
+        </ConstructionInfo>
+        <ApproachPos>
+            <X>-100</X>
+            <Y>100</Y>
+        </ApproachPos>
+		  <ApproachR>0</ApproachR>
+        <DoorPos>
+            <X>10</X>
+            <Y>10</Y>			
+        </DoorPos>
+        <Blocked1>
+            <X>-50</X>
+            <Y>50</Y>
+        </Blocked1>
+        <Blocked2>
+            <X>50</X>
+            <Y>-50</Y>
+        </Blocked2>
+        <TerrainPos1>
+            <X>-150</X>
+            <Y>150</Y>
+        </TerrainPos1>
+        <TerrainPos2>
+            <X>150</X>
+            <Y>-150</Y>
+        </TerrainPos2>     
+	</Logic>
+	<Behavior>
+		  <Logic classname="EGL::CGLEBehaviorProps">
+			  <Class>EGL::GLEBehaviorMultiSubAnims</Class>
+		</Logic>
+		  <Display classname="ED::CBehaviorProps">
+			  <Class>ED::CDisplayBehaviorBuildingAnimation</Class>
+		</Display>
+	</Behavior>
+	<Behavior>
+		  <Logic classname="EGL::CGLEBehaviorProps">
+			  <Class>GGL::CBuildingBehavior</Class>
+		</Logic>
+		  <Display classname="GD::CBuildingBehaviorProps">
+			  <Class>GD::CBuildingBehavior</Class>
+			  <Banner>DefaultBend</Banner>
+			  <NumDamageEffects>10</NumDamageEffects>
+			  <NumDestroyEffects>7</NumDestroyEffects> 
+		</Display>
+	</Behavior>
+	
+	<Behavior>
+	    <Logic classname="GGL::CAffectMotivationBehaviorProps">
+	        <Class>GGL::CAffectMotivationBehavior</Class>
+	        <MotivationEffect>0.00</MotivationEffect>
+	    </Logic>
+	</Behavior>
+
+
+
+</root>
