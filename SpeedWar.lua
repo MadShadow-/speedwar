@@ -298,6 +298,8 @@ function SW.Activate(_seed)
 	SW.QoL.Init()
 	-- Block weather change for some time after manual change
 	SW.WeatherBlock.Init()
+	-- Let's have a key trigger!
+	SW.KeyTrigger.Init();
 end
 
 function SW.EnableStartingTechnologies()

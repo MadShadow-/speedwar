@@ -454,6 +454,18 @@ function SW.WallGUI.CreateEntity(_entityType, _position, _playerId)
 	end
 end
 
+function SW.WallGUI.WallHotKey(_keyIsUp)
+	if _keyIsUp then
+		return;
+	end
+	if XGUIEng.IsButtonDisabled("SWBuildWall") == 1 then
+		return;
+	end
+	if Logic.GetEntityType(GUI.GetSelectedEntity()) == Entities.PU_Serf then
+		SW.WallGUI.GUIAction_PlaceBuilding("Wall")
+	end
+end
+
 function SW.WallGUI.EntityType_SetDisplayModel(_entityType, _model)
 	--LuaDebugger.Break();
 	S5Hook.GetRawMem(9002416)[0][16][_entityType * 8 + 3][2]:SetInt(_model)
