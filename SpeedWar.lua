@@ -43,6 +43,7 @@ function GameCallback_OnGameStart()
 		LevelUpToMaxRank = true,
 		ErrorLogging = true,
 		TroopSpawnKeys = true,
+		ResearchAllUniversityTechnologies = false,
 	};
 	
 	for i = 1, 8 do
@@ -75,15 +76,15 @@ function GameCallback_OnGameStart()
 		end
 	end
 	SW.IsHost = (SW.Host == SW.PlayerId);
-
-	-- Create HQs and redirect keybindings
-	SW.CreateHQsAndRedirectKeyBindung();
 	
 	Script.LoadFolder("maps\\user\\speedwar\\config");
 	Script.LoadFolder("maps\\user\\speedwar\\tools");
 	
 	SW.SetupMPLogic();
 	Sync.Init();
+	
+	-- savegame compatability
+	Mission_InitWeatherGfxSets = function()end
 	
 	Camera.RotSetFlipBack(0);
 
@@ -170,7 +171,9 @@ function ActivateDebug()
 	local g = 10000;
 	for i = 1,8 do
 		Tools.GiveResouces(i, g,g,g,g,g,g);
-		--ResearchAllUniversityTechnologies(i);
+		if debugging.ResearchAllUniversityTechnologies then
+			ResearchAllUniversityTechnologies(i);
+		end
 		if debugging.LevelUpToMaxRank then
 			SW.RankSystem.Points[i] = 100000
 			SW.RankSystem.UpdatePlayer( i)
@@ -250,6 +253,8 @@ function SW.Activate(_seed)
 	SW.EnableReducedConstructionCosts();
 	-- same as for construction costs
 	SW.EnableReducedUpgradeCosts();
+	-- Change building max health
+	SW.InitBuildingMaxHealth()
 	-- Genetische Dispositionen für alle! :D
 	SW.EnableGeneticDisposition()
 	-- Dying entities leaves remains
@@ -302,6 +307,8 @@ function SW.Activate(_seed)
 	SW.KeyTrigger.Init();
 	-- Now with better VCPlace distribution
 	SW.VCChange.Init()
+	-- We need HQ's! They are helpful
+	SW.CreateHQsAndRedirectKeyBindung();
 end
 
 function SW.EnableStartingTechnologies()
@@ -1236,9 +1243,10 @@ end
 function SW.CreateHQsAndRedirectKeyBindung()
 	local player;
 	local hqId;
+	SW.SetAttractionPlaceProvided(Entities.PB_Headquarters3, 30);
 	for i = 1, table.getn(SW.Players) do
 		player = SW.Players[i];
-		hqId = Logic.CreateEntity( Entities.PB_Headquarters3, 1000, 1000, 0, player)
+		hqId = Logic.CreateEntity(Entities.PB_Headquarters3, 1000, 1000, 0, player);
 		Logic.SetEntitySelectableFlag( hqId, 0)
 		Logic.SetEntityScriptingValue( hqId, -30, 257)
 	end;
