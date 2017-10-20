@@ -1262,6 +1262,8 @@ end
 
 --[[
 	Mad[01.07.17 12:31]: causes crashes at restart, seems to happen if troops attacked a building -> disabled
+	Napo[21.10.17]: reenabled to test stuff
+	]]
 if not Framework.RestartMap_Orig then
 	Framework.RestartMap_Orig = Framework.RestartMap;
 	Framework.RestartMap = function()
@@ -1291,7 +1293,7 @@ if not Framework.CloseGame_Orig then
 		Trigger.DisableTriggerSystem( 1)
 		Framework.CloseGame_Orig();
 	end
-end]]
+end
 
 function AddTribute( _tribute )
 		assert( type( _tribute ) == "table", "Tribut muß ein Table sein" );
