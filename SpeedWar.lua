@@ -300,6 +300,8 @@ function SW.Activate(_seed)
 	SW.WeatherBlock.Init()
 	-- Let's have a key trigger!
 	SW.KeyTrigger.Init();
+	-- Now with better VCPlace distribution
+	SW.VCChange.Init()
 end
 
 function SW.EnableStartingTechnologies()
@@ -316,6 +318,7 @@ function SW.EnableStartingTechnologies()
 	end
 end
 
+--			THE WEATHER
 function SW.EnableRandomWeather()
 	-- New algorithm:
 	-- 3 weather states, always start with some summer

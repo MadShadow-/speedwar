@@ -271,3 +271,7 @@ function SW.SetAttractionPlaceNeeded( _eType, _slots)
 		S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][136]:SetInt(_slots)
 	end
 end
+-- Sets how many attraction slots this entity provides
+function SW.SetAttractionPlaceProvided( _eType, _place)
+	S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][44]:SetInt(_place)
+end
