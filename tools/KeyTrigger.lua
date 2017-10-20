@@ -8,6 +8,7 @@ function SW.KeyTrigger.Init()
 	S5Hook.SetKeyTrigger(SW.KeyTrigger.Trigger);
 	-- Keys:
 	SW.KeyTrigger.Add(70, SW.WallGUI.WallHotKey);
+	SW.KeyTrigger.Add(81, SW.KeyTrigger.BuySoldiers);
 end
 
 function SW.KeyTrigger.Add(_keyCode, _callback)
@@ -31,6 +32,28 @@ function SW.KeyTrigger.Trigger(_keyCode, _keyIsUp)
 	else
 		for i = 1, table.getn(SW.KeyTrigger.Callbacks[_keyCode]) do
 			SW.KeyTrigger.Callbacks[_keyCode](_keyIsUp);
+		end
+	end
+end
+
+
+-- #######################################################################################################
+-- ## Buy Soldiers
+-- ## buy soldiers for all selected leaders
+
+function SW.KeyTrigger.BuySoldiers(_keyIsUp)
+	if _keyIsUp then
+		return;
+	end
+	local sel = {GUI.GetSelectedEntities()};
+	local missingSoldiers, Id;
+	for i = 1, table.getn(sel) do
+		Id = sel[i];
+		if Logic.IsLeader(Id) == 1 then
+			missingSoldiers = Logic.LeaderGetMaxNumberOfSoldiers(Id) - Logic.LeaderGetNumberOfSoldiers(Id);
+			for i = 1, missingSoldiers do
+				PostEvent.LeaderBuySoldier(Id);
+			end
 		end
 	end
 end
