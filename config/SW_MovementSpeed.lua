@@ -114,7 +114,7 @@ SW.BaseMovementspeed = { --Sets BaseMS by EntityCategory; Highest Value wins
 	["Bow"] = 320,
 	["Cannon"] = 180,  --Values for cannons: 240, 260, 220, 180
 	["CavalryHeavy"] =  440,
-	["CavalryLight"] = 520,
+	["CavalryLight"] = 480,
 	["Hero"] = 400,
 	["Rifle"] = 320,
 	["Scout"] = 350,
@@ -131,26 +131,26 @@ SW.MovementspeedTechInfluence = { --Balancechanges here!
 	["T_BetterChassis"] = {
 		Influenced = {"Cannon"},
 		SumPreFactor = 0,
-		Factor = 1.0,
-		SumPostFactor = 30
+		Factor = 1.5,
+		SumPostFactor = 0
 	},
 	["T_BetterTrainingArchery"]= {
 		Influenced = {"Bow", "Rifle"},
 		SumPreFactor = 0,
-			Factor = 1.0,
+			Factor = 1.2,
 		SumPostFactor = 40
 	},
 	["T_BetterTrainingBarracks"]= {
 		Influenced = {"Sword", "Spear"},
 		SumPreFactor = 0,
-		Factor = 1.0,
+		Factor = 1.2,
 		SumPostFactor = 30
 	},
 	["T_Shoeing"]= {
 		Influenced = {"CavalryHeavy", "CavalryLight"},
 		SumPreFactor = 0,
-		Factor = 1.0,
-		SumPostFactor = 50
+		Factor = 1.25,
+		SumPostFactor = 0
 	},
 	["T_Shoes"]= {
 		Influenced = {"Serf", "Worker"},

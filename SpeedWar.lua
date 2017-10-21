@@ -43,7 +43,7 @@ function GameCallback_OnGameStart()
 		LevelUpToMaxRank = true,
 		ErrorLogging = true,
 		TroopSpawnKeys = true,
-		ResearchAllUniversityTechnologies = false,
+		ResearchAllUniversityTechnologies = true,
 	};
 	
 	for i = 1, 8 do
@@ -154,9 +154,6 @@ function ActivateDebug()
 		CT2 = function()
 			local x,y = GUI.Debug_GetMapPositionUnderMouse();
 			table.insert(DebugTroops, Tools.CreateGroup(2, Entities.PU_LeaderCavalry2, 8, x, y, 100));
-		end
-		for i = 1,4 do
-			Tools.CreateGroup(1,Entities["PV_Cannon"..i],8,25000,25000,100);
 		end
 		DT = function()
 			for i = table.getn(DebugTroops), 1, -1 do

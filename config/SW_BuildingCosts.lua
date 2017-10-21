@@ -33,4 +33,5 @@ SW.BuildingUpgradeCosts = {
 	["PB_Residence2"] = { [ResourceType.Wood] = 100, [ResourceType.Clay] = 100  },
 	["PB_University1"] = { [ResourceType.Gold] = 500, [ResourceType.Clay] = 250, [ResourceType.Stone] = 300  },
 	["PB_Tower1"] = { [ResourceType.Wood] = 300, [ResourceType.Stone] = 400  },
+	["PB_Tower2"] = { [ResourceType.Sulfur] = 400, [ResourceType.Stone] = 500  },
 };
