@@ -90,7 +90,7 @@ function SW.RessCheck.GenerateCheckSum( _pId, _eType, _considerHealth, _consider
 		table.insert(preds, Predicate.OfType(_eType))
 	end
 	local sum = 0
-	for eId in S5Hook.EntityIterator(unpack{preds}) do
+	for eId in S5Hook.EntityIterator(unpack(preds)) do
 		sum = SW.RessCheck.CheckSumAddNumber( sum, eId)
 		sum = SW.RessCheck.CheckSumAddNumber( sum, Logic.GetEntityType(eId))
 		if _considerHealth then

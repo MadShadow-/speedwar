@@ -44,7 +44,7 @@ function Sync.Init()
 	
 	Sync.MPGame_ApplicationCallback_ReceivedChatMessage = MPGame_ApplicationCallback_ReceivedChatMessage;
 	MPGame_ApplicationCallback_ReceivedChatMessage = function( _Message, _AlliedOnly, _SenderPlayerID )
-		SW.PreciseLog.Log("Sync: MSG..".._Message.." by ".._SenderPlayerID.." ".._AlliedOnly)
+		--SW.PreciseLog.Log("Sync: MSG..".._Message.." by ".._SenderPlayerID.." ".._AlliedOnly)
 		if string.find(_Message, Sync.KeyPrep, 1, true) then
 			local tributPlayer = tonumber(string.sub(_Message, Sync.KeyPrep_Length +1, Sync.KeyPrep_Length +1)); -- ex "2" - 1 digit
 			local indexString = string.sub(_Message, Sync.KeyPrep_Length +2, Sync.KeyPrep_Length +5); -- ex "0010" - 4 digits

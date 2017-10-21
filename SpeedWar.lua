@@ -166,7 +166,7 @@ function ActivateDebug()
 		Input.KeyBindDown(Keys.E, "CT2()",2);
 		Input.KeyBindDown(Keys.R, "DT()",2);
 	end
-	local g = 10000;
+	local g = 1000000;
 	for i = 1,8 do
 		Tools.GiveResouces(i, g,g,g,g,g,g);
 		if debugging.ResearchAllUniversityTechnologies then
@@ -930,15 +930,30 @@ function SW_JobMR()
 	--end
 end
 function SW.IsInCombatMR( _eId)
-	local eType = Logic.GetEntityType( _eId)
-	if SW.MortalRemainsSoldierTypes[eType] then
-		_eId = Logic.GetEntityScriptingValue( _eId, 69)
-	end
-	if Logic.GetTimeMs() < (SW.MortalRemainsRecentlyHurt[_eId] or 0) + 3000 then
-		return true
-	end
-	return false
+    local eType = Logic.GetEntityType( _eId)
+    if SW.MortalRemainsSoldierTypes[eType] then
+        _eId = Logic.GetEntityScriptingValue( _eId, 69)
+    end
+    
+    local condition = Logic.GetTimeMs() < (SW.MortalRemainsRecentlyHurt[_eId] or 0) + 3000;
+    local x,y = Logic.EntityGetPos(_eId);
+    SW.PreciseLog.Log("Comb: " .. tostring(_eId) .. " " .. tostring(Logic.GetEntityType(_eId)) .. " " .. x .. " " .. y .. " " .. tostring(condition) .. " " .. Logic.GetTimeMs() .. " " .. ((SW.MortalRemainsRecentlyHurt[_eId] or 0) + 3000));
+    
+    if condition then
+        return true
+    end
+    return false
 end
+-- function SW.IsInCombatMR( _eId)
+	-- local eType = Logic.GetEntityType( _eId)
+	-- if SW.MortalRemainsSoldierTypes[eType] then
+		-- _eId = Logic.GetEntityScriptingValue( _eId, 69)
+	-- end
+	-- if Logic.GetTimeMs() < (SW.MortalRemainsRecentlyHurt[_eId] or 0) + 3000 then
+		-- return true
+	-- end
+	-- return false
+-- end
 function SW_OnEntityHurtMR()
 	local opfer = Event.GetEntityID2()
 	local eType = Logic.GetEntityType( opfer)

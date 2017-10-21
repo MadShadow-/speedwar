@@ -22,10 +22,14 @@ function SW.PreciseLog.TrackCreateEntity()
 	Trigger.RequestTrigger( Events.LOGIC_EVENT_ENTITY_DESTROYED, nil, "SW_PreciseLog_OnDestroyed", 1)
 end
 function SW_PreciseLog_OnCreate()
-	SW.PreciseLog.Log("Created: "..Event.GetEntityID())
+	local eId = Event.GetEntityID()
+	SW.PreciseLog.Log("Created: "....eId.." of type "..tostring(Logic.GetEntityTypeName(Logic.GetEntityType(eId))).." at "
+	..GetPosition(eId).X.." "..GetPosition(eId).Y.." time "..Logic.GetTimeMs())
 end
 function SW_PreciseLog_OnDestroyed()
-	SW.PreciseLog.Log("Destroyed: "..Event.GetEntityID())
+	local eId = Event.GetEntityID()
+	SW.PreciseLog.Log("Destroyed: "..eId.." of type "..tostring(Logic.GetEntityTypeName(Logic.GetEntityType(eId))).." at "
+	..GetPosition(eId).X.." "..GetPosition(eId).Y.." time "..Logic.GetTimeMs())
 end
 function SW.PreciseLog.Log(_s)
 	SW.PreciseLog.CurrIndex = SW.PreciseLog.GetNextIndex(SW.PreciseLog.CurrIndex)
