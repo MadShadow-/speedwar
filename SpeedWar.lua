@@ -879,7 +879,7 @@ function SW_OnEntityDestroyedMR()
 	if not SW.IsInCombatMR( eId) then --Kein Kampf? Kein GRAB!
 		return
 	end
-	SW.PreciseLog.Log("CreateGrave at "..pos.X.." "..pos.Y.." for eId "..eId)
+	--SW.PreciseLog.Log("CreateGrave at "..pos.X.." "..pos.Y.." for eId "..eId)
 	local myDegRng = math.mod(math.mod(eId,360)*47,360);
 	local myRng = math.rad( myDegRng)
 	local mySin = math.sin( myRng)
@@ -932,10 +932,14 @@ function SW_JobMR()
 end
 function SW.IsInCombatMR( _eId)
     local eType = Logic.GetEntityType( _eId)
+	SW.PreciseLog("InCombatParam: ".._eId)
     if SW.MortalRemainsSoldierTypes[eType] then
         _eId = Logic.GetEntityScriptingValue( _eId, 69)
+		SW.PreciseLog("InCombatParamAfterSV: ".._eId)
+		if IsDead(_eId) then
+			return false
+		end
     end
-    
     local condition = Logic.GetTimeMs() < (SW.MortalRemainsRecentlyHurt[_eId] or 0) + 3000;
     local x,y = Logic.EntityGetPos(_eId);
     SW.PreciseLog.Log("Comb: " .. tostring(_eId) .. " " .. tostring(Logic.GetEntityType(_eId)) .. " " .. x .. " " .. y .. " " .. tostring(condition) .. " " .. Logic.GetTimeMs() .. " " .. ((SW.MortalRemainsRecentlyHurt[_eId] or 0) + 3000));

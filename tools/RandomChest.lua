@@ -152,7 +152,7 @@ function SW_RandomChest_Job()
 	end
 	local t2 = XGUIEng.GetSystemTime()
 	SW.RandomChest.JobTimeNeeded = t2-t1
-	SW.PreciseLog.Log("RandomChestJob: "..t2-t1)
+	--SW.PreciseLog.Log("RandomChestJob: "..t2-t1)
 end
 function SW.RandomChest.OnChestFound( _data, _pId)
 	if GUI.GetPlayerID() == _pId then
