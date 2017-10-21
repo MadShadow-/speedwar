@@ -236,10 +236,24 @@ function SW.RandomChest.SolarEclipseSetGFX(_scale)
 	elseif _scale < 0 then
 		_scale = 0
 	end
-	Display.GfxSetSetLightParams(1,  0.0, 1.0, 40, -15, -50,  30+math.floor(90*_scale),30+math.floor(80*_scale),60+math.floor(50*_scale),  math.floor(255*_scale), math.floor(254*_scale), math.floor(230*_scale))
-	Display.GfxSetSetLightParams(3,  0.0, 1.0,  40, -15, -75,  25+math.floor(75*_scale),30+math.floor(80*_scale),60+math.floor(50*_scale), math.floor(250*_scale), math.floor(250*_scale), math.floor(250*_scale))
-	Display.GfxSetSetLightParams(2,  0.0, 1.0, 40, -15, -50,  30+math.floor(90*_scale),30+math.floor(80*_scale),60+math.floor(50*_scale),  math.floor(255*_scale), math.floor(254*_scale), math.floor(230*_scale))
+	for k,v in pairs(SW.RandomChest.SolarEclipseData) do
+		SW.RandomChest.Display_GfxSetSetLightParams( k, v[1], v[2], v[3], v[4], v[5], 
+												math.floor((0.25+0.75*_scale)*v[6]), math.floor((0.25+0.75*_scale)*v[7]), math.floor((0.5+0.5*_scale)*v[8]),
+												math.floor(_scale*v[9]), math.floor(_scale*v[10]), math.floor(_scale*v[11]))
+	end
+	--Display.GfxSetSetLightParams(1,  0.0, 1.0, 40, -15, -50,  30+math.floor(90*_scale),30+math.floor(80*_scale),60+math.floor(50*_scale),  math.floor(255*_scale), math.floor(254*_scale), math.floor(230*_scale))
+	--Display.GfxSetSetLightParams(3,  0.0, 1.0,  40, -15, -75,  25+math.floor(75*_scale),30+math.floor(80*_scale),60+math.floor(50*_scale), math.floor(250*_scale), math.floor(250*_scale), math.floor(250*_scale))
+	--Display.GfxSetSetLightParams(2,  0.0, 1.0, 40, -15, -50,  30+math.floor(90*_scale),30+math.floor(80*_scale),60+math.floor(50*_scale),  math.floor(255*_scale), math.floor(254*_scale), math.floor(230*_scale))
 end
+function SW.RandomChest.SolarEclipseHackGFX()
+	SW.RandomChest.SolarEclipseData = {}
+	SW.RandomChest.Display_GfxSetSetLightParams = Display.GfxSetSetLightParams
+	Display.GfxSetSetLightParams = function( _wId, _transS, _transE, _pX, _pY, _pZ, _amR, _amG, _amB, _diffR, _diffG, _diffB)
+		SW.RandomChest.Display_GfxSetSetLightParams( _wId, _transS, _transE, _pX, _pY, _pZ, _amR, _amG, _amB, _diffR, _diffG, _diffB)
+		SW.RandomChest.SolarEclipseData[_wId] = {_transS, _transE, _pX, _pY, _pZ, _amR, _amG, _amB, _diffR, _diffG, _diffB}
+	end
+end
+SW.RandomChest.SolarEclipseHackGFX()
 function SW.RandomChest.Action.NobleMan( _pId, _x, _y)
 	if GUI.GetPlayerID() == _pId then
 		Message("Darin war ein mächtiger Krieger!")
@@ -254,7 +268,7 @@ function SW.RandomChest.Action.WildMan( _pId, _x, _y)
 	end
 	local eId = Logic.CreateEntity(Entities.CU_Evil_LeaderBearman1, _x, _y, 0, _pId)
 	S5Hook.GetEntityMem( eId)[25]:SetFloat(2)
-	SW.SetMovementspeed( eId, 600)
+	SW.SetMovementspeed( eId, 900)
 end
 SW.RandomChest.GoetheText = {
 	"Habe nun, ach! Philosophie,",

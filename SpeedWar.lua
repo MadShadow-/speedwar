@@ -22,6 +22,10 @@ function GameCallback_OnGameStart()
 	
 	LocalMusic.UseSet = HIGHLANDMUSIC
 	Camera.ZoomSetFactorMax(2);
+	
+	Script.LoadFolder("maps\\user\\speedwar\\config");
+	Script.LoadFolder("maps\\user\\speedwar\\tools");
+	
 	SetupHighlandWeatherGfxSet()
 	-- how about some vision?
 	Display.GfxSetSetFogParams(3, 0.0, 1.0, 1, 152,172,182, 3000,19500)
@@ -76,9 +80,6 @@ function GameCallback_OnGameStart()
 		end
 	end
 	SW.IsHost = (SW.Host == SW.PlayerId);
-	
-	Script.LoadFolder("maps\\user\\speedwar\\config");
-	Script.LoadFolder("maps\\user\\speedwar\\tools");
 	
 	SW.SetupMPLogic();
 	Sync.Init();
