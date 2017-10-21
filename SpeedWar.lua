@@ -43,7 +43,7 @@ function GameCallback_OnGameStart()
 	-- to disable/enable debug options, only use this table
 	log = function() end;
 	debugging = {
-		Debug = false,
+		Debug = true,
 		LevelUpToMaxRank = true,
 		ErrorLogging = true,
 		TroopSpawnKeys = true,
@@ -325,22 +325,29 @@ end
 
 --			THE WEATHER
 function SW.EnableRandomWeather()
+	-- new weather states
+	CreateDarkStorm(4);
+	CreateSnowyRain(5);
+	CreateIceTime(6);
+	CreateLovelyEvening(7);
 	-- CONFIG PART
-	local numOfWeatherStates = 6		--How many states are there?
+	local numOfWeatherStates = 7		--How many states are there?
 	local baseChance = {}				--Doesnt need to add up to some number
 	baseChance[1] = 50					--Chance summer
 	baseChance[2] = 25					--Chance rain
 	baseChance[3] = 25					--Chance winter
-	baseChance[4] = 50					--Chance summer2
-	baseChance[5] = 25					--Chance rain2
-	baseChance[6] = 25					--Chance winter2
+	baseChance[4] = 5					--Chance summer2
+	baseChance[5] = 5					--Chance rain2
+	baseChance[6] = 5					--Chance winter2
+	baseChance[7] = 5					--Chance winter2
 	local range = {}
 	range[1] = {180, 300}				--Lower and upper limit for summer period
 	range[2] = {60, 180}					--Lower and upper limit for rain period
 	range[3] = {80, 240}					--Lower and upper limit for winter period
-	range[4] = {180, 300}				--Lower and upper limit for summer2 period
+	range[4] = {60, 120}				--Lower and upper limit for summer2 period
 	range[5] = {60, 180}					--Lower and upper limit for rain2 period
-	range[6] = {80, 240}					--Lower and upper limit for winter2 period
+	range[6] = {80, 180}					--Lower and upper limit for winter2 period
+	range[7] = {80, 120}					--Lower and upper limit for winter2 period
 	local startSummerLength = 240 		-- minutes of starting summer
 	local numOfPeriods = 50
 	-- END OF CONFIG, DO NOT CHANGE
@@ -417,15 +424,21 @@ function SW.EnableRandomWeather()
 		LuaDebugger.Log( s2)
 	end
 end
+
 function SW.RandomWeatherAddElement( _stateId, _length)
-	if true then
-		LuaDebugger.Log("Adding state ".._stateId.." with length ".._length)
-	end
-	_stateId = math.mod(_stateId-1, 3)+1
-	AddWeatherElement( _length, _stateId, 1)
-	--maybe switch to Logic.AddWeatherElement(_weatherTypeA, _time, 1, _weatherTypeB, 5, 10)
-	-- _weatherTypeA = effects in game, 1 = summer, 2 = rain, 3 = winter
-	-- _weatherTypeB = just id of gfxset
+    if _stateId < 4 then 
+        AddWeatherElement( _length, _stateId, 1) 
+        return 
+    end
+    if _stateId == 4 then
+        Logic.AddWeatherElement(2, _length, 1, 4, 5, 10)
+    elseif _stateId == 5 then
+        Logic.AddWeatherElement(2, _length, 1, 5, 5, 10)
+	elseif _stateId == 6 then
+		Logic.AddWeatherElement(3, _length, 1, 6, 5, 10)
+    else
+        Logic.AddWeatherElement(1, _length, 1, 7, 5, 10)
+    end
 end
 
 function SW.EnableOutpostVCs()
@@ -1383,5 +1396,40 @@ function AddTribute( _tribute )
 		Logic.AddTribute( _tribute.pId, _tribute.Tribute, 0, 0, _tribute.text, unpack( tResCost ) );
 		SetupTributePaid( _tribute );
 		return _tribute.Tribute;
+end
+
+function CreateDarkStorm(_id)
+	Display.GfxSetSetSkyBox(_id, 0.0, 1.0, "YSkyBox04")
+	Display.GfxSetSetSnowStatus(_id, 0, 1.0, 0)
+	Display.GfxSetSetSnowEffectStatus(_id, 0.0, 1.0, 0)
+	Display.GfxSetSetRainEffectStatus(_id, 0.0, 7.0, 1)
+	Display.GfxSetSetFogParams(_id, 0.0, 5.0, 1, 10,10,40, 0,20000)
+	Display.GfxSetSetLightParams(_id,  1.0, 5.0, 30, 30, 30,  20,20,40,  155,155,255)
+end
+
+function CreateSnowyRain(_id)
+	Display.GfxSetSetSkyBox(_id, 0.0, 1.0, "YSkyBox04")
+	Display.GfxSetSetSnowStatus(_id, 0, 6.0, 0)
+	Display.GfxSetSetSnowEffectStatus(_id, 0.0, 2.0, 1)
+	Display.GfxSetSetRainEffectStatus(_id, 0.0, 7.0, 1)
+	Display.GfxSetSetFogParams(_id, 0.0, 1.0, 1, 102,142,162, 0,15000);
+    Display.GfxSetSetLightParams(_id,  0.0, 1.0, 40, -15, -50,  120,110,110,  255,254,230)
+end
+
+function CreateIceTime(_id)
+    Display.GfxSetSetSkyBox(_id, 0.0, 1.0, "YSkyBox01")
+    Display.GfxSetSetSnowStatus(_id, 0, 1.0, 1)
+    Display.GfxSetSetSnowEffectStatus(_id, 0.0, 0.8, 0)
+    Display.GfxSetSetFogParams(_id, 0.0, 1.0, 1, 152,172,182, 0,17000)
+    Display.GfxSetSetLightParams(_id,  0.0, 1.0,  40, -15, -75,  180,180,190, 250,250,250)
+end
+
+function CreateLovelyEvening(_id)
+	Display.GfxSetSetSkyBox(_id, 0.0, 1.0, "YSkyBox05")
+	Display.GfxSetSetSnowStatus(_id, 0, 1.0, 0)
+	Display.GfxSetSetSnowEffectStatus(_id, 0.0, 1.0, 0)
+	Display.GfxSetSetRainEffectStatus(_id, 0.0, 7.0, 0)
+	Display.GfxSetSetFogParams(_id, 0.0, 5.0, 1, 255,205,155, 6000,30000)
+	Display.GfxSetSetLightParams(_id,  1.0, 5.0, 90, -15, -95,  225,100,80,  230,85,100)
 end
 
