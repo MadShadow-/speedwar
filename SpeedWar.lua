@@ -711,7 +711,9 @@ function SW.CallbackHacks()
 end
 
 --		DEBUG STUFF; REMOVE IN FINAL VERSION
+SW_GoodNumber = 1981
 function SW.DebuggingStuff()
+	if true then return end
 	-- Stuff worth protecting:
 	--		Functions in SW-table
 	--		Functions in GUI-table
@@ -720,23 +722,32 @@ function SW.DebuggingStuff()
 	-- Creates check sums of SW.Activate and GUI.SellBuilding
 	-- Used to call out bad people in multiplayer games
 	GenerateChecksum = function(_f)
-		local str = string.dump( _f)
+		local str = "";
+		xpcall(function() str = string.dump( _f) end, function(_s) end)
 		local checkSum = 0
 		for i = 1, string.len(str) do
 			checkSum = math.mod(checkSum + i*i*string.byte( str, i), 2017)
 		end
 		return checkSum
 	end
-	local debugggg = false
-	--LuaDebugger.Log(GenerateChecksum(SW.Activate))
-	--LuaDebugger.Log(GenerateChecksum(GUI.SellBuilding))
-	if GenerateChecksum(SW.Activate) ~= 618 then
-		debugggg = true
-		--LuaDebugger.Log("Activate manipuliert")
+	GenerateTableChecksum = function(_t)
+		local checksum = 0
+		for k,v in pairs(_t) do
+			if type(v) == "function" then
+				checksum = math.mod(checksum + GenerateChecksum(v), 2017)
+			elseif type(v) == "table" then
+				checksum = math.mod(checksum + GenerateTableChecksum(v), 2017)
+			end
+		end
+		return checksum
 	end
-	if GenerateChecksum(GUI.SellBuilding) ~= 1558 then
+	local debugggg = false
+	if GenerateTableChecksum(GUI) ~= 157 then
 		debugggg = true
-		--LuaDebugger.Log("SellBuilding manipuliert")
+	end
+	if GenerateTableChecksum(SW) ~= SW_GoodNumber then
+		SW_GoodNumber = GenerateTableChecksum(SW)
+		debugggg = true
 	end
 	if debugggg and XNetwork.Manager_DoesExist() == 1 then
 	--if debugggg then

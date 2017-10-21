@@ -1,5 +1,5 @@
 SW = SW or {}
-SW.PillagingRate = 25 --25% of building costs get refunded when destroyed
+SW.PillagingRate = 75 --25% of building costs get refunded when destroyed
 SW.ListOfPillageBuildings = {
 	"PB_Alchemist1",
 	"PB_Alchemist2",
