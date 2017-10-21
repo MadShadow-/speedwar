@@ -52,7 +52,7 @@ function SW.KeyTrigger.BuySoldiers(_keyIsUp)
 		if Logic.IsLeader(Id) == 1 then
 			missingSoldiers = Logic.LeaderGetMaxNumberOfSoldiers(Id) - Logic.LeaderGetNumberOfSoldiers(Id);
 			for i = 1, missingSoldiers do
-				PostEvent.LeaderBuySoldier(Id);
+				GUI.BuySoldier(Id);
 			end
 		end
 	end
