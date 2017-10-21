@@ -324,66 +324,107 @@ end
 
 --			THE WEATHER
 function SW.EnableRandomWeather()
-	-- New algorithm:
-	-- 3 weather states, always start with some summer
-	-- next weather period has to be another state
-	-- therefore 2 states are possible
-	-- decide odds by using the current total length of the remaining states
-	-- e.g. old state is rain, following statements should hold true:
-	-- totalS = 1200, totalW = 600, bCS = 50, bCW = 25 -> 2/3 summer, 1/3 winter
-	-- totalS = 1200, totalW = 400, bCS = 50, bCW = 25 -> winter should have more than 1/3 chance; 
-	-- 24-16->  factor 16/(24+16) for bCS, factor 24/(24+16) for bCW
-	-- idea: calc totalS/bCS, totalW/bCS; weight baseChances with these factors, big factor -> lower actual chance
-	-- 			aCS = bCS * totalW/bCW/(totalS/bCS+totalW/bCW) =  bCS * totalW/(totalS*bCW/bCS+totalW)
-	--chance: 50% summer, 25% rain, 25% snow
-	
 	-- CONFIG PART
-	local baseChance = {}
+	local numOfWeatherStates = 6		--How many states are there?
+	local baseChance = {}				--Doesnt need to add up to some number
 	baseChance[1] = 50					--Chance summer
 	baseChance[2] = 25					--Chance rain
 	baseChance[3] = 25					--Chance winter
+	baseChance[4] = 50					--Chance summer2
+	baseChance[5] = 25					--Chance rain2
+	baseChance[6] = 25					--Chance winter2
 	local range = {}
 	range[1] = {180, 300}				--Lower and upper limit for summer period
 	range[2] = {60, 180}					--Lower and upper limit for rain period
 	range[3] = {80, 240}					--Lower and upper limit for winter period
+	range[4] = {180, 300}				--Lower and upper limit for summer2 period
+	range[5] = {60, 180}					--Lower and upper limit for rain2 period
+	range[6] = {80, 240}					--Lower and upper limit for winter2 period
 	local startSummerLength = 240 		-- minutes of starting summer
 	local numOfPeriods = 50
 	-- END OF CONFIG, DO NOT CHANGE
+	local baseChanceSum = 0
+	for i = 1, numOfWeatherStates do
+		baseChanceSum = baseChanceSum + baseChance[i]
+	end
+	for i = 1, numOfWeatherStates do
+		baseChance[i] = baseChance[i]/baseChanceSum
+	end
 	local total = {}
-	total[1] = startSummerLength		--ensure even playing field for all 3 states
-	total[2] = startSummerLength*baseChance[2]/baseChance[1]
-	total[3] = startSummerLength*baseChance[3]/baseChance[1]
+	for i = 1, numOfWeatherStates do
+		total[i] = startSummerLength*baseChance[i]/baseChance[1]
+	end
+	local totalTimeSpent = startSummerLength
 	local currentState = 1
 	SW.RandomWeatherAddElement( 1, startSummerLength)
+	local possStates = {}
+	local representationFactors = {}
+	local actualChances = {}
+	local modifier = function(x)
+		return 1/(x*x)
+	end
+	local sumChance = 0
+	local rng, finalState, length
 	for i = 2, numOfPeriods do
-		--mapping for 1->2, 2->3, 3->1
-		local stateAId = math.mod(currentState,3)+1
-		local stateBId = math.mod(stateAId,3)+1
-		local actualChanceA = baseChance[stateAId] * total[stateBId] / (total[stateAId]*baseChance[stateBId]/baseChance[stateAId] + total[stateBId])
-		local actualChanceB = baseChance[stateBId] * total[stateAId] / (total[stateBId]*baseChance[stateAId]/baseChance[stateBId] + total[stateAId])
-		local rng = math.random()*(actualChanceA+actualChanceB)
-		local finalState = 0
-		if rng < actualChanceA then		--Switch to state A
-			finalState = stateAId
-		else							--Switch to state B
-			finalState = stateBId
+		-- IDEA: 
+		-- We can calculate for each state a representation factor RF[i] = totalTimeInThisState(i)/totalTimeSpent/baseChance
+		-- If weather state has high RF -> less likely to happen
+		-- Script should try to balance things in a way that all RFs approach 1
+		-- ActualChance[i] = baseChance[i]*modifier( RF[i])
+		-- modifier should fulfill: modifier(1) = 1; lim_n->infinity modifier(n) = 0; lim_n->0 modifier(n) = infinity 
+		-- modifier(x) = 1/x^2 should work for now
+		
+		-- calculate the RFs
+		for j = 1, numOfWeatherStates do
+			representationFactors[j] = total[j]/totalTimeSpent/baseChance[j]
 		end
-		local length = range[finalState][1]+math.floor(math.random()*(range[finalState][2]-range[finalState][1]))
+		-- calculate the actual chances
+		for j = 1, numOfWeatherStates do
+			actualChances[j] = baseChance[j] * modifier(representationFactors[j])
+		end
+		actualChances[currentState] = 0
+		sumChance = 0
+		for j = 1, numOfWeatherStates do
+			sumChance = sumChance + actualChances[j]
+		end
+		-- now decide on state
+		rng = math.random()*sumChance
+		finalState = 0
+		for j = 1, numOfWeatherStates do
+			rng = rng - actualChances[j]
+			if rng < 0 then
+				finalState = j
+				break
+			end
+		end
+		-- if no final state was found cause of reasons unknown to mankind
+		if finalState == 0 then finalState = math.mod(currentState,numOfWeatherStates)+1 end
+		-- final state set -> GO!
+		length = range[finalState][1]+math.floor(math.random()*(range[finalState][2]-range[finalState][1]))
 		total[finalState] = total[finalState] + length
+		totalTimeSpent = totalTimeSpent + length
 		currentState = finalState
 		SW.RandomWeatherAddElement( finalState, length)
 	end
-	if false then
-		LuaDebugger.Log(total[1].." "..total[2].." "..total[3])
-		local suptotal = total[1]+total[2]+total[3]
-		LuaDebugger.Log(total[1]/suptotal.." "..total[2]/suptotal.." "..total[3]/suptotal)
+	if true then
+		local s1, s2 = "", ""
+		for i = 1, numOfWeatherStates do
+			s1 = s1.." "..total[i]
+			s2 = s2.." "..total[i]/totalTimeSpent
+		end
+		LuaDebugger.Log( s1)
+		LuaDebugger.Log( s2)
 	end
 end
 function SW.RandomWeatherAddElement( _stateId, _length)
-	if false then
+	if true then
 		LuaDebugger.Log("Adding state ".._stateId.." with length ".._length)
 	end
+	_stateId = math.mod(_stateId-1, 3)+1
 	AddWeatherElement( _length, _stateId, 1)
+	--maybe switch to Logic.AddWeatherElement(_weatherTypeA, _time, 1, _weatherTypeB, 5, 10)
+	-- _weatherTypeA = effects in game, 1 = summer, 2 = rain, 3 = winter
+	-- _weatherTypeB = just id of gfxset
 end
 
 function SW.EnableOutpostVCs()
