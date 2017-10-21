@@ -23,7 +23,7 @@ function SW.PreciseLog.TrackCreateEntity()
 end
 function SW_PreciseLog_OnCreate()
 	local eId = Event.GetEntityID()
-	SW.PreciseLog.Log("Created: "....eId.." of type "..tostring(Logic.GetEntityTypeName(Logic.GetEntityType(eId))).." at "
+	SW.PreciseLog.Log("Created: "..eId.." of type "..tostring(Logic.GetEntityTypeName(Logic.GetEntityType(eId))).." at "
 	..GetPosition(eId).X.." "..GetPosition(eId).Y.." time "..Logic.GetTimeMs())
 end
 function SW_PreciseLog_OnDestroyed()
@@ -58,4 +58,4 @@ function SW.PreciseLog.GetPriorIndex(_n)
 		return SW.PreciseLog.Keeping
 	end
 end
-SW.PreciseLog.TrackCreateEntity()
+--SW.PreciseLog.TrackCreateEntity()

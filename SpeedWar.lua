@@ -879,6 +879,7 @@ function SW_OnEntityDestroyedMR()
 	if not SW.IsInCombatMR( eId) then --Kein Kampf? Kein GRAB!
 		return
 	end
+	SW.PreciseLog.Log("CreateGrave at "..pos.X.." "..pos.Y.." for eId "..eId)
 	local myDegRng = math.mod(math.mod(eId,360)*47,360);
 	local myRng = math.rad( myDegRng)
 	local mySin = math.sin( myRng)

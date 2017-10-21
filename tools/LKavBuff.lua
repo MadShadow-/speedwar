@@ -97,12 +97,12 @@ function SW_LKavBuff_OnEntityDestroyed()
 	end
 	--Everything ok? Give gold to attacker
 	local attPId = GetPlayer(lastHitter[1])
-	SW.PreciseLog.Log("LKav: Gold to "..attPId)
+	--SW.PreciseLog.Log("LKav: Gold to "..attPId)
 	AddGold( attPId, SW.LKavBuff.GoldPerKill)
 	SW.LKavBuff.Looted[attPId] = SW.LKavBuff.Looted[attPId] + SW.LKavBuff.GoldPerKill
 end
 function SW.LKavBuff.ApplyDamage( _eId, _dmg)
-	SW.PreciseLog.Log("LKav: Damaging ".._eId.." of type "..(Logic.GetEntityTypeName(Logic.GetEntityType(_eId)) or "unknown").." of player "..Logic.EntityGetPlayer(_eId))
+	--SW.PreciseLog.Log("LKav: Damaging ".._eId.." of type "..(Logic.GetEntityTypeName(Logic.GetEntityType(_eId)) or "unknown").." of player "..Logic.EntityGetPlayer(_eId))
 	if SW.LKavBuff.SoldierGetLeader(_eId) ~= 0 then
 		_eId = SW.LKavBuff.SoldierGetLeader(_eId)
 		SW.LKavBuff.ApplyDamageToLeader( _eId, _dmg)
@@ -113,19 +113,19 @@ function SW.LKavBuff.ApplyDamage( _eId, _dmg)
 		SW.LKavBuff.ApplyDamageToLeader( _eId, _dmg)
 		return
 	end
-	SW.PreciseLog.Log("LKav: DirectHit")
+	--SW.PreciseLog.Log("LKav: DirectHit")
 	Logic.HurtEntity( _eId, _dmg)
 end
 function SW.LKavBuff.ApplyDamageToLeader( _eId, _dmg)
 	if IsDead( _eId) then return end
-	SW.PreciseLog.Log("LKav: Hurting ".._eId.." of type "..Logic.GetEntityTypeName(Logic.GetEntityType(_eId)).." like leader.")
+	--SW.PreciseLog.Log("LKav: Hurting ".._eId.." of type "..Logic.GetEntityTypeName(Logic.GetEntityType(_eId)).." like leader.")
 	local typee = S5Hook.GetEntityMem( _eId)[31][3][0]:GetInt()
 	if typee ~= 7823840 then
-		SW.PreciseLog.Log("LKav: Tried to hurt nonleader like leader.")
+		--SW.PreciseLog.Log("LKav: Tried to hurt nonleader like leader.")
 		return
 	end
 	local solHP = S5Hook.GetEntityMem( _eId)[31][3][27]:GetInt()
-	SW.PreciseLog.Log("LKav: SolHP"..solHP)
+	--SW.PreciseLog.Log("LKav: SolHP"..solHP)
 	if solHP >= _dmg then
 		S5Hook.GetEntityMem( _eId)[31][3][27]:SetInt( solHP - _dmg)
 	else
@@ -147,7 +147,7 @@ function SW.LKavBuff.Test(_s)
 	SetHostile(1,2)
 end
 function SW_LKavBuff_ArmyJob()
-	if Counter.Tick2("LKavBuff_Army",5) then
+	if Counter.Tick2("LKavBuff_Army",15) then
 		SW.LKavBuff.GenerateArmies()
 	end
 end
@@ -157,8 +157,8 @@ function SW.LKavBuff.GenerateArmies()
 	for i = 1, 15 do
 		--local eId = Tools.CreateGroup( 1, Entities.PU_LeaderCavalry1, 3, spawnA.X, spawnA.Y, 0)
 		--Tools.DestroyGroupByLeader(eId)
-		Attack( Tools.CreateGroup( 1, Entities.PU_LeaderCavalry1, 3, spawnA.X, spawnA.Y, 0), spawnB)
-		Attack( Tools.CreateGroup( 2, Entities.PU_LeaderCavalry1, 3, spawnB.X, spawnB.Y, 0), spawnA)
+		Attack( Tools.CreateGroup( 1, Entities.PU_LeaderSword4, 8, spawnA.X, spawnA.Y, 0), spawnB)
+		Attack( Tools.CreateGroup( 2, Entities.PU_LeaderSword4, 8, spawnB.X, spawnB.Y, 0), spawnA)
 	end
 	SetHostile( 1, 2)
 end
