@@ -1,0 +1,26 @@
+***************************************************************************************************************
+*~*                                                                                                         *~*
+*~*								       Die Siedler - Das Erbe der Könige								    *~*
+*~*                                                                                                         *~*
+*~*                                               Speedwar                                                  *~*
+*~*                                                                                                         *~*
+*~*                                                                                                         *~*
+*~*                                                                                                         *~*
+***************************************************************************************************************
+
+Die Siedler Speedwar ist eine Multiplayer Modifikation mit dem Ziel schneller einen Kampf zwischen den einzelnen Spielern
+zu erzeugen. Erzwungen wird dies dadurch, dass der Siedlungsfortschritt durch Ränge beschränkt ist, die man sich durch Kämpfen
+freischalten muss. Desweiteren wurden etliche Anpassungen am Balancing vorgenommen, die den Siedlungsaufbau beschleunigen.
+Damit ihr nicht böse überrascht werdet, erkläre ich im Folgenden alle Änderungen.
+
+Um das ganze Spiel dynamischer zu gestalten, haben wir die Existenz der Siedlung von der Burg und den Dorfzentren losgelöst.
+Eine zerstörte Burg bedeutet nichtmehr dass ihr das Spiel verloren habt und Dorfzentren geben nicht mehr das Bevölkerungslimit vor.
+Stattdessen könnt ihr euch jetzt selbst eure Burgen bauen, genannt Außenposten. Diese geben euch jeweils 100 Dorfzentrumsplätze.
+
+
+Es gibt vier Ränge:
+Rang 1: Siedler
+Rang 2: Krieger
+Rang 3: Feldherr
+Rang 4: Eroberer
+

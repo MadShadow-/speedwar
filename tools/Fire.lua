@@ -33,7 +33,7 @@ function SW.FireMod.Init()
 		InflictBuildingsRange = 2000; -- range in scm, in which closeby buildings are inflicted by fire
 		BaseDamagePerTick = 10;
 		DamageMissingHealthPerTick = 0.01; -- 0.01 = 1% of missing health per damage tick
-		ChanceBurningBuildingInflictsOthers = 10; -- chance to inflict another building on each damage tick => 10 => chance < 10%
+		ChanceBurningBuildingInflictsOthers = 100; -- chance to inflict another building on each damage tick => 10 => chance < 10%
 		FountainSaveBuildingsRange = 4000;
 	};
 	
@@ -114,24 +114,25 @@ function SW_FireMod_Action_EntityHurt()
 		SW.FireMod.CheckRecentlyAttackedBuildingsJobId = StartSimpleJob("SW_FireMod_CheckRecentlyAttackedBuildings");
 	end
 end
-
 function SW_FireMod_CheckRecentlyAttackedBuildings()
 	if Logic.GetWeatherState() == 2 then
 		return;
 	end
 	local entries = 0;
 	local HP = 0;
+
 	for eId,v in pairs(SW.FireMod.RecentlyAttackedBuildings) do
 		entries = entries + 1;
 		if Logic.GetWeatherState() ~= 2
 		and not SW.FireMod.InvincibleBuildings[Logic.GetEntityType(eId)]
-		and not SW.FireMod.BurningBuildings[GetPlayer(eId)][eId]
+		and not SW.FireMod.BurningBuildings[Logic.EntityGetPlayer(eId)][eId]
 		and not SW.FireMod.SaveBuildings[eId] then
 			HP = Logic.GetEntityHealth(eId)/Logic.GetEntityMaxHealth(eId);
 			if HP <= SW.FireMod.Config.InflictBuildingOnAttackThreshold then
-				SW.FireMod.BurningBuildings[GetPlayer(eId)][eId] = {InflictedOthers = false; HPAfterLastDamage = HP;};
+				SW.FireMod.BurningBuildings[Logic.EntityGetPlayer(eId)][eId] = {InflictedOthers = false; HPAfterLastDamage = HP;};
 				if JobIsRunning(SW.FireMod.ControlJob) == 0 then
 					SW.FireMod.OSITriggerId = OSI.AddDrawTrigger(SW.FireMod.OSITrigger)
+					Message("Start BURNING");
 					SW.FireMod.ControlJob = StartSimpleJob("SW_FireMod_ControlJob_BurnBuildings");
 				end
 			end
@@ -266,6 +267,7 @@ function SW_FireMod_ControlJob_BurnBuildings()
 			SW.FireMod.BurningBuildings[playerId] = {};
 		end
 		OSI.RemoveDrawTrigger(SW.FireMod.OSITriggerId);
+		Trigger.UnrequestTrigger(SW.FireMod.ControlJob);
 		return true;
 	end
 	local count = 0;
@@ -283,6 +285,7 @@ function SW_FireMod_ControlJob_BurnBuildings()
 	end
 	if count == 0 then
 		OSI.RemoveDrawTrigger(SW.FireMod.OSITriggerId);
+		Trigger.UnrequestTrigger(SW.FireMod.ControlJob);
 		return true;
 	end
 end
@@ -304,7 +307,7 @@ function SW.FireMod.TryInflictBuildingsInArea(_buildingId)
 				if HP >= 0.5 then
 					--Logic.HurtEntity(eID, buildingHealth - (buildingMaxHealth/2) + 1);
 				end
-				SW.FireMod.BurningBuildings[GetPlayer(eID)][eID] = {InflictedOthers = false; HPAfterLastDamage = HP;};
+				SW.FireMod.BurningBuildings[Logic.EntityGetPlayer(eID)][eID] = {InflictedOthers = false; HPAfterLastDamage = HP;};
 			end
 		end
 	end
@@ -331,24 +334,27 @@ function SW.FireMod.DamageBuilding(_buildingId, _HPInPercent)
 	end
 	Logic.HurtEntity(_buildingId, damage);
 	-- update new hp percentage
-	SW.FireMod.BurningBuildings[GetPlayer(_buildingId)][_buildingId].HPAfterLastDamage = buildingHealth/buildingMaxHealth;
+	SW.FireMod.BurningBuildings[Logic.EntityGetPlayer(_buildingId)][_buildingId].HPAfterLastDamage = buildingHealth/buildingMaxHealth;
 end
 
 function SW.FireMod.OSITrigger(_eID, _active, _x, _y)
-	local player = GetPlayer(_eID);
+	local player = Logic.EntityGetPlayer(_eID);
 	if not SW.FireMod.BurningBuildings[player] then
 		return;
 	end
 	if not SW.FireMod.BurningBuildings[player][_eID] then
 		return;
 	end
+	LuaDebugger.Log("ShowBurnIcon on " .. _eID);
+	local offsetX = 0;
+	local offsetY = 0;
 	if _active then
-		return;
+		offsetX = -30;
 	end
 	if Logic.GetWeatherState() == 2 then
-		S5Hook.OSIDrawImage(SW.FireMod.BurnIconDisabled, _x, _y, 32, 32);
+		S5Hook.OSIDrawImage(SW.FireMod.BurnIconDisabled, _x+offsetX, _y+offsetY, 32, 32);
 	else
-		S5Hook.OSIDrawImage(SW.FireMod.BurnIcon, _x, _y, 32, 32);
+		S5Hook.OSIDrawImage(SW.FireMod.BurnIcon, _x+offsetX, _y+offsetY, 32, 32);
 	end
 end
 

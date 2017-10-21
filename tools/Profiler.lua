@@ -15,8 +15,10 @@ function SW.Profiler.Init()
 		SW.Profiler.UniqueId = SW.Profiler.UniqueId + 1
 		return SW.Profiler.UniqueId - 1
 	end
+	EndJobOrig = EndJob;
 	EndJob = function( _id)
 		SW.Profiler.Jobs[_id] = ""
+		EndJobOrig(_id);
 	end
 end
 function SW_Profiler_Job()
@@ -37,4 +39,4 @@ function SW_Profiler_Job()
 		end
 	end
 end
-SW.Profiler.Init()
+--SW.Profiler.Init()

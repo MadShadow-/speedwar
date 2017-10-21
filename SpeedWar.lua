@@ -346,7 +346,7 @@ function SW.EnableRandomWeather()
 	range[1] = {180, 300}				--Lower and upper limit for summer period
 	range[2] = {60, 180}					--Lower and upper limit for rain period
 	range[3] = {80, 240}					--Lower and upper limit for winter period
-	local startSummerLength = 120 		--2 minutes of starting summer
+	local startSummerLength = 240 		-- minutes of starting summer
 	local numOfPeriods = 50
 	-- END OF CONFIG, DO NOT CHANGE
 	local total = {}
@@ -990,12 +990,12 @@ function SW.PillageRewardPlayer( _eType, _pId)
 end
 
 --		DEFEAT CONDITION
+SW.DefeatConditionPlayerStates = {}
 function SW.DefeatCondition_Create()
 	SW.DefeatCondition_GetExistingEntities()
 	Trigger.RequestTrigger( Events.LOGIC_EVENT_ENTITY_CREATED, "SW_DefeatConditionCondition","SW_Defeat_On_Entity_Created",1 );
 	Trigger.RequestTrigger( Events.LOGIC_EVENT_ENTITY_DESTROYED, nil,"SW_Defeat_On_Entity_Destroyed",1 );
 	StartSimpleJob("SW_DefeatConditionControl")
-	SW.DefeatConditionPlayerStates = {}
 	for playerId = 1, SW.MaxPlayers do
 		SW.DefeatConditionPlayerStates[playerId] = true
 	end
