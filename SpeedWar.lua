@@ -932,10 +932,10 @@ function SW_JobMR()
 end
 function SW.IsInCombatMR( _eId)
     local eType = Logic.GetEntityType( _eId)
-	SW.PreciseLog("InCombatParam: ".._eId)
+	SW.PreciseLog.Log("InCombatParam: ".._eId)
     if SW.MortalRemainsSoldierTypes[eType] then
         _eId = Logic.GetEntityScriptingValue( _eId, 69)
-		SW.PreciseLog("InCombatParamAfterSV: ".._eId)
+		SW.PreciseLog.Log("InCombatParamAfterSV: ".._eId)
 		if IsDead(_eId) then
 			return false
 		end
