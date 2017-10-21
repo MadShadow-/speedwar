@@ -43,7 +43,7 @@ function GameCallback_OnGameStart()
 	-- to disable/enable debug options, only use this table
 	log = function() end;
 	debugging = {
-		Debug = true,
+		Debug = false,
 		LevelUpToMaxRank = true,
 		ErrorLogging = true,
 		TroopSpawnKeys = true,
