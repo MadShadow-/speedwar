@@ -68,6 +68,9 @@ function SW_LKavBuff_OnEntityHurtEntity()
 	SW.LKavBuff.LastAttack[att] = time
 end
 function SW.LKavBuff.SoldierGetLeader(_eId)
+	if IsDead(_eId) then		--Never trust a scripting value of a dead entity
+		return 0
+	end
 	if SW.LKavBuff.SoldierTypes[Logic.GetEntityType(_eId)] then
 		-- Index 127 via S5Hook.GetEntityMem
 		return Logic.GetEntityScriptingValue( _eId, 69)
@@ -151,10 +154,12 @@ function SW_LKavBuff_ArmyJob()
 		SW.LKavBuff.GenerateArmies()
 	end
 end
+--Sync.Call("StartSimpleJob","SW_LKavBuff_ArmyJob")
+--Logic.SetShareExplorationWithPlayerFlag(1,2,1);Logic.SetShareExplorationWithPlayerFlag(2,1,1)
 function SW.LKavBuff.GenerateArmies()
 	local spawnA = { X = 32300, Y = 59200}
 	local spawnB = { X = 26900, Y = 52300}
-	for i = 1, 15 do
+	for i = 1, 50 do
 		--local eId = Tools.CreateGroup( 1, Entities.PU_LeaderCavalry1, 3, spawnA.X, spawnA.Y, 0)
 		--Tools.DestroyGroupByLeader(eId)
 		Attack( Tools.CreateGroup( 1, Entities.PU_LeaderSword4, 8, spawnA.X, spawnA.Y, 0), spawnB)
@@ -165,6 +170,13 @@ end
 function SW.LKavBuff.MassSpawn()
 	for i = 1, 100 do
 		Tools.CreateGroup( 1, Entities.PU_LeaderSword1, 4, 32300, 59200, 0)
+	end
+end
+function SW.LKavBuff.MassExpel()
+	for eId in S5Hook.EntityIterator(Predicate.OfType(Entities.PU_LeaderSword4)) do
+		for i = 1, 9 do 
+			GUI.ExpelSettler(eId)
+		end
 	end
 end
 

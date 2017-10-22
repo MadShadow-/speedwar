@@ -10,7 +10,8 @@ SW.DefeatConditionEntityList = {}
 
 SW.DefeatConditionTypes = {
 	[Entities.PB_Outpost1] = true,
-	[Entities.PU_Serf] = true
+	[Entities.PU_Serf] = true,
+	[Entities.PU_BattleSerf] = true
 }
 for k,v in pairs(Entities) do
 	if string.find( k, "Leader") then

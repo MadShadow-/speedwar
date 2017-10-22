@@ -43,7 +43,7 @@ function GameCallback_OnGameStart()
 	-- to disable/enable debug options, only use this table
 	log = function() end;
 	debugging = {
-		Debug = true,
+		Debug = false,
 		LevelUpToMaxRank = true,
 		ErrorLogging = true,
 		TroopSpawnKeys = false,
@@ -307,6 +307,8 @@ function SW.Activate(_seed)
 	SW.VCChange.Init()
 	-- We need HQ's! They are helpful
 	SW.CreateHQsAndRedirectKeyBindung();
+	-- More secure SoldierGetLeader
+	-- SW.SoldierGetLeaderInit()
 end
 
 function SW.EnableStartingTechnologies()
@@ -766,9 +768,8 @@ function SW.CallbackHacks()
 end
 
 --		DEBUG STUFF; REMOVE IN FINAL VERSION
-SW_GoodNumber = 1981
+SW_GoodNumber = 1040
 function SW.DebuggingStuff()
-	if true then return end
 	-- Stuff worth protecting:
 	--		Functions in SW-table
 	--		Functions in GUI-table
@@ -932,33 +933,23 @@ function SW_JobMR()
 end
 function SW.IsInCombatMR( _eId)
     local eType = Logic.GetEntityType( _eId)
-	SW.PreciseLog.Log("InCombatParam: ".._eId)
+	--SW.PreciseLog.Log("InCombatParam: ".._eId)
     if SW.MortalRemainsSoldierTypes[eType] then
-        _eId = Logic.GetEntityScriptingValue( _eId, 69)
-		SW.PreciseLog.Log("InCombatParamAfterSV: ".._eId)
+        --_eId = SW.SoldierGetLeader(_eId)
+		_eId = Logic.GetEntityScriptingValue( _eId, 69)
 		if IsDead(_eId) then
 			return false
 		end
     end
     local condition = Logic.GetTimeMs() < (SW.MortalRemainsRecentlyHurt[_eId] or 0) + 3000;
     local x,y = Logic.EntityGetPos(_eId);
-    SW.PreciseLog.Log("Comb: " .. tostring(_eId) .. " " .. tostring(Logic.GetEntityType(_eId)) .. " " .. x .. " " .. y .. " " .. tostring(condition) .. " " .. Logic.GetTimeMs() .. " " .. ((SW.MortalRemainsRecentlyHurt[_eId] or 0) + 3000));
-    
+    --SW.PreciseLog.Log("Comb: " .. tostring(_eId) .. " " .. tostring(Logic.GetEntityType(_eId)) .. " " .. x .. " " .. y .. " " .. tostring(condition) .. " " .. Logic.GetTimeMs() .. " " .. ((SW.MortalRemainsRecentlyHurt[_eId] or 0) + 3000));
     if condition then
         return true
     end
     return false
 end
--- function SW.IsInCombatMR( _eId)
-	-- local eType = Logic.GetEntityType( _eId)
-	-- if SW.MortalRemainsSoldierTypes[eType] then
-		-- _eId = Logic.GetEntityScriptingValue( _eId, 69)
-	-- end
-	-- if Logic.GetTimeMs() < (SW.MortalRemainsRecentlyHurt[_eId] or 0) + 3000 then
-		-- return true
-	-- end
-	-- return false
--- end
+
 function SW_OnEntityHurtMR()
 	local opfer = Event.GetEntityID2()
 	local eType = Logic.GetEntityType( opfer)
@@ -966,6 +957,32 @@ function SW_OnEntityHurtMR()
 		opfer = Logic.GetEntityScriptingValue( opfer, 69)
 	end
 	SW.MortalRemainsRecentlyHurt[opfer] = Logic.GetTimeMs()
+end
+
+--SW SoldierGetLeader
+SW.SoldierGetLeaderData = {}
+SW.SoldierGetLeaderSoldierTypes = {}
+function SW.SoldierGetLeaderInit()
+	for k,v in pairs(Entities) do
+		local start = string.find( k, "Soldier")
+		if start ~= nil then
+			SW.SoldierGetLeaderSoldierTypes[v] = true
+		end
+	end
+	Trigger.RequestTrigger(Events.LOGIC_EVENT_ENTITY_DESTROYED, "SW_IsSoldier", "SW_OnEntityCreatedSoldierGetLeader", 1);
+end
+function SW_IsSoldier()
+	if SW.SoldierGetLeaderSoldierTypes[Logic.GetEntityType(Event.GetEntityID())] then
+		return true
+	end
+	return false
+end
+function SW_OnEntityCreatedSoldierGetLeader()
+	local eId = Event.GetEntityID()
+	SW.SoldierGetLeaderData[eId] = Logic.GetEntityScriptingValue( eId, 69)
+end
+function SW.SoldierGetLeader( _eId)	
+	return SW.SoldierGetLeaderData[_eId] or 0
 end
 
 function SW.UnifyRecruitingCosts()
