@@ -16,6 +16,7 @@ SW.RankSystem.Rank = {} --Key: PlayerId, Value: Current rank, 1 to 4
 SW.RankSystem.PlayerIds = {}
 SW.RankSystem.PlayerNames = {}
 SW.RankSystem.ListOfAllyIds = {}		-- ONLY LOCAL, DIFFERENT VALUES FOR DIFFERENT TEAMS!
+SW.RankSystem.AvgRank = 1
 SW.RankSystem.CallbackOnRankUp =
 {
 	-- reaching rank 2
@@ -40,21 +41,25 @@ function SW.RankSystem.Init()
 	SW.RankSystem.InitKillCount()
 	SW.BuildingTooltips.GetRank = SW.RankSystem.GetRank		--Give BuildingTooltips a better rank system
 	SW.RankSystem.InitGUI()
+	StartSimpleJob("SW_RankSystem_CalcAvgRankJob")
 end
 function SW.RankSystem.InitKillCount()
 	SW.RankSystem.GameCallback_SettlerKilled = GameCallback_SettlerKilled
 	GameCallback_SettlerKilled = function( _hurter, _hurt)
 		SW.RankSystem.GameCallback_SettlerKilled( _hurter, _hurt)
-		SW.RankSystem.Points[_hurter] = SW.RankSystem.Points[_hurter] + SW.RankSystem.KillPoints
-		SW.RankSystem.Points[_hurt] = SW.RankSystem.Points[_hurt] + SW.RankSystem.LosePoints
-		SW.RankSystem.UpdatePlayer(_hurter)
-		SW.RankSystem.UpdatePlayer(_hurt)
+		SW.RankSystem.GivePointsToPlayer( _hurter, SW.RankSystem.KillPoints)
+		SW.RankSystem.GivePointsToPlayer( _hurt, SW.RankSystem.LosePoints)
+		--SW.RankSystem.Points[_hurter] = SW.RankSystem.Points[_hurter] + SW.RankSystem.KillPoints
+		--SW.RankSystem.Points[_hurt] = SW.RankSystem.Points[_hurt] + SW.RankSystem.LosePoints
+		--SW.RankSystem.UpdatePlayer(_hurter)
+		--SW.RankSystem.UpdatePlayer(_hurt)
 	end
 	SW.RankSystem.GameCallback_BuildingDestroyed = GameCallback_BuildingDestroyed
 	GameCallback_BuildingDestroyed = function( _hurter, _hurt)
 		SW.RankSystem.GameCallback_BuildingDestroyed( _hurter, _hurt)
-		SW.RankSystem.Points[_hurter] = SW.RankSystem.Points[_hurter] + SW.RankSystem.BuildingPoints
-		SW.RankSystem.UpdatePlayer( _hurter)
+		SW.RankSystem.GivePointsToPlayer( _hurter, SW.RankSystem.BuildingPoints)
+		--SW.RankSystem.Points[_hurter] = SW.RankSystem.Points[_hurter] + SW.RankSystem.BuildingPoints
+		--SW.RankSystem.UpdatePlayer( _hurter)
 	end
 end
 function SW.RankSystem.UpdatePlayer( _pId)	--Gets called every time the score of a player changes
@@ -196,3 +201,44 @@ function SW_RankSystem_DEBUGHandOutPoints()
 		SW.RankSystem.UpdatePlayer( i)
 	end
 end
+function SW.RankSystem.GetRankWithProgress( _pId)
+	local r1 = SW.RankSystem.Rank[_pId]
+	if r1 == 4 then return 4 end
+	local r2 = SW.RankSystem.Points[_pId]/SW.RankSystem.RankThresholds[r1]
+	return r1+r2
+end
+function SW.RankSystem.CalculateAvgRank()
+	local vals = {}
+	for i = 1, 8 do
+		if SW.DefeatConditionPlayerStates[i] then	--player has not lost yet
+			table.insert( vals, SW.RankSystem.GetRankWithProgress(i))
+		end
+	end
+	local val = 0
+	--use l2-norm for creating average
+	for i = 1, table.getn(vals) do
+		val = val + vals[i]^2
+	end
+	val = math.sqrt(val/table.getn(vals))
+	return val
+end
+function SW.RankSystem.GivePointsToPlayer( _pId, _amount)
+	SW.RankSystem.Points[_pId] = SW.RankSystem.Points[_pId] + math.floor(_amount*SW.RankSystem.Modifier( _pId))
+	SW.RankSystem.UpdatePlayer( _pId)
+end
+function SW_RankSystem_CalcAvgRankJob()
+	SW.RankSystem.AvgRank = SW.RankSystem.CalculateAvgRank()
+end
+function SW.RankSystem.Modifier( _pId)	--Might be used to give players that fell behind more points per action
+	if true then return 1 end
+	local weight = SW.RankSystem.AvgRank - SW.RankSystem.GetRankWithProgress(_pId)
+	if weight <= 1 then
+		return 1
+	end
+	--return math.exp(math.ln(A)*(weight-1)/2)
+	--currently A = 10
+	return math.exp(3.21887582487*(weight-1)/2)
+end
+
+
+
