@@ -47,17 +47,6 @@ function SW.Bugfixes.Init()
 		SW.Bugfixes.GUIAction_BlessSettlers(_blessCategory)
 		SW.Bugfixes.BlessingData[player][_blessCategory] = timee
 	end
-	if LuaDebugger.FakeDebugger == nil then
-		LuaDebugger.Log("TEST")
-		if XNetwork ~= nil and XNetwork.Manager_DoesExist() == 1 then
-			local pId = GUI.GetPlayerID()
-			local name = XNetwork.GameInformation_GetLogicPlayerUserName( pId )
-			local r,g,b = GUI.GetPlayerColor( pId )
-    
-			local Message = "@color:"..r..","..g..","..b.." "..name.." @color:255,255,255 > ".."Ich benutze den Debugger und bin stolz drauf!"
-			XNetwork.Chat_SendMessageToAll( Message)
-		end
-	end
 	SW.Bugfixes.FixBattleSerfBug()
 end
 SW.Bugfixes.FormationETypes = {

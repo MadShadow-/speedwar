@@ -9,6 +9,16 @@ function Sync.Init()
 	Sync.KeyNoSyncCall = "_NoSync";
 	Sync.KeyNoSyncCall_Length = string.len(Sync.KeyNoSyncCall);
 	Sync.NumOfTributes = 100;
+	Sync.UseWhitelist = false;
+	Sync.Whitelist = {
+		["SW.Activate"] = true,
+		["SW.Bastille.TrackGroup"] = true,
+		["SW.Bastille.SpawnReleasedUnit"] = true,
+		["DestroyEntity"] = true,
+		["SW.Walls.ToggleGate"] = true,
+		["SW.WallGUI.PayCosts"] = true,
+		["SW.WallGUI.AddWallInConstructionToQueue"] = true,
+	};
 
 	GameCallback_FulfillTribute = function() return 1 end
 	
@@ -44,7 +54,6 @@ function Sync.Init()
 	
 	Sync.MPGame_ApplicationCallback_ReceivedChatMessage = MPGame_ApplicationCallback_ReceivedChatMessage;
 	MPGame_ApplicationCallback_ReceivedChatMessage = function( _Message, _AlliedOnly, _SenderPlayerID )
-		--SW.PreciseLog.Log("Sync: MSG..".._Message.." by ".._SenderPlayerID.." ".._AlliedOnly)
 		if string.find(_Message, Sync.KeyPrep, 1, true) then
 			local tributPlayer = tonumber(string.sub(_Message, Sync.KeyPrep_Length +1, Sync.KeyPrep_Length +1)); -- ex "2" - 1 digit
 			local indexString = string.sub(_Message, Sync.KeyPrep_Length +2, Sync.KeyPrep_Length +5); -- ex "0010" - 4 digits
@@ -99,7 +108,6 @@ function Sync.Acknowledge(_playerId, _indexString)
 end
 
 function Sync.Call( _func, ...)
-	SW.PreciseLog.Log("Sync.Call: ".._func)
 	local player = GUI.GetPlayerID();
 	for i = 1, Sync.NumOfTributes do
 		if not Sync.Tributes[player][i].InUse then
@@ -119,7 +127,6 @@ function Sync.Call( _func, ...)
 end
 
 function Sync.CallNoSync( _func, ...)
-	SW.PreciseLog.Log("Sync.CallNoSync: ".._func)
 	local fs = Sync.ConvertFunctionToString( _func, unpack(arg));
 	Sync.Send(
 			Sync.KeyNoSyncCall .. GUI.GetPlayerID() .. fs
@@ -218,7 +225,21 @@ function Sync.ExecuteFunctionByString(_str)
 	for i = 2, table.getn(layers) do
 		ref = ref[layers[i]];
 	end
-	ref(unpack(parameters));
+	if not Sync.UseWhitelist then
+		ref(unpack(parameters));
+	elseif Sync.Whitelist[ref] then
+		ref(unpack(parameters));
+	else
+		local f = "";
+		for i = 1, table.getn(layers) do
+			f = f .. " " .. tostring(layers[i]);
+		end
+		local s = "";
+		for i = 1, table.getn(parameters) do
+			s = s .. "(" .. parameters[i] .. ") ";
+		end
+		SW.Logging.AddSyncLog("Unauthorized sync call: " .. f .. " with params " .. s);
+	end
 end
 
 function Sync.ConvertTableToString(_t, _layer)

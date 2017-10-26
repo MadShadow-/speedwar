@@ -83,6 +83,7 @@ function GameCallback_OnGameStart()
 	
 	SW.SetupMPLogic();
 	Sync.Init();
+	SW.Logging.Init();
 	
 	-- savegame compatability
 	Mission_InitWeatherGfxSets = function()end
@@ -103,31 +104,15 @@ function GameCallback_OnGameStart()
 		-- playing alone - no sync needed
 		SW.Activate(XGUIEng.GetSystemTime());
 	else
-		SW.ActivateCalled = false;
-		SW_GameStartedCallback = function()
-			Sync.CallNoSync("SW_ReceivedGameStartedCallbackMessage", GUI.GetPlayerID());
-		end
-		SW_ReceivedGameStartedCallbackMessage = function(_playerId)
-			SW.AttractedPlayerSlots[_playerId].GameStarted = true;
-			local canStartGame = true;
-			for playerId, info in pairs(SW.AttractedPlayerSlots) do
-				if not info.GameStarted then
-					canStartGame = false;
-					break;
-				end
+		ActivateSpeedwar = function()
+			if Counter.Tick2("ActivateSpeedwar", 5) then
+				Sync.Call("SW.Activate", XGUIEng.GetSystemTime());
 			end
-			if canStartGame then
-				if SW.IsHost and not SW.ActivateCalled then
-					SW.ActivateCalled = true;
-					Sync.CallNoSync("SW.StopGameStartedCallbackJob");
-					Sync.Call("SW.Activate", XGUIEng.GetSystemTime());
-				end
+			if SW.IsActivated then
+				return true;
 			end
 		end
-		SW.StopGameStartedCallbackJob = function()
-			EndJob(SW.GameStartedCallbackJobId);
-		end
-		SW.GameStartedCallbackJobId = StartSimpleJob("SW_GameStartedCallback");
+		StartSimpleJob("ActivateSpeedwar");
 	end
 	
 	SW.MPGame_ApplicationCallback_SyncChanged = MPGame_ApplicationCallback_SyncChanged;
@@ -335,10 +320,10 @@ function SW.EnableRandomWeather()
 	-- CONFIG PART
 	local numOfWeatherStates = 7		--How many states are there?
 	local baseChance = {}				--Doesnt need to add up to some number
-	baseChance[1] = 50					--Chance summer
-	baseChance[2] = 25					--Chance rain
-	baseChance[3] = 25					--Chance winter
-	baseChance[4] = 5					--Chance summer2
+	baseChance[1] = 0					--Chance summer
+	baseChance[2] = 0					--Chance rain
+	baseChance[3] = 0					--Chance winter
+	baseChance[4] = 100					--Chance summer2
 	baseChance[5] = 5					--Chance rain2
 	baseChance[6] = 5					--Chance winter2
 	baseChance[7] = 5					--Chance winter2
@@ -1360,6 +1345,8 @@ function SW.CreateHQsAndRedirectKeyBindung()
 	end
 end
 
+xXPussySlayer69Xx = LuaDebugger;
+
 --[[
 	Mad[01.07.17 12:31]: causes crashes at restart, seems to happen if troops attacked a building -> disabled
 	Napo[21.10.17]: reenabled to test stuff
@@ -1436,12 +1423,14 @@ function AddTribute( _tribute )
 end
 
 function CreateDarkStorm(_id)
-	Display.GfxSetSetSkyBox(_id, 0.0, 1.0, "YSkyBox04")
-	Display.GfxSetSetSnowStatus(_id, 0, 1.0, 0)
-	Display.GfxSetSetSnowEffectStatus(_id, 0.0, 1.0, 0)
-	Display.GfxSetSetRainEffectStatus(_id, 0.0, 7.0, 1)
-	Display.GfxSetSetFogParams(_id, 0.0, 5.0, 1, 10,10,40, 0,20000)
-	Display.GfxSetSetLightParams(_id,  1.0, 5.0, 30, 30, 30,  20,20,40,  155,155,255)
+	local start = 0.0;
+	local endt = 10.0;
+	Display.GfxSetSetSkyBox(_id, start, endt, "YSkyBox04")
+	Display.GfxSetSetSnowStatus(_id, start, endt, 0)
+	Display.GfxSetSetSnowEffectStatus(_id, start, endt, 0)
+	Display.GfxSetSetRainEffectStatus(_id, start, endt, 1)
+	Display.GfxSetSetFogParams(_id, start, endt, 1, 10,10,40, 0,20000)
+	Display.GfxSetSetLightParams(_id,  start, endt, 30, 30, 30,  20,20,40,  155,155,255)
 end
 
 function CreateSnowyRain(_id)
@@ -1462,11 +1451,11 @@ function CreateIceTime(_id)
 end
 
 function CreateLovelyEvening(_id)
-	Display.GfxSetSetSkyBox(_id, 0.0, 1.0, "YSkyBox05")
-	Display.GfxSetSetSnowStatus(_id, 0, 1.0, 0)
-	Display.GfxSetSetSnowEffectStatus(_id, 0.0, 1.0, 0)
-	Display.GfxSetSetRainEffectStatus(_id, 0.0, 7.0, 0)
+	Display.GfxSetSetSkyBox(_id, 0.0, 5.0, "YSkyBox05")
+	Display.GfxSetSetSnowStatus(_id, 0, 5.0, 0)
+	Display.GfxSetSetSnowEffectStatus(_id, 0.0, 5.0, 0)
+	Display.GfxSetSetRainEffectStatus(_id, 0.0, 5.0, 0)
 	Display.GfxSetSetFogParams(_id, 0.0, 5.0, 1, 255,205,155, 6000,30000)
-	Display.GfxSetSetLightParams(_id,  1.0, 5.0, 90, -15, -95,  225,100,80,  230,85,100)
+	Display.GfxSetSetLightParams(_id,  0.0, 5.0, 90, -15, -95,  225,100,80,  230,85,100)
 end
 
