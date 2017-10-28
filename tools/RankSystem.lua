@@ -230,13 +230,13 @@ function SW_RankSystem_CalcAvgRankJob()
 	SW.RankSystem.AvgRank = SW.RankSystem.CalculateAvgRank()
 end
 function SW.RankSystem.Modifier( _pId)	--Might be used to give players that fell behind more points per action
-	if true then return 1 end
+	if not SW.RankSystem.UseCatchUp then return 1 end
 	local weight = SW.RankSystem.AvgRank - SW.RankSystem.GetRankWithProgress(_pId)
 	if weight <= 1 then
 		return 1
 	end
 	--return math.exp(math.ln(A)*(weight-1)/2)
-	--currently A = 10
+	--currently A = 25
 	return math.exp(3.21887582487*(weight-1)/2)
 end
 

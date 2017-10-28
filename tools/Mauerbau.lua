@@ -119,7 +119,7 @@ function SW.Walls.GUIChanges()
 	end
 end
 function SW.Walls.ToggleGate( _eId)
-	if IsDead(_eId)
+	if IsDead(_eId) then
 		return
 	end
 	Trigger.DisableTrigger(SW.Walls.DestroyTriggerId)

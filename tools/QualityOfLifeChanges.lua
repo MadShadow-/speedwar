@@ -4,11 +4,11 @@
 
 --Done:
 -- Refresh all troops in selection
+-- Expel all entities in selection
 
 --Planned:
 -- Upgrade all buildings of same type in range?
 -- Toggle all nearby gates of same type?
--- Expel all serfs in selection
 -- Use  [Ctrl] to use effect
 
 SW = SW or {}
@@ -36,10 +36,14 @@ function SW.QoL.Init()
 			SW.QoL.GUIAction_BuySoldier()
 		end
 	end
-	--Buy_Soldier_Button
-	--	Calls: GUIAction_BuySoldier()
-	--	Calls: GUITooltip_BuySoldier("MenuCommandsGeneric/Buy_Soldier","MenuCommandsGeneric/Buy_Soldier_disabled","KeyBindings/BuySoldiers")
-	
+	SW.QoL.GUIAction_ExpelSettler = GUIAction_ExpelSettler
+	GUIAction_ExpelSettler = function()
+		if XGUIEng.IsModifierPressed(Keys.ModifierControl) == 1 then
+			SW.QoL.DoForAllEntitiesInSelection(SW.QoL.ExpelSettler)
+		else
+			SW.QoL.GUIAction_BuySoldier()
+		end
+	end
 end
 -- Calls the  given func for all entities in selection
 -- During each call, only one entity is selected
@@ -71,4 +75,14 @@ function SW.QoL.BuySoldier()
 			SW.QoL.GUIAction_BuySoldier()
 		end
 	end
+end
+function SW.QoL.ExpelSettler()
+	local sel = GUI.GetSelectedEntity()
+	if SW.QoL.LeaderTypes[Logic.GetEntityType(sel)] then
+		local curSol = Logic.GetSoldiersAttachedToLeader( sel)
+		for i = 1, curSol do
+			GUI.ExpelSettler( sel)
+		end
+	end
+	GUI.ExpelSettler( sel)
 end

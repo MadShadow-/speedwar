@@ -25,9 +25,7 @@ end
 function SW.RandomChest.GenerateChest()
 	--Same procedure as random start
 	local success = false
-	local positions = {
-		{ X = 36000, Y = 28500 },
-	};
+	local positions = SW.StartPosData
 	local sectors = {};
 	local _, _, sector;
 	for i = 1,table.getn(positions) do
@@ -347,6 +345,34 @@ function SW.RandomChest.Action.Statue( _pId, _x, _y)
 	Logic.SetModelAndAnimSet( eId, Models.PB_Beautification01)
 	S5Hook.GetEntityMem( eId)[25]:SetFloat(2.5)
 end
+SW.RandomChest.EffectOverloadCount = 0
+function SW.RandomChest.Action_EffectOverload( _pId, _x, _y)
+	if GUI.GetPlayerID() == _pId then
+		Message("Darin waren eine Menge Grafikeffekte!")
+		Message("Vielleicht hören sie auf, wenn wir die Truhe entfernen?")
+	end
+	local time = 0
+	_G["SW_RandomChest_EffectOverload"..SW.RandomChest.EffectOverloadCount] = function()
+		-- What effects should be played?
+		-- Make some Salim heals as a rotating spirale?
+		-- DarioFears "running" in circle, 2 different radius and rotation direction?
+		-- FXDie-Effekte, die von innen nach außen weglaufen?
+		-- Funktion für DarioFears:
+		-- Kleinerer Radius r, größerer R
+		--	Effect1 = (cos(time/speed)*r, -sin(time/speed)*r)
+		--	Effect2 = (cos(time/speed)*r, -sin(time/speed)*r)
+		-- Salim heals:
+		--  Ein vorauseilender Effekt, Rest hinterher?
+		--  MAXR, TIMENEEDED
+		--	Pos = time/timeneeded * MAXR * (cos())
+		if Logic.GetEntityType(Logic.GetEntityAtPosition( _x, _y)) == 0 then return true end
+		time = time + 1
+		
+	end
+	StartSimpleHiResJob("SW_RandomChest_EffectOverload"..SW.RandomChest.EffectOverloadCount)
+	SW.RandomChest.EffectOverloadCount = SW.RandomChest.EffectOverloadCount + 1
+end
+
 --Ideen:
 --	CTHULHU:
 --		Sich ausbreitender Kreis aus Finsternis, der Bäume verdorren lässt?

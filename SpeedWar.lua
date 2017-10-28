@@ -51,7 +51,10 @@ function GameCallback_OnGameStart()
 	};
 	
 	for i = 1, 8 do
-		Tools.GiveResouces(i, 0, 700, 500, 0, 0, 0);
+		for k,v in pairs(SW.StartRessourceData) do
+			Logic.AddToPlayersGlobalResource( i, k, v)
+		end
+		--Tools.GiveResouces(i, 0, 700, 500, 0, 0, 0);
 	end
 	
 	SW.Players = {};
@@ -342,6 +345,14 @@ function SW.EnableRandomWeather()
 	local startSummerLength = 240 		-- minutes of starting summer
 	local numOfPeriods = 50
 	-- END OF CONFIG, DO NOT CHANGE
+	if SW.WeatherData.UseCustomWeather then
+		for k,v in pairs(baseChance) do
+			baseChance[k] = SW.WeatherData.BaseChances[k] or baseChance[k]
+		end
+		for k,v in pairs(range) do
+			range[k] = SW.WeatherData.Range[k] or range[k]
+		end
+	end
 	local baseChanceSum = 0
 	for i = 1, numOfWeatherStates do
 		baseChanceSum = baseChanceSum + baseChance[i]
@@ -1246,98 +1257,6 @@ end
 
 function SW.IsMultiplayer()
 	return XNetworkUbiCom.Manager_DoesExist() == 1 or XNetwork.Manager_DoesExist() == 1;
-end
-
-function SW.EnableRandomStart()
-	SW.RandomStartPositions = {};
-	if SW.IsMultiplayer() then
-		local isHuman;
-		for i = 1, 8 do
-			isHuman = XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i);
-			if isHuman == 1 then
-				-- TODO remove spectators.
-				SW.RandomPosForPlayer(i);
-			end;
-		end;
-	else
-		SW.RandomPosForPlayer(1);
-	end;
-end
-
-function SW.RandomPosForPlayer(_player)
-	local div = math.min(table.getn(SW.Players), 4);
-	div = math.max(2,div); -- be > 1
-	local minDistanceToNextPlayer = (Logic.WorldGetSize() / div)^2;
-	local success = false
-	local positions = {
-		-- SW Wooden:
-		--{ X = 4000, Y = 18000 };
-		--{ X = 22000, Y = 6000 };
-		-- SW Meadow:
-		--{ X = 44000, Y = 18900 };
-		--{ X = 50000, Y = 7700 };
-		-- SW Schlacht der Helden
-		{ X = 36000, Y = 28500 },
-	};
-	local sectors = {};
-	local _, _, sector;
-	for i = 1,table.getn(positions) do
-		_, _, sector = S5Hook.GetTerrainInfo(positions[i].X, positions[i].Y);
-		table.insert(sectors, sector)
-	end;
-	local worldSize = Logic.WorldGetSize()
-	local ranX, ranY, sectorID
-	local sectorValid, minDistanceValid;
-	local spawnAttempts = 0;
-	while not success do
-		-- infinite loop protection
-		spawnAttempts = spawnAttempts + 1;
-		if spawnAttempts > 1000 then
-			-- reset reserved start positon table to enable a free spawn
-			SW.RandomStartPositions = {};
-		end
-		ranX = math.random()*worldSize
-		ranY = math.random()*worldSize
-		-- falls die neue zufalls pos zu nahe an einer bestehenden start pos liegt muss neu gewürfelt werden
-		minDistanceValid = true;
-		for i = 1,table.getn(SW.RandomStartPositions) do
-			if ((SW.RandomStartPositions[i].X-ranX)^2 + (SW.RandomStartPositions[i].Y-ranY)^2) < minDistanceToNextPlayer then
-				minDistanceValid = false;
-				break;
-			end
-		end
-		_, _, sectorID = S5Hook.GetTerrainInfo( ranX, ranY);
-		sectorValid = false --invalid until proven otherwise
-		for j = 1, table.getn(sectors) do
-			if sectors[j] == sectorID then
-				sectorValid = true
-				break;
-			end
-		end
-		if sectorValid and minDistanceValid then
-			success = true
-			if GUI.GetPlayerID() == _player then
-				GUI.CreateMinimapMarker(ranX,ranY,0);
-			else
-				if Logic.GetDiplomacyState(GUI.GetPlayerID(),_player) == Diplomacy.Hostile then
-					GUI.CreateMinimapMarker(ranX,ranY,3);
-				else
-					GUI.CreateMinimapMarker(ranX,ranY,0);
-				end
-			end
-			table.insert(SW.RandomStartPositions,{X=ranX,Y=ranY});
-			local newEnt;
-			local oldEnt;
-			for i = 1, 8 do
-				oldEnt = newEnt;
-				newEnt = AI.Entity_CreateFormation(_player, Entities.PU_Serf, 0, 0, ranX+math.random(-200,200), ranY+math.random(-200,200), 0, ranX, ranY, 0)
-				Logic.EntityLookAt(newEnt, oldEnt);
-				if GUI.GetPlayerID() == _player then
-					Camera.ScrollSetLookAt(ranX,ranY);
-				end
-			end
-		end 
-	end
 end
 
 function SW.CreateHQsAndRedirectKeyBindung()
