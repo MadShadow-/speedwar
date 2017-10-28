@@ -120,6 +120,9 @@ function SW.Walls.GUIChanges()
 end
 function SW.Walls.ToggleGate( _eId)
 	Trigger.DisableTrigger(SW.Walls.DestroyTriggerId)
+	if IsDead(_eId)
+		return
+	end
 	local typee = Logic.GetEntityType( _eId)
 	local selected = (GUI.GetSelectedEntity() == _eId)
 	if typee == Entities.XD_WallStraightGate then

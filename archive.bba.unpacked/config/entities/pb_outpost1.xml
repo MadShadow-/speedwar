@@ -12,7 +12,7 @@
 		  <UpgradeSite>ZB_UpgradeSite4</UpgradeSite>
 		  <MaxHealth>1000</MaxHealth>
 		  <ArmorClass>ArmorClassFortification</ArmorClass> 
-		  <ArmorAmount>50</ArmorAmount>
+		  <ArmorAmount>100</ArmorAmount>
 		  <ModifyArmor>
 		  	<Technology>GT_Architecture</Technology>		  
 		  </ModifyArmor>
