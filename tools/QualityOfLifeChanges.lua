@@ -41,7 +41,7 @@ function SW.QoL.Init()
 		if XGUIEng.IsModifierPressed(Keys.ModifierControl) == 1 then
 			SW.QoL.DoForAllEntitiesInSelection(SW.QoL.ExpelSettler)
 		else
-			SW.QoL.GUIAction_BuySoldier()
+			SW.QoL.GUIAction_ExpelSettler()
 		end
 	end
 end
