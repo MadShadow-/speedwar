@@ -63,7 +63,15 @@ SW.Bugfixes.FormationETypes = {
 	[Entities.PU_LeaderSword1] = true,
 	[Entities.PU_LeaderSword2] = true,
 	[Entities.PU_LeaderSword3] = true,
-	[Entities.PU_LeaderSword4] = true
+	[Entities.PU_LeaderSword4] = true,
+	[Entities.PU_LeaderCavalry1] = true,
+	[Entities.PU_LeaderCavalry2] = true,
+	[Entities.PU_LeaderHeavyCavalry1] = true,
+	[Entities.PU_LeaderHeavyCavalry2] = true,
+	[Entities.PV_Cannon1] = true,
+	[Entities.PV_Cannon2] = true,
+	[Entities.PV_Cannon3] = true,
+	[Entities.PV_Cannon4] = true
 }
 function SW.Bugfixes.FixBattleSerfBug()
 	SW.Bugfixes.GameCallback_GUI_SelectionChanged = GameCallback_GUI_SelectionChanged

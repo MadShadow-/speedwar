@@ -240,6 +240,12 @@ SW.BuildingTooltips.UData = { --Data for research tooltips
 	[Technologies.UP1_Farm] = {
 		Techs = {Technologies.GT_Construction},
 	},
+	[Technologies.UP2_Farm] = {
+		Techs = {Technologies.GT_ChainBlock},
+	},
+	[Technologies.UP2_Residence] = {
+		Techs = {Technologies.GT_ChainBlock},
+	},
 	[Technologies.UP1_Stables] = {		--Give stable upgrade on tier 3 for free
 		Tier = 3,
 	},

@@ -219,6 +219,30 @@ function SW.RandomChest.Action.Bomb( _pId, _x, _y)
 	S5Hook.GetEntityMem(bombId)[31][0][4]:SetInt(600) --wait a minute...
 	S5Hook.GetEntityMem(bombId)[25]:SetFloat(5)
 end
+SW.RandomChest.LotRData = {
+	"Einer dem Dunklen Herrn auf dunklem Thron",
+	"Im Lande Mordor, wo die Schatten drohn.",
+	"Ein Ring, sie zu knechten, sie alle zu finden,",
+	"Ins Dunkel zu treiben und ewig zu binden",
+	"Im Lande Mordor, wo die Schatten drohn."
+}
+function SW.RandomChest.Action.LotR( _pId, _x, _y)
+	if GUI.GetPlayerID() == _pId then
+		Message("Darin war eine Ring!")
+		StartSimpleJob("SW_RandomChest_Action_LotRJob")
+		SW.RandomChest.LotRIndex = 0
+	end
+end
+function SW_RandomChest_Action_LotRJob()
+	if Counter.Tick2("Action_LotR", 2) then
+		SW.RandomChest.LotRIndex = (SW.RandomChest.LotRIndex+1) or 1
+		if SW.RandomChest.LotRData[SW.RandomChest.LotRIndex] == nil then
+			SW.RandomChest.LotRIndex = 0
+			return
+		end
+		Message(SW.RandomChest.LotRData[SW.RandomChest.LotRIndex])
+	end
+end
 function SW_RandomChest_SolarEclipseJob()
 	SW.RandomChest.SolarEclipseParam = SW.RandomChest.SolarEclipseParam + 0.1
 	if SW.RandomChest.SolarEclipseParam >= 60 then
@@ -324,9 +348,10 @@ function SW.RandomChest.Action.Statue( _pId, _x, _y)
 	S5Hook.GetEntityMem( eId)[25]:SetFloat(2.5)
 end
 --Ideen:
---	CTHULHU
+--	CTHULHU:
+--		Sich ausbreitender Kreis aus Finsternis, der Bäume verdorren lässt?
+--  Effektchoreographie mit FXDie, FXSalimHeal, DarioFear
 --	Ein eisiger Winter
 --	Eine Läuterung?
 --	Konfetti
 --	Endraläer Krustenbrot
---	Ein Ring, sie zu knechten, sie alle zu finden, ins Dunkel zu treiben und ewig zu binden

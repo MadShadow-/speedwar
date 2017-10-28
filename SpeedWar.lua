@@ -294,6 +294,8 @@ function SW.Activate(_seed)
 	SW.CreateHQsAndRedirectKeyBindung();
 	-- More secure SoldierGetLeader
 	-- SW.SoldierGetLeaderInit()
+	-- Constant trade factors
+	SW.FixMarketPrices()
 end
 
 function SW.EnableStartingTechnologies()
@@ -318,7 +320,7 @@ function SW.EnableRandomWeather()
 	CreateIceTime(6);
 	CreateLovelyEvening(7);
 	-- CONFIG PART
-	local numOfWeatherStates = 7		--How many states are there?
+	local numOfWeatherStates = 8		--How many states are there?
 	local baseChance = {}				--Doesnt need to add up to some number
 	baseChance[1] = 50					--Chance summer
 	baseChance[2] = 25					--Chance rain
@@ -327,6 +329,7 @@ function SW.EnableRandomWeather()
 	baseChance[5] = 15					-- snowy rain
 	baseChance[6] = 15					-- ice time
 	baseChance[7] = 10					-- evening
+	baseChance[8] = 20
 	local range = {}
 	range[1] = {180, 300}				--Lower and upper limit for summer period
 	range[2] = {60, 180}					--Lower and upper limit for rain period
@@ -335,6 +338,7 @@ function SW.EnableRandomWeather()
 	range[5] = {60, 180}					--Lower and upper limit for rain2 period
 	range[6] = {80, 180}					--Lower and upper limit for winter2 period
 	range[7] = {80, 120}					--Lower and upper limit for winter2 period
+	range[8] = {40, 60}
 	local startSummerLength = 240 		-- minutes of starting summer
 	local numOfPeriods = 50
 	-- END OF CONFIG, DO NOT CHANGE
@@ -423,9 +427,20 @@ function SW.RandomWeatherAddElement( _stateId, _length)
         Logic.AddWeatherElement(2, _length, 1, 5, 5, 10)
 	elseif _stateId == 6 then
 		Logic.AddWeatherElement(3, _length, 1, 6, 5, 10)
-    else
+    elseif _stateId == 7 then
         Logic.AddWeatherElement(1, _length, 1, 7, 5, 10)
-    end
+    else
+		WeatherSets_SourRain(8)
+		Logic.AddWeatherElement(2, _length, 1, 8, 5, 10)
+	end
+end
+function WeatherSets_SourRain(_ID)
+	Display.GfxSetSetSkyBox(_ID, 0.0, 1.0, "YSkyBox04")
+	Display.GfxSetSetRainEffectStatus(_ID, 0.0, 1.0, 1)
+	Display.GfxSetSetSnowStatus(_ID, 0, 1.0, 0)
+	Display.GfxSetSetSnowEffectStatus(_ID, 0.0, 0.8, 0)
+	Display.GfxSetSetFogParams(_ID, 0.0, 1.0, 1, 143, 254, 9, 3000,30000)
+	Display.GfxSetSetLightParams(_ID,  0.0, 1.0, 40, -15, -50, 143, 254, 9,  55, 55, 65)
 end
 
 function SW.EnableOutpostVCs()
@@ -753,7 +768,7 @@ function SW.CallbackHacks()
 end
 
 --		DEBUG STUFF; REMOVE IN FINAL VERSION
-SW_GoodNumber = 1040
+SW_GoodNumber = 120
 function SW.DebuggingStuff()
 	-- Stuff worth protecting:
 	--		Functions in SW-table
