@@ -1371,13 +1371,13 @@ end
 
 function CreateDarkStorm(_id)
 	local start = 0.0;
-	local endt = 10.0;
+	local endt = 1.0;
 	Display.GfxSetSetSkyBox(_id, start, endt, "YSkyBox04")
 	Display.GfxSetSetSnowStatus(_id, start, endt, 0)
 	Display.GfxSetSetSnowEffectStatus(_id, start, endt, 0)
-	Display.GfxSetSetRainEffectStatus(_id, start, endt, 1)
+	Display.GfxSetSetRainEffectStatus(_id, 0.5, 4.0, 1)
 	Display.GfxSetSetFogParams(_id, start, endt, 1, 10,10,40, 0,30000)
-	Display.GfxSetSetLightParams(_id,  start, endt, 30, 30, 30,  20,20,40,  155,155,255)
+	Display.GfxSetSetLightParams(_id,  start, endt, 20, -15, -50,  20,20,35,  155,155,255)
 end
 
 function CreateSnowyRain(_id)
