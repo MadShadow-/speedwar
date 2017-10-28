@@ -238,7 +238,7 @@ function SW_RandomChest_Action_LotRJob()
 		SW.RandomChest.LotRIndex = (SW.RandomChest.LotRIndex+1) or 1
 		if SW.RandomChest.LotRData[SW.RandomChest.LotRIndex] == nil then
 			SW.RandomChest.LotRIndex = 0
-			return
+			return true
 		end
 		Message(SW.RandomChest.LotRData[SW.RandomChest.LotRIndex])
 	end

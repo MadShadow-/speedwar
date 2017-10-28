@@ -10,9 +10,9 @@
 		  <NeedsPlayer>true</NeedsPlayer>
 		  <ForceNoPlayer>false</ForceNoPlayer>
 		  <UpgradeSite>ZB_UpgradeSite4</UpgradeSite>
-		  <MaxHealth>3000</MaxHealth>
+		  <MaxHealth>1000</MaxHealth>
 		  <ArmorClass>ArmorClassFortification</ArmorClass> 
-		  <ArmorAmount>10</ArmorAmount>
+		  <ArmorAmount>50</ArmorAmount>
 		  <ModifyArmor>
 		  	<Technology>GT_Architecture</Technology>		  
 		  </ModifyArmor>
