@@ -376,7 +376,11 @@ function SW_WallGUI_OnEntityDestroyed()
 			return;
 		end
 		-- what entity should our dummy be replaced with?
-		local player = GetPlayer(relatedBuilding[1]);
+		local player = Logic.EntityGetPlayer(relatedBuilding[1]);
+		if player == 0 then
+			-- kp was da abgeht, aber hier isch ende
+			return;
+		end
 		if SW.WallGUI.ReplaceEntities[ relatedBuilding[2] ] == Entities.PB_Beautification12
 		or SW.WallGUI.ReplaceEntities[ relatedBuilding[2] ] == Entities.PB_Blacksmith1 then
 			--> a simple windwall

@@ -320,13 +320,13 @@ function SW.EnableRandomWeather()
 	-- CONFIG PART
 	local numOfWeatherStates = 7		--How many states are there?
 	local baseChance = {}				--Doesnt need to add up to some number
-	baseChance[1] = 0					--Chance summer
-	baseChance[2] = 0					--Chance rain
-	baseChance[3] = 0					--Chance winter
-	baseChance[4] = 100					--Chance summer2
-	baseChance[5] = 5					--Chance rain2
-	baseChance[6] = 5					--Chance winter2
-	baseChance[7] = 5					--Chance winter2
+	baseChance[1] = 50					--Chance summer
+	baseChance[2] = 25					--Chance rain
+	baseChance[3] = 25					--Chance winter
+	baseChance[4] = 10					-- storm
+	baseChance[5] = 15					-- snowy rain
+	baseChance[6] = 15					-- ice time
+	baseChance[7] = 10					-- evening
 	local range = {}
 	range[1] = {180, 300}				--Lower and upper limit for summer period
 	range[2] = {60, 180}					--Lower and upper limit for rain period
@@ -1429,7 +1429,7 @@ function CreateDarkStorm(_id)
 	Display.GfxSetSetSnowStatus(_id, start, endt, 0)
 	Display.GfxSetSetSnowEffectStatus(_id, start, endt, 0)
 	Display.GfxSetSetRainEffectStatus(_id, start, endt, 1)
-	Display.GfxSetSetFogParams(_id, start, endt, 1, 10,10,40, 0,20000)
+	Display.GfxSetSetFogParams(_id, start, endt, 1, 10,10,40, 0,30000)
 	Display.GfxSetSetLightParams(_id,  start, endt, 30, 30, 30,  20,20,40,  155,155,255)
 end
 
@@ -1438,7 +1438,7 @@ function CreateSnowyRain(_id)
 	Display.GfxSetSetSnowStatus(_id, 0, 6.0, 0)
 	Display.GfxSetSetSnowEffectStatus(_id, 0.0, 2.0, 1)
 	Display.GfxSetSetRainEffectStatus(_id, 0.0, 7.0, 1)
-	Display.GfxSetSetFogParams(_id, 0.0, 1.0, 1, 102,142,162, 0,15000);
+	Display.GfxSetSetFogParams(_id, 0.0, 1.0, 1, 102,142,162, 0,30000);
     Display.GfxSetSetLightParams(_id,  0.0, 1.0, 40, -15, -50,  120,110,110,  255,254,230)
 end
 
@@ -1446,7 +1446,7 @@ function CreateIceTime(_id)
     Display.GfxSetSetSkyBox(_id, 0.0, 1.0, "YSkyBox01")
     Display.GfxSetSetSnowStatus(_id, 0, 1.0, 1)
     Display.GfxSetSetSnowEffectStatus(_id, 0.0, 0.8, 0)
-    Display.GfxSetSetFogParams(_id, 0.0, 1.0, 1, 152,172,182, 0,17000)
+    Display.GfxSetSetFogParams(_id, 0.0, 1.0, 1, 152,172,182, 0,30000)
     Display.GfxSetSetLightParams(_id,  0.0, 1.0,  40, -15, -75,  180,180,190, 250,250,250)
 end
 
