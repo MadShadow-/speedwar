@@ -346,7 +346,7 @@ function SW.RandomChest.Action.Statue( _pId, _x, _y)
 	S5Hook.GetEntityMem( eId)[25]:SetFloat(2.5)
 end
 SW.RandomChest.EffectOverloadCount = 0
-function SW.RandomChest.Action_EffectOverload( _pId, _x, _y)
+function SW.RandomChest.Action.EffectOverload( _pId, _x, _y)
 	if GUI.GetPlayerID() == _pId then
 		Message("Darin waren eine Menge Grafikeffekte!")
 		Message("Vielleicht hören sie auf, wenn wir die Truhe entfernen?")
@@ -367,10 +367,28 @@ function SW.RandomChest.Action_EffectOverload( _pId, _x, _y)
 		--	Pos = time/timeneeded * MAXR * (cos())
 		if Logic.GetEntityType(Logic.GetEntityAtPosition( _x, _y)) == 0 then return true end
 		time = time + 1
-		
+		--Salim heal circles
+		local r = 1250
+		local myArg = math.mod(time, 50)/50
+		NapoCreateEffect( GGL_Effects.FXSalimHeal, _x + r*math.cos(math.rad(360*myArg)), _y + r*math.sin(math.rad(360*myArg)), 1)
+		NapoCreateEffect( GGL_Effects.FXSalimHeal, _x + 2*r*math.cos(math.rad(360*myArg)), _y - 2*r*math.sin(math.rad(360*myArg)), 1)
+		--Dario fear spirale
+		myArg = math.mod(time, 50)/50
+		if math.mod(time, 2) == 0 then
+			for i = 1, 4 do
+				NapoCreateEffect( GGL_Effects.FXDarioFear, _x + 2*r*myArg*math.cos(math.rad(90*myArg+i*90)), _y + 2*r*myArg*math.sin(math.rad(90*myArg+i*90)), 1)
+			end
+		end
 	end
 	StartSimpleHiResJob("SW_RandomChest_EffectOverload"..SW.RandomChest.EffectOverloadCount)
 	SW.RandomChest.EffectOverloadCount = SW.RandomChest.EffectOverloadCount + 1
+end
+
+function NapoCreateEffect( _effId, _x, _y, _pId)
+	if _x <= 0 or _y <= 0 then return end
+	local worldSize = Logic.WorldGetSize()
+	if _x >= worldSize or _y >= worldSize then return end
+	Logic.CreateEffect(_effId, _x, _y, _pId)
 end
 
 --Ideen:
