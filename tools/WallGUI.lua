@@ -221,6 +221,9 @@ function SW.WallGUI.Init()
 		if SW.WallGUI.LatestGUIState == gvGUI_StateID.PlaceBuilding then
 			SW.WallGUI.LatestWallType = SW.WallGUI.WallType;
 			SW.WallGUI.WallType = "";
+			if SW.WallGUI.ModelChanged then
+				SW.WallGUI.EntityType_SetDisplayModel(SW.WallGUI.DummyEntities[SW.WallGUI.LatestWallType], SW.WallGUI.DummyModels[SW.WallGUI.LatestWallType]);
+			end
 		end
 		SW.WallGUI.CancelState();
 	end
@@ -293,11 +296,6 @@ function SW.WallGUI.UpdateTooltip(_wall)
 	local costs = SW.WallGUI.CreateCostString( SW.WallGUI.Costs[_wall] );
 	local tooltip = " ";
 	
-	
-	-- if XGUIEng.IsButtonDisabled(widgetId) == 1 then
-		--tooltip =  XGUIEng.GetStringTableText("MenuGeneric/BuildingNotAvailable");
-		--costs = "";
-	--if Logic.GetTechnologyState( playerId, SW.WallGUI.RequiredTechnologies[_wall] ) == 0 then
 	if XGUIEng.IsButtonDisabled(widgetId) == 1 then
 		tooltip = SW.WallGUI.Tooltips[_wall][2];
 	else
@@ -329,9 +327,9 @@ function SW_WallGUI_OnEntityCreated()
 		end
 		
 		-- yeah it was - reset the model in case it was changed
-		if SW.WallGUI.ModelChanged then
-			SW.WallGUI.EntityType_SetDisplayModel(SW.WallGUI.DummyEntities[SW.WallGUI.LatestWallType], SW.WallGUI.DummyModels[SW.WallGUI.LatestWallType]);
-		end
+		--if SW.WallGUI.ModelChanged then
+		--	SW.WallGUI.EntityType_SetDisplayModel(SW.WallGUI.DummyEntities[SW.WallGUI.LatestWallType], SW.WallGUI.DummyModels[SW.WallGUI.LatestWallType]);
+		--end
 		
 		SW.WallGUI.DummysInConstruction[entityId] = 0;
 
@@ -392,7 +390,7 @@ function SW_WallGUI_OnEntityDestroyed()
 				SW.WallGUI.SelectedWallDestroyed = true;
 			end
 			SW.CustomNames[Logic.GetEntityName(relatedBuilding[1])] = nil;
-			DestroyEntity( relatedBuilding[1] );
+			SW_DestroySafe( relatedBuilding[1] );
 		end
 		SW.WallGUI.CreateEntity(SW.WallGUI.ReplaceEntities[ relatedBuilding[2] ], pos, player);
 end
