@@ -381,3 +381,41 @@ end
 --	Eine Läuterung?
 --	Konfetti
 --	Endraläer Krustenbrot
+
+SW.RandomChest.Marys = {};
+function SW.RandomChest.Action.MaryBeGoodGuys(_pId)
+	local X,Y, sector;
+	sector = 0;
+	while(sector == 0) do
+		X = math.random(Logic.WorldGetSize()/10, Logic.WorldGetSize()-Logic.WorldGetSize()/10);
+		Y = math.random(Logic.WorldGetSize()/10, Logic.WorldGetSize()-Logic.WorldGetSize()/10);
+		_, _, sector = S5Hook.GetTerrainInfo(X, Y);
+	end
+	Message("@color:255,100,100 Scheiße "..tostring(UserTool_GetPlayerName(_pId)).." hat Mary gefunden!");
+	Camera.ScrollSetLookAt(X,Y);
+	local mary = Logic.CreateEntity(Entities.CU_Mary_de_Mortfichet, X, Y, 180, _pId);
+	Sound.PlayGUISound( Sounds.LevyTaxes, 125 );
+	Sound.PlayGUISound( Sounds.LevyTaxes, 125 ); 
+	Sound.PlayGUISound( Sounds.LevyTaxes, 125 );
+	gvCamera.DefaultFlag = 0
+	Camera.ZoomSetDistance(1000)
+	Logic.ForceFullExplorationUpdate();
+	table.insert(SW.RandomChest.Marys, mary);
+	Logic.SetTaskList(mary, TaskLists.TL_BATTLE_POISON);
+	SW.RandomChest.MaryCounter = 2;
+	Display.SetRenderFogOfWar(0)
+	StartSimpleJob("SW_RandomChest_CollectMary");
+end
+
+function SW_RandomChest_CollectMary()
+	if SW.RandomChest.MaryCounter > 0 then
+		SW.RandomChest.MaryCounter = SW.RandomChest.MaryCounter - 1;
+		return;
+	end
+	gvCamera.DefaultFlag = 1;
+	Display.SetRenderFogOfWar(1)
+	for i = 1, table.getn(SW.RandomChest.Marys) do
+		DestroyEntity(SW.RandomChest.Marys[i]);
+	end
+	return true;
+end

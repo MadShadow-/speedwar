@@ -68,11 +68,16 @@ function SW.RandomPosForPlayer(_player)
 				end
 			end
 			table.insert(SW.RandomStartPositions,{X=ranX,Y=ranY});
-			local newEnt;
-			local oldEnt;
+			local newEnt, oldEnt, newRanX, newRanY;
+			local rndSector = -1;
 			for i = 1, 8 do
 				oldEnt = newEnt;
-				newEnt = AI.Entity_CreateFormation(_player, Entities.PU_Serf, 0, 0, ranX+math.random(-200,200), ranY+math.random(-200,200), 0, ranX, ranY, 0)
+				while(rndSector ~= sector) do
+					newRanX = ranX+math.random(-200,200);
+					newRanY = ranY+math.random(-200,200);
+					_, _, rndSector = S5Hook.GetTerrainInfo(ranX, ranY);
+				end
+				newEnt = AI.Entity_CreateFormation(_player, Entities.PU_Serf, 0, 0, newRanX, newRanY, 0, ranX, ranY, 0)
 				Logic.EntityLookAt(newEnt, oldEnt);
 				if GUI.GetPlayerID() == _player then
 					Camera.ScrollSetLookAt(ranX,ranY);
