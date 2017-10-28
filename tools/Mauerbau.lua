@@ -330,6 +330,13 @@ function SW.Walls.PlaceClosingWall( _eId)
 		--Logic.CreateEntity(Entities.XD_WallStraightGate, newPos.X, newPos.Y, angle+90, player)
 	end
 end
+function SW.Walls.PlaceStartWall( _eId)
+	local pos = GetPosition( _eId)
+	local player = GetPlayer( _eId)
+	SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y-200, 0, player)
+	SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y+200, 0, player)
+	return SW.Walls.CreateEntity(Entities.XD_WallStraight, pos.X, pos.Y, 0, player)
+end
 function SW.Walls.GetAdjacentWalls( _pos, _player)
 	return Logic.GetPlayerEntitiesInArea( _player, Entities.XD_WallStraight, _pos.X, _pos.Y, 400, 5) 
 		+ Logic.GetPlayerEntitiesInArea( _player, Entities.XD_WallStraightGate, _pos.X, _pos.Y, 600, 5)

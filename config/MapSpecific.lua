@@ -63,7 +63,8 @@ SW.WeatherData.BaseChances = { --sets likelyness of weather states; there is no 
 	[5] = 15,		-- No iced lakes, snow & rain falling
 	[6] = 15,		-- Snowy terrain without falling snow or rain
 	[7] = 10,		-- "Lovely evening", also now has volcanic eruption
-	[8] = 20		-- SourRain
+	[8] = 20,		-- SourRain
+	[9] = 10		-- Hot summer
 }
 SW.WeatherData.Range = {	--sets min & max duration for each weather period, ids are same as before
 	[1] = {180, 300},
@@ -73,6 +74,7 @@ SW.WeatherData.Range = {	--sets min & max duration for each weather period, ids 
 	[5] = {60, 180},
 	[6] = {80, 180},
 	[7] = {80, 120},
-	[8] = {40, 60}
+	[8] = {40, 60},
+	[9] = {60, 120}
 }
 

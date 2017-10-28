@@ -322,17 +322,20 @@ function SW.EnableRandomWeather()
 	CreateSnowyRain(5);
 	CreateIceTime(6);
 	CreateLovelyEvening(7);
+	WeatherSets_SourRain(8)
+	WeatherSets_HotSummer(9)
 	-- CONFIG PART
-	local numOfWeatherStates = 8		--How many states are there?
+	local numOfWeatherStates = 9		--How many states are there?
 	local baseChance = {}				--Doesnt need to add up to some number
-	baseChance[1] = 50					--Chance summer
-	baseChance[2] = 25					--Chance rain
-	baseChance[3] = 25					--Chance winter
+	baseChance[1] = 80					--Chance summer
+	baseChance[2] = 30					--Chance rain
+	baseChance[3] = 30					--Chance winter
 	baseChance[4] = 10					-- storm
-	baseChance[5] = 15					-- snowy rain
-	baseChance[6] = 15					-- ice time
-	baseChance[7] = 10					-- evening
-	baseChance[8] = 20
+	baseChance[5] = 20					-- snowy rain
+	baseChance[6] = 20					-- ice time
+	baseChance[7] = 20					-- evening
+	baseChance[8] = 10					-- sour rain
+	baseChance[9] = 10					-- hot summer
 	local range = {}
 	range[1] = {180, 300}				--Lower and upper limit for summer period
 	range[2] = {60, 180}					--Lower and upper limit for rain period
@@ -342,6 +345,7 @@ function SW.EnableRandomWeather()
 	range[6] = {80, 180}					--Lower and upper limit for winter2 period
 	range[7] = {80, 120}					--Lower and upper limit for winter2 period
 	range[8] = {40, 60}
+	range[9] = {60, 120}
 	local startSummerLength = 240 		-- minutes of starting summer
 	local numOfPeriods = 50
 	-- END OF CONFIG, DO NOT CHANGE
@@ -416,7 +420,7 @@ function SW.EnableRandomWeather()
 		currentState = finalState
 		SW.RandomWeatherAddElement( finalState, length)
 	end
-	if true then
+	if false then
 		local s1, s2 = "", ""
 		for i = 1, numOfWeatherStates do
 			s1 = s1.." "..total[i]
@@ -440,18 +444,11 @@ function SW.RandomWeatherAddElement( _stateId, _length)
 		Logic.AddWeatherElement(3, _length, 1, 6, 5, 10)
     elseif _stateId == 7 then
         Logic.AddWeatherElement(1, _length, 1, 7, 5, 10)
-    else
-		WeatherSets_SourRain(8)
+    elseif _stateId == 8 then
 		Logic.AddWeatherElement(2, _length, 1, 8, 5, 10)
+	else
+		Logic.AddWeatherElement(1, _length, 1, 9, 5, 10)
 	end
-end
-function WeatherSets_SourRain(_ID)
-	Display.GfxSetSetSkyBox(_ID, 0.0, 1.0, "YSkyBox04")
-	Display.GfxSetSetRainEffectStatus(_ID, 0.0, 1.0, 1)
-	Display.GfxSetSetSnowStatus(_ID, 0, 1.0, 0)
-	Display.GfxSetSetSnowEffectStatus(_ID, 0.0, 0.8, 0)
-	Display.GfxSetSetFogParams(_ID, 0.0, 1.0, 1, 143, 254, 9, 3000,30000)
-	Display.GfxSetSetLightParams(_ID,  0.0, 1.0, 40, -15, -50, 143, 254, 9,  55, 55, 65)
 end
 
 function SW.EnableOutpostVCs()
@@ -726,7 +723,23 @@ function SW_DestroySafe(_entityID)
 	if table.getn(SW_ToDestroyEntities) == 1 then
 		StartSimpleHiResJob("SW_DestroyJob");
 	end
-end;
+end
+
+function SW_CreateEntitySafe( _eType, _x, _y, _rot, _player, _callback)
+	SW_ToCreateEntities = SW_ToCreateEntities or {};
+	function SW_CreateJob()
+		for i = table.getn( SW_ToCreateEntities), 1, -1 do
+			local entry = SW_ToCreateEntities[i]
+			entry.callback(Logic.CreateEntity( entry.eType, entry.x, entry.y, entry.rot, entry.player))
+		end
+		SW_ToCreateEntities = {}
+		return true
+	end
+	table.insert(SW_ToCreateEntities, { eType = _eType, x = _x, y = _y, rot = _rot, player = _player, callback = _callback});
+	if table.getn(SW_ToCreateEntities) == 1 then
+		StartSimpleHiResJob("SW_CreateJob");
+	end
+end
 
 -- REDUCE BUILDING CONSTRUCTION COSTS
 function SW.EnableReducedConstructionCosts()
