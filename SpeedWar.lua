@@ -766,17 +766,7 @@ function SW.CallbackHacks()
 		end
 		--Show HQ Menu in Outposts
 		if entityType == Entities.PB_Outpost1 then
-			if Logic.IsConstructionComplete( entityId) == 1 then
-				XGUIEng.ShowWidget("Headquarter", 1)
-				--XGUIEng.DoManualButtonUpdate(XGUIEng.GetWidgetID("Headquarter"));
-				XGUIEng.ShowWidget("Buy_Hero", 0);
-				XGUIEng.ShowWidget("Upgrade_Headquarter1", 0)
-				XGUIEng.ShowWidget("Upgrade_Headquarter2", 0)
-				-- Show tax menu if adjustable taxes are researched
-				if Logic.GetTechnologyState( GUI.GetPlayerID(), Technologies.GT_Literacy) == 4 then
-					XGUIEng.ShowWidget( "HQTaxes", 1)
-				end
-			end
+			SW.HeadquarterUpgrade.UpgradeButtonHandler()
 		end
 	end
 

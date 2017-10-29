@@ -11,6 +11,7 @@ SW.ScriptingValueBackup.Exploration = SW.ScriptingValueBackup.Exploration or {};
 SW.ScriptingValueBackup.RecruitingTime = SW.ScriptingValueBackup.RecruitingTime or {};
 SW.ScriptingValueBackup.AttractionProvided = SW.ScriptingValueBackup.AttractionProvided or {}
 SW.ScriptingValueBackup.AttractionNeeded = SW.ScriptingValueBackup.AttractionNeeded or {}
+SW.ScriptingValueBackup.KegFactor = SW.ScriptingValueBackup.KegFactor or {}
 function SW.ResetScriptingValueChanges()
 	for k,v in pairs(SW.ScriptingValueBackup.ConstructionCosts) do
 		SW.SetConstructionCosts(k, v);
@@ -38,6 +39,10 @@ function SW.ResetScriptingValueChanges()
 	end
 	for k, v in pairs(SW.ScriptingValueBackup.AttractionNeeded) do
 		SW.SetAttractionPlaceNeeded(k,v);
+	end
+	
+	for k, v in pairs(SW.ScriptingValueBackup.KegFactor) do
+		SW.SetKegFactor(k,v)
 	end
 end;
 
@@ -294,6 +299,22 @@ function SW.SetAttractionPlaceProvided( _eType, _place)
 	S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][44]:SetInt(_place)
 end
 
+-- Sets damage the keg deals; 1 = 80% MaxHP, 0.1 = 8% MaxHP
+function SW.SetKegFactor( _eType, _factor)
+	if S5Hook.GetRawMem(9002416)[0][16][_eType*8+2][0]:GetInt() == 7793784 then
+		if SW.ScriptingValueBackup.KegFactor[_eType] == nil then
+			SW.ScriptingValueBackup.KegFactor[_eType] = SW.GetKegFactor( _eType)
+		end
+		S5Hook.GetRawMem(9002416)[0][16][_eType*8+2][124]:SetFloat( _factor)
+	end
+end
+function SW.GetKegFactor( _eType)
+	-- at 0: 7793784
+	if S5Hook.GetRawMem(9002416)[0][16][_eType*8+2][0]:GetInt() == 7793784 then
+		return S5Hook.GetRawMem(9002416)[0][16][_eType*8+2][124]:GetFloat()
+	end
+	return 0
+end
 
 
 

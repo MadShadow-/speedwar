@@ -376,7 +376,7 @@ function SW.RandomChest.Action.EffectOverload( _pId, _x, _y)
 		myArg = math.mod(time, 50)/50
 		if math.mod(time, 2) == 0 then
 			for i = 1, 4 do
-				NapoCreateEffect( GGL_Effects.FXDarioFear, _x + 2*r*myArg*math.cos(math.rad(90*myArg+i*90)), _y + 2*r*myArg*math.sin(math.rad(90*myArg+i*90)), 1)
+				NapoCreateEffect( GGL_Effects.FXDie, _x + 2*r*myArg*math.cos(math.rad(180*myArg+i*90)), _y + 2*r*myArg*math.sin(math.rad(180*myArg+i*90)), math.mod(time,8)+1)
 			end
 		end
 	end
