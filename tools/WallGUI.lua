@@ -421,17 +421,17 @@ function SW.WallGUI.CreateEntity(_entityType, _position, _playerId, _wallTypeStr
 		SW.CustomNames[scriptname] = SW.WallGUI.CustomNames["Bastille"];
 	else
 		-- walls
-		local dummyId = Logic.CreateEntity(Entities.XD_ScriptEntity, _position.X, _position.Y, 0, _playerId);
+		--local dummyId = Logic.CreateEntity(Entities.XD_ScriptEntity, _position.X, _position.Y, 0, _playerId);
 		if _entityType == Entities.XD_WallStraight then
 			if _wallTypeString == "Wall" then
-				newEntityId = SW.Walls.PlaceNormalWall(dummyId);
+				newEntityId = SW.Walls.PlaceNormalWall( _position, _playerId);
 			else -- NewWall
-				newEntityId = SW.Walls.PlaceStartWall(dummyId);
+				newEntityId = SW.Walls.PlaceStartWall(_position, _playerId);
 			end
 		elseif _entityType == Entities.XD_WallStraightGate then
-			newEntityId = SW.Walls.PlaceGate(dummyId);
+			newEntityId = SW.Walls.PlaceGate(_position, _playerId);
 		elseif _entityType == Entities.XD_WallDistorted then
-			newEntityId = SW.Walls.PlaceClosingWall(dummyId);
+			newEntityId = SW.Walls.PlaceClosingWall(_position, _playerId);
 		end
 		-- replace surfs
 		local newPos = GetPosition(newEntityId);

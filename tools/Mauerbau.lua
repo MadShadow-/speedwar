@@ -250,9 +250,7 @@ function SW.Walls.PlaceRepairElement( _eId)
 	table.remove( SW.Walls.DestroyedWalls, targetIndex)
 	SW.Walls.CreateEntity( entry.type, entry.pos.X, entry.pos.Y, entry.rot, player)
 end
-function SW.Walls.PlaceNormalWall( _eId)
-	local pos = GetPosition( _eId)
-	local player = GetPlayer( _eId)
+function SW.Walls.PlaceNormalWall( pos, player)
 	--Search for nearby corners
 	local nearestCorner = 0
 	local distance = 50000
@@ -265,7 +263,6 @@ function SW.Walls.PlaceNormalWall( _eId)
 			nearestCorner = cornerId
 		end
 	end
-	table.insert(SW.Walls.DestroySchedule, _eId)
 	if nearestCorner == 0 then --No corner found? Create wall at location
 		SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y-200, 0, player)
 		SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y+200, 0, player)
@@ -280,10 +277,9 @@ function SW.Walls.PlaceNormalWall( _eId)
 		return SW.Walls.CreateEntity(Entities.XD_WallStraight, newPos.X, newPos.Y, angle+90, player)
 	end
 end
-function SW.Walls.PlaceClosingWall( _eId)
+function SW.Walls.PlaceClosingWall( pos, player)
 	--New algorithm, will do for now
-	table.insert(SW.Walls.DestroySchedule, _eId)
-	if true then return SW.Walls.PlaceClosingWallNEW( _eId) end
+	if true then return SW.Walls.PlaceClosingWallNEW( pos, player) end
 	--Stop now and dont use the old algorithm
 	local pos = GetPosition( _eId)
 	local player = GetPlayer( _eId)
@@ -330,9 +326,7 @@ function SW.Walls.PlaceClosingWall( _eId)
 		--Logic.CreateEntity(Entities.XD_WallStraightGate, newPos.X, newPos.Y, angle+90, player)
 	end
 end
-function SW.Walls.PlaceStartWall( _eId)
-	local pos = GetPosition( _eId)
-	local player = GetPlayer( _eId)
+function SW.Walls.PlaceStartWall( pos, player)
 	SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y-200, 0, player)
 	SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y+200, 0, player)
 	return SW.Walls.CreateEntity(Entities.XD_WallStraight, pos.X, pos.Y, 0, player)
@@ -366,9 +360,7 @@ function SW.Walls.AreWallsAdjacent( _pos, _eId) --use _eId as black list
 	end
 	return false
 end
-function SW.Walls.PlaceGate( _eId)
-	local pos = GetPosition( _eId)
-	local player = GetPlayer( _eId)
+function SW.Walls.PlaceGate( pos, player)
 	--Search for nearby corners
 	local nearestCorner = 0
 	local distance = 50000
@@ -381,7 +373,6 @@ function SW.Walls.PlaceGate( _eId)
 			nearestCorner = cornerId
 		end
 	end
-	table.insert(SW.Walls.DestroySchedule, _eId)
 	if nearestCorner == 0 then --No corner found? Create wall at location
 		SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y-300, 0, player)
 		SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y+300, 0, player)
@@ -494,9 +485,7 @@ function SW.Walls.IsBusy(_eId)
 	end
 	return false
 end
-function SW.Walls.PlaceClosingWallNEW( _eId)
-	local pos = GetPosition( _eId)
-	local player = GetPlayer( _eId)
+function SW.Walls.PlaceClosingWallNEW( pos, player)
 	local list = {}
 	local listOfCorners = S5Hook.EntityIteratorTableize(Predicate.OfPlayer(player), Predicate.OfType(Entities.XD_WallCorner), Predicate.InCircle( pos.X, pos.Y, 2000))
 	local listOfPos = {}
