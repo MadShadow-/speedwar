@@ -766,7 +766,7 @@ function SW.CallbackHacks()
 		end
 		--Show HQ Menu in Outposts
 		if entityType == Entities.PB_Outpost1 then
-			SW.HeadquarterUpgrade.UpgradeButtonHandler()
+			SW.HeadquarterUpgrade.UpgradeButtonHandler(entityId)
 		end
 	end
 
@@ -782,7 +782,7 @@ function SW.CallbackHacks()
 end
 
 --		DEBUG STUFF; REMOVE IN FINAL VERSION
-SW_GoodNumber = 120
+SW_GoodNumber = 1055
 function SW.DebuggingStuff()
 	-- Stuff worth protecting:
 	--		Functions in SW-table

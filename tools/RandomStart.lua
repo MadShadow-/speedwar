@@ -1,4 +1,18 @@
 SW = SW or {}
+SW.RandomStartWeights = {
+	[Entities.XD_Clay1]		= 500 
+	[Entities.XD_ClayPit1]	= 4000
+	[Entities.XD_Iron1]		= 300
+	[Entities.XD_IronPit1]	= 2000
+	[Entities.XD_Stone1]	= 700
+	[Entities.XD_StonePit1]	= 5000
+	[Entities.XD_Sulfur1]	= 1000
+	[Entities.XD_SulfurPit1]= 4000
+}
+SW.RandomStartAllyWeight = 15000
+SW.RandomStartEnemyWeight = 25000
+SW.RandomStartRessources = {} --list of all things that increase spawn chance
+
 function SW.EnableRandomStart()
 	SW.RandomStartPositions = {};
 	if SW.IsMultiplayer() then
@@ -85,4 +99,9 @@ function SW.RandomPosForPlayer(_player)
 			end
 		end 
 	end
+end
+
+function SW.RandomStartEvaluatePos( _x, _y)
+	
+	
 end

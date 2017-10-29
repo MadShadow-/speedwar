@@ -21,7 +21,7 @@ SW.HeadquarterUpgrade.CostUp2 = {
 }
 SW.HeadquarterUpgrade.WallBuildDuration = 30
 SW.HeadquarterUpgrade.Up1Data = {}	--Entry: ListOfWalls, TimeSpent, Max, eId
-function SW.HeadquarterUpgrade.UpgradeButtonHandler()
+function SW.HeadquarterUpgrade.UpgradeButtonHandler(entityId)
 	if Logic.IsConstructionComplete( entityId) == 1 then
 		XGUIEng.ShowWidget("Headquarter", 1)
 		--XGUIEng.DoManualButtonUpdate(XGUIEng.GetWidgetID("Headquarter"));
