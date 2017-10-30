@@ -821,6 +821,7 @@ function SW.DebuggingStuff()
 		SW_GoodNumber = GenerateTableChecksum(SW)
 		debugggg = true
 	end
+	debugggg = false
 	if debugggg and XNetwork.Manager_DoesExist() == 1 then
 	--if debugggg then
 		local pId = GUI.GetPlayerID()
