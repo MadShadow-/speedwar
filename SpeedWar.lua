@@ -782,7 +782,8 @@ function SW.CallbackHacks()
 end
 
 --		DEBUG STUFF; REMOVE IN FINAL VERSION
-SW_GoodNumber = 1055
+SW_GoodNumber = 519
+SW_BetterNumber = 1514
 function SW.DebuggingStuff()
 	-- Stuff worth protecting:
 	--		Functions in SW-table
@@ -812,7 +813,8 @@ function SW.DebuggingStuff()
 		return checksum
 	end
 	local debugggg = false
-	if GenerateTableChecksum(GUI) ~= 157 then
+	if GenerateTableChecksum(GUI) ~= SW_BetterNumber then
+		SW_BetterNumber = GenerateTableChecksum(GUI)
 		debugggg = true
 	end
 	if GenerateTableChecksum(SW) ~= SW_GoodNumber then

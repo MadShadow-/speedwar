@@ -337,25 +337,38 @@ function SW.Walls.GetAdjacentWalls( _pos, _player)
 		+ Logic.GetPlayerEntitiesInArea( _player, Entities.XD_WallStraightGate_Closed, _pos.X, _pos.Y, 600, 5)
 end
 function SW.Walls.AreWallsAdjacent( _pos, _eId) --use _eId as black list
-	local n, e1, e2 = Logic.GetEntitiesInArea( Entities.XD_WallStraight, _pos.X, _pos.Y, 400, 2)
-	if e1 == _eId or e2 == _eId then
-		n = n - 1
+	local data = {Logic.GetEntitiesInArea( Entities.XD_WallStraight, _pos.X, _pos.Y, 500, 16)}
+	for i = 2, data[1]+1 do
+		if data[i] ~= _eId then
+			if SW.Walls.WallAdjacentToPos( _pos, data[i]) then
+				return true
+			end
+		end
 	end
-	if n ~= 0 then
-		return true
+	data = {Logic.GetEntitiesInArea( Entities.XD_WallStraightGate, _pos.X, _pos.Y, 700, 16)}
+	for i = 2, data[1]+1 do
+		if data[i] ~= _eId then
+			if SW.Walls.WallAdjacentToPos( _pos, data[i]) then
+				return true
+			end
+		end
 	end
-	n, e1, e2 = Logic.GetEntitiesInArea( Entities.XD_WallStraightGate, _pos.X, _pos.Y, 400, 2)
-	if e1 == _eId or e2 == _eId then
-		n = n - 1
+	data = {Logic.GetEntitiesInArea( Entities.XD_WallStraightGate_Closed, _pos.X, _pos.Y, 700, 16)}
+	for i = 2, data[1]+1 do
+		if data[i] ~= _eId then
+			if SW.Walls.WallAdjacentToPos( _pos, data[i]) then
+				return true
+			end
+		end
 	end
-	if n ~= 0 then
-		return true
-	end
-	n, e1, e2 = Logic.GetEntitiesInArea( Entities.XD_WallStraightGate_Closed, _pos.X, _pos.Y, 400, 2)
-	if e1 == _eId or e2 == _eId then
-		n = n - 1
-	end
-	if n ~= 0 then
+	return false
+end
+function SW.Walls.WallAdjacentToPos( _pos, _eId)		-- returns true if the _eId is connected with the corner
+	local secondPos = GetPosition( _eId)
+	local orientation = Logic.GetEntityOrientation( _eId)
+	local realAngle = SW.Walls.GetAngle( _pos.X - secondPos.X, _pos.Y - secondPos.Y)
+	local diff = math.mod(orientation - realAngle + 90, 360)		--range: [0,360]-[0,360]+90 = [-270, 450]
+	if (diff < 5 and diff > -5) or (diff < -175 and diff > -185) or (diff < 185 and diff > 175) or (diff < 365 and diff > 355) then		--diff == 0 or diff == 180, float isnt precise enough
 		return true
 	end
 	return false
@@ -563,9 +576,9 @@ function SW.Walls.PlaceClosingWallNEW( pos, player)
 	-- Found a corner with exactly 1 wall nearby? BRING ME THIS WALL
 	local wallId = nil
 	local cornerPos = GetPosition(candidate)
-	local n1, possId1 = Logic.GetPlayerEntitiesInArea( player, Entities.XD_WallStraight, cornerPos.X, cornerPos.Y, 400, 5)
-	local n2, possId2 = Logic.GetPlayerEntitiesInArea( player, Entities.XD_WallStraightGate, cornerPos.X, cornerPos.Y, 500, 5)
-	local n3, possId3 = Logic.GetPlayerEntitiesInArea( player, Entities.XD_WallStraightGate_Closed, cornerPos.X, cornerPos.Y, 500, 5)
+	local n1, possId1 = Logic.GetPlayerEntitiesInArea( player, Entities.XD_WallStraight, cornerPos.X, cornerPos.Y, 500, 5)
+	local n2, possId2 = Logic.GetPlayerEntitiesInArea( player, Entities.XD_WallStraightGate, cornerPos.X, cornerPos.Y, 700, 5)
+	local n3, possId3 = Logic.GetPlayerEntitiesInArea( player, Entities.XD_WallStraightGate_Closed, cornerPos.X, cornerPos.Y, 700, 5)
 	if n1 == 1 then wallId = possId1
 	elseif n2 == 1 then wallId = possId2
 	elseif n3 == 1 then wallId = possId3 end
@@ -680,5 +693,42 @@ function SW.Walls.DbgMsg(_s)
 		LuaDebugger.Log(_s)
 	else
 		Message( _s)
+	end
+end
+function SW.Walls.CreateSettlement()
+	local data = {
+		{8, 29600, 28200},
+		{2, 24600, 26600},
+		{8, 30900, 30300},
+		{8, 34700, 28000},
+		{8, 33900, 28800},
+		{8, 33700, 31500},
+		{2, 33300, 44600},
+		{2, 36500, 28400},
+		{2, 28600, 30200},
+		{2, 29500, 29100},
+		{1, 30000, 32300},
+		{8, 33900, 28000},
+		{8, 33700, 27000},
+		{8, 33000, 27000},
+		{38, 35100, 31000},
+		{2, 36500, 29700},
+		{8, 23200, 27200},
+		{25, 30000, 30800},
+		{8, 33900, 43700},
+		{20, 23125, 25950},
+		{2, 32200, 26200},
+		{25, 31200, 26000},
+		{23, 33100, 28100},
+		{25, 33800, 30100},
+		{38, 35200, 29200},
+		{23, 32000, 27700},
+		{20, 31525, 31550},
+		{23, 30900, 27700},
+		{27, 30700, 29100},
+		{14, 34442, 44703.3984375}
+	}
+	for i = 1, table.getn(data) do
+		Logic.CreateEntity( data[i][1], data[i][2], data[i][3], 0, 1)
 	end
 end

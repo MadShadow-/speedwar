@@ -1,3 +1,11 @@
+-- functionality Vector2 should do:
+--		scalar product
+--		addition of vectors
+--		normalize vector
+--		scale vector up
+--		dot product
+
+
 Vector2 = {};
 Vector2.__mt = {
 	__add = function(_v1, _v2)
@@ -25,7 +33,9 @@ Vector2.__mt = {
 			return function( _scale) return Vector2[_key]( _scale, _v) end
 		elseif _key == "magnitude" then
 			return function() return math.sqrt(_v.X ^ 2 + _v.Y ^ 2); end;
-		end;
+		elseif _key == "rotate" then
+			return function( _alpha) Vector2[_key]( _v, _alpha) end
+		end
 		return nil;
 	end;
 	
@@ -79,3 +89,9 @@ end;
 function Vector2.dotProduct(_v1, _v2)
 	return _v1.X * _v2.X + _v1.Y * _v2.Y;
 end;
+
+function Vector2.rotate( _v, _alpha)
+	_alpha = math.rad(_alpha)
+	local cos, sin = math.cos(_alpha), math.sin(_alpha)
+	return Vector2.new( _v.X*cos + _v.Y*sin, _v.Y*cos - _v.X*sin)
+end
