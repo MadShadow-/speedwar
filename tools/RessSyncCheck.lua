@@ -121,14 +121,71 @@ function SW.RessCheck.GetGCD( _a, _b)
 	if _b == 0 then
 		return _a
 	end
-	return SW.RessCheck.GetGCD( _b, _a-_b)
+	return SW.RessCheck.GetGCD( _b, math.mod( _a, _b))
 end
---[[
-Log: "2: 1 und ich haben verschiedene Ress fuer 1"
-Log: "2: RS1  Wood0 SilverRaw0 Iron0 Knowledge0 GoldRaw0 Gold0 ClayRaw700 SulfurRaw0 WoodRaw500 Faith0 Stone0 StoneRaw0 Clay0 IronRaw0 Silver0 Sulfur0 WeatherEnergy0"
-Log: "1: RS1  Wood0 SilverRaw0 Iron0 Knowledge0 GoldRaw0 Gold50 ClayRaw700 SulfurRaw0 WoodRaw500 Faith0 Stone0 StoneRaw0 Clay0 IronRaw0 Silver0 Sulfur0 WeatherEnergy0"
-Log: "1: 2 und ich haben verschiedene Ress fuer 1"
-Log: "1: RS1  Wood0 SilverRaw0 Iron0 Knowledge0 GoldRaw0 Gold50 ClayRaw700 SulfurRaw0 WoodRaw500 Faith0 Stone0 StoneRaw0 Clay0 IronRaw0 Silver0 Sulfur0 WeatherEnergy0"
-Log: "2: RS1  Wood0 SilverRaw0 Iron0 Knowledge0 GoldRaw0 Gold0 ClayRaw700 SulfurRaw0 WoodRaw500 Faith0 Stone0 StoneRaw0 Clay0 IronRaw0 Silver0 Sulfur0 WeatherEnergy0"
-
-]]
+function SW.RessCheck.GenerateFunctionCheckSum(_f)
+	local str = "";
+	xpcall(function() str = string.dump( _f) end, function(_s) end)
+	local checkSum = 0
+	for i = 1, string.len(str) do
+		checkSum = math.mod(checkSum + i*i*string.byte( str, i), 2017)
+	end
+	return checkSum
+end
+function SW.RessCheck.GenerateStringCheckSum( _s)
+	local checkSum = 0
+	for i = 1, string.len(_s) do
+		checkSum = math.mod(checkSum + i*i*string.byte( _s, i), 2017)
+	end
+	return checkSum
+end
+function SW.RessCheck.GetTableCheckSum( _t)
+	local checkSum = 0
+	for k,v in pairs(_t) do
+		if type(v) == "table" then
+			checkSum = SW.RessCheck.CheckSumAddNumber( checkSum, SW.RessCheck.GetTableCheckSum(v))
+		elseif type(v) == "function" then
+			checkSum = SW.RessCheck.CheckSumAddNumber( checkSum, SW.RessCheck.GenerateFunctionCheckSum(v))
+		elseif type(v) == "boolean" then
+			if v then
+				checkSum = SW.RessCheck.CheckSumAddNumber( checkSum, 1001)
+			end
+		elseif type(v) == "number" then
+			checkSum = SW.RessCheck.CheckSumAddNumber( checkSum, math.abs(math.floor(math.mod(v,2017))))
+		elseif type(v) == "string" then
+			checkSum = SW.RessCheck.CheckSumAddNumber( checkSum, SW.RessCheck.GenerateStringCheckSum(v))
+		end
+	end
+	return checkSum
+end
+function SW.RessCheck.StartVersionCheck()
+	local myVersion = SW.RessCheck.GetTableCheckSum(SW)
+	SW.Version = myVersion
+	--LuaDebugger.Log("Version: "..myVersion)
+	SW.RessCheck.MPGame_ApplicationCallback_ReceivedChatMessageVersion = MPGame_ApplicationCallback_ReceivedChatMessage
+	MPGame_ApplicationCallback_ReceivedChatMessage = function( _msg, _teamChat, _sender)
+		if string.find(_msg, "VS") == 1 then
+			SW.RessCheck.ReceivedVersionMsg( _msg, _sender, _teamChat)
+		else
+			SW.RessCheck.MPGame_ApplicationCallback_ReceivedChatMessageVersion(_msg, _teamChat, _sender)
+		end
+	end
+end
+function SW.RessCheck.ReceivedVersionMsg( _msg, _sender, _teamChat)
+	-- Pattern finding:
+	--		%d is digit
+	--		%d+ is number
+	local start, finish = string.find(_msg, "%d+")
+	local num = tonumber(string.sub(_msg,start, finish))
+	if num ~= SW.Version then
+		XNetwork.Chat_SendMessageToAll("VersionChecker: Different versions for "..UserTool_GetPlayerName(_sender).." and "..UserTool_GetPlayerName(GUI.GetPlayerID()))
+	end
+end
+function SW.RessCheck.SendMsg(_s)
+	if SW.IsMultiplayer() then
+		XNetwork.Chat_SendMessageToAll(_s)
+	end
+end
+function SW.RessCheck.ShoutVersion()
+	SW.RessCheck.SendMsg("VS"..SW.Version)
+end

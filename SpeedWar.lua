@@ -25,7 +25,7 @@ function GameCallback_OnGameStart()
 	
 	Script.LoadFolder("maps\\user\\speedwar\\config");
 	Script.LoadFolder("maps\\user\\speedwar\\tools");
-	
+	SW.RessCheck.StartVersionCheck()	--calc checksum after loading scripts
 	SetupHighlandWeatherGfxSet()
 	-- how about some vision?
 	Display.GfxSetSetFogParams(3, 0.0, 1.0, 1, 152,172,182, 3000,19500)
@@ -299,6 +299,8 @@ function SW.Activate(_seed)
 	-- SW.SoldierGetLeaderInit()
 	-- Constant trade factors
 	SW.FixMarketPrices()
+	-- Check version
+	SW.RessCheck.ShoutVersion()
 end
 
 function SW.EnableStartingTechnologies()
