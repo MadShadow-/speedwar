@@ -32,8 +32,9 @@ function WeatherSets_SourRain(_ID)
 	Display.GfxSetSetFogParams( _ID, 0.0, 1.0, 1, 0, 150, 50, 3000,30000)
 	Display.GfxSetSetLightParams( _ID,  0.0, 1.0, 40, -15, -50, 23, 104, 9,  0,0,0)
 end
+
 function WeatherSets_HotSummer( _ID)
-	Display.GfxSetSetLightParams( _ID,  0.0, 1.0, 0, 25, 40,  220,220,170,  255,255,255)
+	Display.GfxSetSetLightParams( _ID,  0.0, 1.0, 0, -10, -20,  220,220,170,  255,255,255)
 	Display.GfxSetSetSkyBox(_ID, 0.0, 1.0, "YSkyBox04")
 	Display.GfxSetSetFogParams( _ID, 0.0, 1.0, 1, 150, 150, 50, 20000,30000)
 	Display.GfxSetSetRainEffectStatus(_ID, 0.0, 1.0, 0)

@@ -34,7 +34,7 @@ function GameCallback_OnGameStart()
 	-- extra für simi
 	if LuaDebugger == nil or LuaDebugger.Log == nil then
 		LuaDebugger = LuaDebugger or {};
-		LuaDebugger.Log = function(_text) Message("UNUSEFULL DEBUG LOG:" .. tostring(_text)) end
+		LuaDebugger.Log = function() end
 		LuaDebugger.Break = function() end
 		LuaDebugger.FakeDebugger = true
 	end
@@ -107,15 +107,17 @@ function GameCallback_OnGameStart()
 		-- playing alone - no sync needed
 		SW.Activate(XGUIEng.GetSystemTime());
 	else
-		ActivateSpeedwar = function()
-			if Counter.Tick2("ActivateSpeedwar", 5) then
-				Sync.Call("SW.Activate", XGUIEng.GetSystemTime());
+		if SW.IsHost then
+			ActivateSpeedwar = function()
+				if Counter.Tick2("ActivateSpeedwar", 3) then
+					Sync.Call("SW.Activate", XGUIEng.GetSystemTime());
+				end
+				if SW.IsActivated then
+					return true;
+				end
 			end
-			if SW.IsActivated then
-				return true;
-			end
+			StartSimpleJob("ActivateSpeedwar");
 		end
-		StartSimpleJob("ActivateSpeedwar");
 	end
 	
 	SW.MPGame_ApplicationCallback_SyncChanged = MPGame_ApplicationCallback_SyncChanged;
@@ -1377,7 +1379,7 @@ end
 
 function CreateSnowyRain(_id)
 	Display.GfxSetSetSkyBox(_id, 0.0, 1.0, "YSkyBox04")
-	Display.GfxSetSetSnowStatus(_id, 0, 6.0, 0)
+	Display.GfxSetSetSnowStatus(_id, 0, 1.0, 0)
 	Display.GfxSetSetSnowEffectStatus(_id, 0.0, 2.0, 1)
 	Display.GfxSetSetRainEffectStatus(_id, 0.0, 7.0, 1)
 	Display.GfxSetSetFogParams(_id, 0.0, 1.0, 1, 102,142,162, 0,30000);
@@ -1393,11 +1395,11 @@ function CreateIceTime(_id)
 end
 
 function CreateLovelyEvening(_id)
-	Display.GfxSetSetSkyBox(_id, 0.0, 5.0, "YSkyBox05")
-	Display.GfxSetSetSnowStatus(_id, 0, 5.0, 0)
-	Display.GfxSetSetSnowEffectStatus(_id, 0.0, 5.0, 0)
-	Display.GfxSetSetRainEffectStatus(_id, 0.0, 5.0, 0)
-	Display.GfxSetSetFogParams(_id, 0.0, 5.0, 1, 255,205,155, 6000,30000)
-	Display.GfxSetSetLightParams(_id,  0.0, 5.0, 90, -15, -95,  225,100,80,  230,85,100)
+	Display.GfxSetSetSkyBox(_id, 0.0, 1.0, "YSkyBox05")
+	Display.GfxSetSetSnowStatus(_id, 0, 1.0, 0)
+	Display.GfxSetSetSnowEffectStatus(_id, 0.0, 1.0, 0)
+	Display.GfxSetSetRainEffectStatus(_id, 0.0, 1.0, 0)
+	Display.GfxSetSetFogParams(_id, 0.0, 1.0, 1, 255,205,155, 6000,30000)
+	Display.GfxSetSetLightParams(_id,  0.0, 1.0, 90, -15, -95,  225,100,80,  230,85,100)
 end
 
