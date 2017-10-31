@@ -112,7 +112,18 @@ function SW.Walls.GUIChanges()
 	GUIAction_ReserachTechnology = function( ...)
 		if arg[1] == Technologies.T_PickAxe then
 			local sel = GUI.GetSelectedEntity()
-			Sync.Call( "SW.Walls.ToggleGate", sel)
+			if XGUIEng.IsModifierPressed(Keys.ModifierControl) == 1 then
+				local pos = GetPosition(sel);
+				local type = Logic.GetEntityType(sel);
+				local gates = {Logic.GetPlayerEntitiesInArea(GUI.GetPlayerID(), type, pos.X, pos.Y, 2000, 16)};
+				if gates[1] > 0 then
+					for i = 2, table.getn(gates) do
+						Sync.Call( "SW.Walls.ToggleGate", gates[i]);
+					end
+				end
+			else
+				Sync.Call( "SW.Walls.ToggleGate", sel);
+			end
 		else
 			SW.Walls.GUIAction_ReserachTechnology(unpack(arg))
 		end
@@ -330,6 +341,11 @@ function SW.Walls.PlaceStartWall( pos, player)
 	SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y-200, 0, player)
 	SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y+200, 0, player)
 	return SW.Walls.CreateEntity(Entities.XD_WallStraight, pos.X, pos.Y, 0, player)
+end
+function SW.Walls.PlaceStartGate( pos, player)
+	SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y-300, 0, player)
+	SW.Walls.CreateEntity(Entities.XD_WallCorner, pos.X, pos.Y+300, 0, player)
+	return SW.Walls.CreateEntity(Entities.XD_WallStraightGate, pos.X, pos.Y, 0, player)
 end
 function SW.Walls.GetAdjacentWalls( _pos, _player)
 	return Logic.GetPlayerEntitiesInArea( _player, Entities.XD_WallStraight, _pos.X, _pos.Y, 400, 5) 

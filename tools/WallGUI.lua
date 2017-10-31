@@ -1,6 +1,7 @@
 SW = SW or {};
 SW.WallGUI = SW.WallGUI or {};
 SW.WallGUI.WallType = "";
+SW.WallGUI.StartNewWall = false;
 SW.WallGUI.LatestWallType = "";
 SW.WallGUI.LatestEntity = 0;
 SW.WallGUI.DummyPlaced = false;
@@ -169,9 +170,9 @@ function SW.WallGUI.Init()
 	XGUIEng.DisableButton("SWBuildWall",1);
 	XGUIEng.DisableButton("SWBuildEndWall",1);
 	XGUIEng.DisableButton("SWBuildGate",1);
-	XGUIEng.DisableButton("SWBuildNewWall",1);
 	XGUIEng.DisableButton("SWBuildBlacksmith",1);
 	XGUIEng.DisableButton("SWBuildBastille",1);
+	XGUIEng.ShowWidget("SWBuildNewWall", 0);
 	
 	SW.WallGUI.Tooltips = {
 		["Wall"] = SW.WallGUI.CreateTooltip(unpack(SW.WallGUI.WallConstructionTooltips[1])),
@@ -192,7 +193,7 @@ function SW.WallGUI.Init()
 	GameCallback_GUI_StateChanged = function( _StateNameID, _Armed )
 		if SW.WallGUI.DummyPlaced then
 			Sync.Call("SW.WallGUI.PayCosts", GUI.GetPlayerID(), SW.WallGUI.Costs[SW.WallGUI.LatestWallType]);
-			Sync.Call("SW.WallGUI.AddWallInConstructionToQueue", SW.WallGUI.LatestEntity, SW.WallGUI.LatestWallType);
+			Sync.Call("SW.WallGUI.AddWallInConstructionToQueue", SW.WallGUI.LatestEntity, SW.WallGUI.LatestWallType, SW.WallGUI.LatestWallNewWall);
 			SW.WallGUI.DummyPlaced = false;
 		end
 		if _StateNameID ~= 1 and _StateNameID ~= 2 then
@@ -230,7 +231,9 @@ function SW.WallGUI.Init()
 	GUI.CancelState = function()
 		if SW.WallGUI.LatestGUIState == gvGUI_StateID.PlaceBuilding then
 			SW.WallGUI.LatestWallType = SW.WallGUI.WallType;
+			SW.WallGUI.LatestWallNewWall = SW.WallGUI.StartNewWall;
 			SW.WallGUI.WallType = "";
+			SW.WallGUI.StartNewWall = false;
 			if SW.WallGUI.ModelChanged and SW.WallGUI.LatestWallType ~= "" then
 				SW.WallGUI.EntityType_SetDisplayModel(SW.WallGUI.DummyEntities[SW.WallGUI.LatestWallType], SW.WallGUI.DummyModels[SW.WallGUI.LatestWallType]);
 			end
@@ -292,6 +295,9 @@ function SW.WallGUI.GUIAction_PlaceBuilding(_wall)
 	local widgetId = XGUIEng.GetCurrentWidgetID();
 	XGUIEng.UnHighLightGroup( gvGUI_WidgetID.InGame, "BuildingGroup" );
 	if SW.WallGUI.HasPlayerEnoughResources_Feedback( SW.WallGUI.Costs[_wall] ) then
+		if XGUIEng.IsModifierPressed(Keys.ModifierControl) == 1 then
+			SW.WallGUI.StartNewWall = true;
+		end
 		SW.WallGUI.WallType = _wall;
 		XGUIEng.HighLightButton( widgetId, 1 );
 		SW.WallGUI.EntityType_SetDisplayModel(SW.WallGUI.DummyEntities[_wall], SW.WallGUI.Models[_wall]);
@@ -352,12 +358,12 @@ function SW_WallGUI_OnEntityCreated()
 		SW.WallGUI.DummyPlaced = true;
 end
 
-function SW.WallGUI.AddWallInConstructionToQueue( _entityId, _wall)
+function SW.WallGUI.AddWallInConstructionToQueue( _entityId, _wall, _isNewWall)
 	if not IsAlive(_entityId) then
 		return;
 	end
 	local pos = GetPosition(_entityId);
-	SW.WallGUI.DummysInConstruction[tostring(pos.X)..tostring(pos.Y)] = {_entityId, _wall};
+	SW.WallGUI.DummysInConstruction[tostring(pos.X)..tostring(pos.Y)] = {_entityId, _wall, _isNewWall};
 	Logic.SetModelAndAnimSet(_entityId, SW.WallGUI.Models[_wall]);
 	SW.WallGUI.ScriptNameCounter = SW.WallGUI.ScriptNameCounter + 1;
 	local scriptname = SW.WallGUI.ScriptNames[_wall] .. SW.WallGUI.ScriptNameCounter;
@@ -402,10 +408,10 @@ function SW_WallGUI_OnEntityDestroyed()
 			SW.CustomNames[Logic.GetEntityName(relatedBuilding[1])] = nil;
 			SW_DestroySafe( relatedBuilding[1] );
 		end
-		SW.WallGUI.CreateEntity(SW.WallGUI.ReplaceEntities[ relatedBuilding[2] ], pos, player, relatedBuilding[2]);
+		SW.WallGUI.CreateEntity(SW.WallGUI.ReplaceEntities[ relatedBuilding[2] ], pos, player, relatedBuilding[2], relatedBuilding[3]);
 end
 
-function SW.WallGUI.CreateEntity(_entityType, _position, _playerId, _wallTypeString)
+function SW.WallGUI.CreateEntity(_entityType, _position, _playerId, _wallTypeString, _isNewWall)
 	-- not part of the GUI anymore
 	-- this is the logic part
 	-- to be continued by napo
@@ -423,13 +429,17 @@ function SW.WallGUI.CreateEntity(_entityType, _position, _playerId, _wallTypeStr
 		-- walls
 		--local dummyId = Logic.CreateEntity(Entities.XD_ScriptEntity, _position.X, _position.Y, 0, _playerId);
 		if _entityType == Entities.XD_WallStraight then
-			if _wallTypeString == "Wall" then
+			if not _isNewWall then
 				newEntityId = SW.Walls.PlaceNormalWall( _position, _playerId);
 			else -- NewWall
 				newEntityId = SW.Walls.PlaceStartWall(_position, _playerId);
 			end
 		elseif _entityType == Entities.XD_WallStraightGate then
-			newEntityId = SW.Walls.PlaceGate(_position, _playerId);
+			if not _isNewWall then
+				newEntityId = SW.Walls.PlaceGate(_position, _playerId);
+			else -- New Gate
+				newEntityId = SW.Walls.PlaceStartGate(_position, _playerId);
+			end
 		elseif _entityType == Entities.XD_WallDistorted then
 			newEntityId = SW.Walls.PlaceClosingWall(_position, _playerId);
 		end
