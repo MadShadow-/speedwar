@@ -400,7 +400,7 @@ end
 --	Konfetti
 --	Endraläer Krustenbrot
 
-SW.RandomChest.Marys = {};
+SW.RandomChest.Marys = {LookAt={X=500,Y=500}};
 function SW.RandomChest.Action.MaryBeGoodGuys(_pId)
 	local X,Y, sector;
 	sector = 0;
@@ -410,6 +410,9 @@ function SW.RandomChest.Action.MaryBeGoodGuys(_pId)
 		_, _, sector = S5Hook.GetTerrainInfo(X, Y);
 	end
 	Message("@color:255,100,100 Scheiße "..tostring(UserTool_GetPlayerName(_pId)).." hat Mary gefunden!");
+	local x,y = Camera.ScrollGetLookAt();
+	SW.RandomChest.Marys.LookAt.X = x;
+	SW.RandomChest.Marys.LookAt.Y = y;
 	Camera.ScrollSetLookAt(X,Y);
 	local mary = Logic.CreateEntity(Entities.CU_Mary_de_Mortfichet, X, Y, 180, _pId);
 	Sound.PlayGUISound( Sounds.LevyTaxes, 125 );
@@ -432,6 +435,8 @@ function SW_RandomChest_CollectMary()
 	end
 	gvCamera.DefaultFlag = 1;
 	Display.SetRenderFogOfWar(1)
+	local p = SW.RandomChest.Marys.LookAt;
+	Camera.ScrollSetLookAt(p.X,p.Y);
 	for i = 1, table.getn(SW.RandomChest.Marys) do
 		DestroyEntity(SW.RandomChest.Marys[i]);
 	end
