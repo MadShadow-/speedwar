@@ -25,7 +25,9 @@ function GameCallback_OnGameStart()
 	
 	Script.LoadFolder("maps\\user\\speedwar\\config");
 	Script.LoadFolder("maps\\user\\speedwar\\tools");
-	SW.RessCheck.StartVersionCheck()	--calc checksum after loading scripts
+	-- calculate check some after loading scripts
+	SW.RessCheck.StartVersionCheck()
+	
 	SetupHighlandWeatherGfxSet()
 	-- how about some vision?
 	Display.GfxSetSetFogParams(3, 0.0, 1.0, 1, 152,172,182, 3000,19500)
@@ -1379,7 +1381,7 @@ end
 
 function CreateSnowyRain(_id)
 	Display.GfxSetSetSkyBox(_id, 0.0, 1.0, "YSkyBox04")
-	Display.GfxSetSetSnowStatus(_id, 0, 1.0, 0)
+	Display.GfxSetSetSnowStatus(_id, 0, 6.0, 0)
 	Display.GfxSetSetSnowEffectStatus(_id, 0.0, 2.0, 1)
 	Display.GfxSetSetRainEffectStatus(_id, 0.0, 7.0, 1)
 	Display.GfxSetSetFogParams(_id, 0.0, 1.0, 1, 102,142,162, 0,30000);

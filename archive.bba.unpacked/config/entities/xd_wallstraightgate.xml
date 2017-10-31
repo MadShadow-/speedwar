@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<root>
+	<Display classname="ED::CDisplayEntityProps">
+		  <Class>ED::CDisplayBuilding</Class>
+		<Model>XD_WallStraightGate</Model>
+	</Display>
+	<Logic classname="GGL::CGLBuildingProps">
+        <Class>GGL::CBuilding</Class>
+        <AccessCategory>AccessCategoryBuilding</AccessCategory>
+        <MaxHealth>600</MaxHealth>
+	    <ArmorAmount>20</ArmorAmount>
+		<Exploration>5</Exploration>
+		
+        <Category>Wall</Category>
+        <ForceNoPlayer>false</ForceNoPlayer>
+        <IsWall>true</IsWall>
+        <BlockingArea> 
+	        <Blocked1>
+	            <X>100</X> 
+	            <Y>210</Y> 
+	        </Blocked1>
+	        <Blocked2>
+	            <X>-40</X> 
+	            <Y>350</Y> 
+	        </Blocked2>
+        </BlockingArea> 
+        <BlockingArea> 
+	        <Blocked1>
+	            <X>-40</X> 
+	            <Y>-350</Y> 
+	        </Blocked1>
+	        <Blocked2>
+	            <X>100</X> 
+	            <Y>-210</Y> 
+	        </Blocked2>
+        </BlockingArea> 
+        <ApproachPos>
+            <X>50</X>
+            <Y>0</Y>
+        </ApproachPos>
+        <ApproachR>0</ApproachR>
+        <TerrainPos1>
+            <X>-140</X>
+            <Y>-450</Y>
+        </TerrainPos1>
+        <TerrainPos2>
+            <X>200</X>
+            <Y>450</Y>
+        </TerrainPos2>        
+    </Logic>
+	<Behavior>
+		  <Logic classname="EGL::CGLEBehaviorProps">
+			  <Class>EGL::GLEBehaviorMultiSubAnims</Class>
+		</Logic>
+		  <Display classname="ED::CBehaviorProps">
+			  <Class>ED::CDisplayBehaviorBuildingAnimation</Class>
+		</Display>
+	</Behavior>
+	<Behavior>
+        <Logic classname="EGL::CGLEBehaviorProps">
+		    <Class>GGL::CBuildingBehavior</Class>
+		</Logic>
+		<Display classname="GD::CBuildingBehaviorProps">
+		    <Class>GD::CBuildingBehavior</Class>
+			<NumDamageEffects>5</NumDamageEffects>
+			<NumDestroyEffects>0</NumDestroyEffects>
+		</Display>
+	</Behavior>
+</root>

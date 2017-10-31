@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<root>
+	<Display classname="ED::CDisplayEntityProps">
+		  <Class>ED::CDisplayBuilding</Class>
+		<Model>XD_WallDistorted</Model>
+	</Display>
+	<Logic classname="GGL::CGLBuildingProps">
+        <Class>GGL::CBuilding</Class>
+        <AccessCategory>AccessCategoryBuilding</AccessCategory>
+        <MaxHealth>500</MaxHealth>
+	    <ArmorAmount>3</ArmorAmount>
+
+        <Category>Wall</Category>
+        <ForceNoPlayer>false</ForceNoPlayer>
+        <IsWall>true</IsWall>
+        <ApproachPos>
+            <X>100</X>
+            <Y>0</Y>
+        </ApproachPos>
+        <ApproachR>0</ApproachR>
+        <TerrainPos1>
+            <X>-135</X>
+            <Y>200</Y>
+        </TerrainPos1>
+        <TerrainPos2>
+            <X>135</X>
+            <Y>-190</Y>
+        </TerrainPos2>        
+        <BlockingArea> 
+      	  	<Blocked1>
+	            <X>-240</X> 
+	            <Y>170</Y> 
+	        </Blocked1>
+	        <Blocked2>
+	            <X>-10</X> 
+	            <Y>63</Y> 
+	        </Blocked2>
+        </BlockingArea> 
+        <BlockingArea>
+	        <Blocked1>
+	            <X>-75</X> 
+	            <Y>17</Y> 
+	        </Blocked1>
+	        <Blocked2>
+	            <X>85</X> 
+	            <Y>-42</Y> 
+	        </Blocked2>
+        </BlockingArea>        
+        <BlockingArea>
+	        <Blocked1>
+	            <X>34</X> 
+	            <Y>-100</Y> 
+	        </Blocked1>
+	        <Blocked2>
+	            <X>236</X> 
+	            <Y>-160</Y> 
+	        </Blocked2>
+        </BlockingArea>        
+    </Logic>
+	<Behavior>
+		  <Logic classname="EGL::CGLEBehaviorProps">
+			  <Class>EGL::GLEBehaviorMultiSubAnims</Class>
+		</Logic>
+		  <Display classname="ED::CBehaviorProps">
+			  <Class>ED::CDisplayBehaviorBuildingAnimation</Class>
+		</Display>
+	</Behavior>
+	<Behavior>
+        <Logic classname="EGL::CGLEBehaviorProps">
+		    <Class>GGL::CBuildingBehavior</Class>
+		</Logic>
+		<Display classname="GD::CBuildingBehaviorProps">
+		    <Class>GD::CBuildingBehavior</Class>
+			<NumDamageEffects>3</NumDamageEffects>
+			<NumDestroyEffects>0</NumDestroyEffects>
+		</Display>
+	</Behavior>
+</root>
