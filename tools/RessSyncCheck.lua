@@ -1,6 +1,6 @@
 --RessCheck
 
---Tool to check player ressources are synced
+--Tool to check player ressources are syncedd
 
 --Receive message:
 --MPGame_ApplicationCallback_ReceivedChatMessage
@@ -180,6 +180,9 @@ function SW.RessCheck.ReceivedVersionMsg( _msg, _sender, _teamChat)
 	if num ~= SW.Version then
 		XNetwork.Chat_SendMessageToAll("VersionChecker: Different versions for "..UserTool_GetPlayerName(_sender).." and "..UserTool_GetPlayerName(GUI.GetPlayerID()))
 	end
+	if SW.RessCheck.VersionMsgArrived then
+		SW.RessCheck.VersionMsgArrived[_sender] = true
+	end
 end
 function SW.RessCheck.SendMsg(_s)
 	if SW.IsMultiplayer() then
@@ -188,4 +191,25 @@ function SW.RessCheck.SendMsg(_s)
 end
 function SW.RessCheck.ShoutVersion()
 	SW.RessCheck.SendMsg("VS"..SW.Version)
+	if not SW.IsMultiplayer() then return end
+	SW.RessCheck.InitHeartBeatStuff()
+	StartSimpleJob("SW_RessCheckWaitForHeartBeat")
+end
+function SW.RessCheck.InitHeartBeatStuff()
+	SW.RessCheck.VersionMsgArrived = {}
+	for i = 1, 8 do
+		SW.RessCheck.VersionMsgArrived[i] = ((XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i) ~= 1) or GUI.GetPlayerID() == i)
+	end
+	SW.RessCheck.HeartBeatCountDown = 15
+end
+function SW_RessCheckWaitForHeartBeat()
+	SW.RessCheck.HeartBeatCountDown = SW.RessCheck.HeartBeatCountDown - 1
+	if SW.RessCheck.HeartBeatCountDown < 0 then
+		for i = 1, 8 do
+			if not SW.RessCheck.VersionMsgArrived[i] then
+				SW.RessCheck.SendMsg( "VersionChecker: Player "..UserTool_GetPlayerName(i).." has no heartbeat!")
+			end
+		end
+		return true
+	end
 end
