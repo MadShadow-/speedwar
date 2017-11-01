@@ -35,6 +35,7 @@ function Sync.Init()
 			pId = 8,
 			Callback = function()
 				local fs = Sync.Tributes[_player][_index].FunctionString;
+				SW.PreciseLog.Log("Calling "..fs)
 				if fs ~= "" then
 					Sync.ExecuteFunctionByString(fs);
 				else
@@ -42,6 +43,7 @@ function Sync.Init()
 				end
 				Sync.Tributes[_player][_index].Id = Sync.GetTribut(_player, _index);
 				Sync.Tributes[_player][_index].InUse = false;
+				Sync.Tributes[_player][_index].Completion = {}
 			end
 			});
 	end
@@ -318,3 +320,4 @@ function Sync.Send( _str )
 	end
 end
 
+Sync = Sync2

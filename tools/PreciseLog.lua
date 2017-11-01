@@ -41,7 +41,7 @@ function SW.PreciseLog.Log(_s, _key)
 		SW.PreciseLog.Indizes[_key] = 0
 	end
 	SW.PreciseLog.Indizes[_key] = SW.PreciseLog.GetNextIndex(SW.PreciseLog.Indizes[_key])
-	SW.PreciseLog.Data[_key][SW.PreciseLog.Indizes[_key]] = _s
+	SW.PreciseLog.Data[_key][SW.PreciseLog.Indizes[_key]] = Logic.GetTimeMs().." ".._s
 end
 function SW.PreciseLog.PrintLatestLogs(_n, _key)
 	if _key == nil then _key = "General" end
@@ -68,3 +68,5 @@ function SW.PreciseLog.GetPriorIndex(_n)
 	end
 end
 SW.PreciseLog.TrackCreateEntity()
+
+--SW.PreciseLog.PrintLatestLogs(100);SW.PreciseLog.PrintLatestLogs(100,"WallGUI");SW.PreciseLog.PrintLatestLogs(100,"Chat");
