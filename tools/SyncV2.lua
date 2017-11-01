@@ -93,6 +93,8 @@ function Sync2.OnAckMessageArrived( _msg, _pId)
 	-- Is tributeId for this player?
 	if GUI.GetPlayerID() == Sync2.Tributes[tributeId].Player then
 		Sync2.Tributes[tributeId].AckData[_pId] = true
+	else
+		return
 	end
 	for i = 1, 8 do
 		if not Sync2.Tributes[tributeId].AckData[i] then
