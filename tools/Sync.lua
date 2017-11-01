@@ -1,3 +1,9 @@
+--	Sync:
+--		Sync.Call sends Sync.KeyPrep.."something" to all players via message
+--		Receivers send Sync.KeyAck message
+--		Once all players sent Sync.KeyAck, tribute will be paid
+
+
 Sync = {};
 function Sync.Init()
 	
@@ -54,6 +60,7 @@ function Sync.Init()
 	
 	Sync.MPGame_ApplicationCallback_ReceivedChatMessage = MPGame_ApplicationCallback_ReceivedChatMessage;
 	MPGame_ApplicationCallback_ReceivedChatMessage = function( _Message, _AlliedOnly, _SenderPlayerID )
+		SW.PreciseLog.Log( "Received by ".._SenderPlayerID.." ".._Message, "Chat")
 		if string.find(_Message, Sync.KeyPrep, 1, true) then
 			local tributPlayer = tonumber(string.sub(_Message, Sync.KeyPrep_Length +1, Sync.KeyPrep_Length +1)); -- ex "2" - 1 digit
 			local indexString = string.sub(_Message, Sync.KeyPrep_Length +2, Sync.KeyPrep_Length +5); -- ex "0010" - 4 digits
@@ -303,6 +310,7 @@ function Sync.ConvertStringToTable(_str)
 end
 
 function Sync.Send( _str )
+	SW.PreciseLog.Log("Sending ".._str, "Chat")
 	if SW.IsMultiplayer() then
 		XNetwork.Chat_SendMessageToAll( _str );
 	else

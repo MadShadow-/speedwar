@@ -9,13 +9,14 @@
 SW = SW or {}
 SW.PreciseLog = {}
 SW.PreciseLog.Keeping = 10000
+SW.PreciseLog.Indizes = {}
 SW.PreciseLog.Data = {}
 SW.PreciseLog.CurrIndex = 0
 function SW.PreciseLog.TrackCreateEntity()
 	SW.PreciseLog.CreateEntity = Logic.CreateEntity
 	Logic.CreateEntity = function( _eType, _x, _y, _rot, _pId)
 		local eId = SW.PreciseLog.CreateEntity( _eType, _x, _y, _rot, _pId)
-		SW.PreciseLog.Log("CreateEntity: "..tostring(_eType).." "..tostring(_x).." "..tostring(_y).." "..tostring(_rot).." "..tostring(_pId).." "..eId)
+		SW.PreciseLog.Log("CreateEntity: "..tostring(_eType).." "..tostring(_x).." "..tostring(_y).." "..tostring(_rot).." "..tostring(_pId).." "..eId, "Create")
 		return eId
 	end
 	Trigger.RequestTrigger( Events.LOGIC_EVENT_ENTITY_CREATED, nil, "SW_PreciseLog_OnCreate", 1)
@@ -24,22 +25,30 @@ end
 function SW_PreciseLog_OnCreate()
 	local eId = Event.GetEntityID()
 	SW.PreciseLog.Log("Created: "..eId.." of type "..tostring(Logic.GetEntityTypeName(Logic.GetEntityType(eId))).." at "
-	..GetPosition(eId).X.." "..GetPosition(eId).Y.." time "..Logic.GetTimeMs())
+	..GetPosition(eId).X.." "..GetPosition(eId).Y.." time "..Logic.GetTimeMs(), "OnCreate")
 end
 function SW_PreciseLog_OnDestroyed()
 	local eId = Event.GetEntityID()
 	SW.PreciseLog.Log("Destroyed: "..eId.." of type "..tostring(Logic.GetEntityTypeName(Logic.GetEntityType(eId))).." at "
-	..GetPosition(eId).X.." "..GetPosition(eId).Y.." time "..Logic.GetTimeMs())
+	..GetPosition(eId).X.." "..GetPosition(eId).Y.." time "..Logic.GetTimeMs(), "OnDestroyed")
 end
-function SW.PreciseLog.Log(_s)
-	SW.PreciseLog.CurrIndex = SW.PreciseLog.GetNextIndex(SW.PreciseLog.CurrIndex)
-	SW.PreciseLog.Data[SW.PreciseLog.CurrIndex] = _s
+function SW.PreciseLog.Log(_s, _key)
+	if _key == nil then
+		_key = "General"
+	end
+	if SW.PreciseLog.Data[_key] == nil then
+		SW.PreciseLog.Data[_key] = {}
+		SW.PreciseLog.Indizes[_key] = 0
+	end
+	SW.PreciseLog.Indizes[_key] = SW.PreciseLog.GetNextIndex(SW.PreciseLog.Indizes[_key])
+	SW.PreciseLog.Data[_key][SW.PreciseLog.Indizes[_key]] = _s
 end
-function SW.PreciseLog.PrintLatestLogs(_n)
-	local currIndex = SW.PreciseLog.CurrIndex
+function SW.PreciseLog.PrintLatestLogs(_n, _key)
+	if _key == nil then _key = "General" end
+	local currIndex = SW.PreciseLog.Indizes[_key]
 	for i = 1, _n do
-		if SW.PreciseLog.Data[currIndex] ~= nil then
-			LuaDebugger.Log(i..": "..SW.PreciseLog.Data[currIndex])
+		if SW.PreciseLog.Data[_key][currIndex] ~= nil then
+			LuaDebugger.Log(i..": "..SW.PreciseLog.Data[_key][currIndex])
 		end
 		currIndex = SW.PreciseLog.GetPriorIndex(currIndex)
 	end
@@ -58,4 +67,4 @@ function SW.PreciseLog.GetPriorIndex(_n)
 		return SW.PreciseLog.Keeping
 	end
 end
---SW.PreciseLog.TrackCreateEntity()
+SW.PreciseLog.TrackCreateEntity()

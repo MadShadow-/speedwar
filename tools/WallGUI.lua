@@ -194,6 +194,7 @@ function SW.WallGUI.Init()
 		if SW.WallGUI.DummyPlaced then
 			Sync.Call("SW.WallGUI.PayCosts", GUI.GetPlayerID(), SW.WallGUI.Costs[SW.WallGUI.LatestWallType]);
 			Sync.Call("SW.WallGUI.AddWallInConstructionToQueue", SW.WallGUI.LatestEntity, SW.WallGUI.LatestWallType, SW.WallGUI.LatestWallNewWall);
+			SW.PreciseLog.Log("Sending "..SW.WallGUI.LatestWallType.." with "..tostring(SW.WallGUI.LatestWallNewWall), "WallGUI")
 			SW.WallGUI.DummyPlaced = false;
 		end
 		if _StateNameID ~= 1 and _StateNameID ~= 2 then
@@ -359,6 +360,7 @@ function SW_WallGUI_OnEntityCreated()
 end
 
 function SW.WallGUI.AddWallInConstructionToQueue( _entityId, _wall, _isNewWall)
+	SW.PreciseLog.Log("Receiving ".._wall.." with "..tostring(_isNewWall), "WallGUI")
 	if not IsAlive(_entityId) then
 		return;
 	end
