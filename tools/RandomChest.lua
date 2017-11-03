@@ -348,7 +348,7 @@ end
 SW.RandomChest.EffectOverloadCount = 0
 function SW.RandomChest.Action.EffectOverload( _pId, _x, _y)
 	if GUI.GetPlayerID() == _pId then
-		Message("Darin waren eine Menge Grafikeffekte!")
+		Message("Darin waren eine Menge sinnloser Grafikeffekte!")
 		Message("Vielleicht hören sie auf, wenn wir die Truhe entfernen?")
 	end
 	local time = 0

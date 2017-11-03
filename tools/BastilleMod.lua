@@ -81,6 +81,7 @@ function SW.Bastille.Activate()
 						table.insert(leaders,selected[i]);
 					end
 				end
+				SW.PreciseLog.Log("Startup tracking groups", "Bastille")
 				Sync.Call("SW.Bastille.TrackGroup", leaders, currentB);
 			end
 		end
@@ -171,67 +172,50 @@ function SW.Bastille.LeaderEnterBastille(_leader, _bastille)
 	end
 end
 
+--	is called on all computers, synced
+--	return false if spawn fails
 function SW.Bastille.ReleaseUnit(_bastille, _id)
-	local pos = GetPosition(_bastille);
-	local info = SW.Bastille.Resorts[GUI.GetSelectedEntity()][_id];
-	local attractionLimit = Logic.GetPlayerAttractionLimit(GUI.GetPlayerID());
-	local attractionUsage = Logic.GetPlayerAttractionUsage(GUI.GetPlayerID());
+	if IsDead(_bastille) then return false end
+	if SW.Bastille.Resorts[_bastille][_id] == nil then return false end
+	SW.Bastille.UpdateCompleteGUI()
+	local pId = GetPlayer( _bastille)
+	local pos = GetPosition( _bastille);
+	local info = SW.Bastille.Resorts[_bastille][_id];
+	local attractionLimit = Logic.GetPlayerAttractionLimit( pId);
+	local attractionUsage = Logic.GetPlayerAttractionUsage( pId);
 	local troopAtrUsage = info.AttractionLimitValue;
-	
-	if (attractionUsage + troopAtrUsage + SW.Bastille.PlayerLocal_SpawnQueueAttractionLimit) > attractionLimit then
+	if (attractionUsage + troopAtrUsage) > attractionLimit then
 		GUI.SendPopulationLimitReachedFeedbackEvent(GUI.GetPlayerID());
 		return false;
 	end
-	SW.Bastille.PlayerLocal_SpawnQueueAttractionLimit = SW.Bastille.PlayerLocal_SpawnQueueAttractionLimit + troopAtrUsage;
-	Sync.Call("SW.Bastille.SpawnReleasedUnit",
-		GUI.GetPlayerID(),
-		_bastille,
-		_id,
-		info.Type,
-		info.Soldiers or 0,
-		pos.X,
-		pos.Y,
-		info.Experience or 0,
-		info.Health,
-		info.ScriptName,
-		troopAtrUsage
-	);
-	-- local remove from table to prevent spawning the same unit two times
-	table.remove(SW.Bastille.Resorts[_bastille], _id);
-	return true;
-end
-
-function SW.Bastille.SpawnReleasedUnit(_playerId, _bastille, _id, _leaderType, _soldiers, _posX, _posY, _experience, _health, _scriptName, _troopAtrUsage)
-	if GUI.GetPlayerID() ~= _playerId then
-		table.remove(SW.Bastille.Resorts[_bastille], _id);
-	else
-		-- now that troop is spawned, real attraction limit can be obtained
-		-- reset place holder
-		SW.Bastille.PlayerLocal_SpawnQueueAttractionLimit = SW.Bastille.PlayerLocal_SpawnQueueAttractionLimit - _troopAtrUsage;
+	--Everything ready to spawn now!
+	local offsetX, offsetY
+	offsetX = 20*math.random(-5,5)
+	offsetY = 50*math.random(1,10)
+	local newEntity = AI.Entity_CreateFormation( pId, info.Type, 0, info.Soldiers or 0, pos.X+offsetX, pos.Y-600-offsetY, 0, 0, info.ExperienceLevel, 0)
+	Logic.HurtEntity(newEntity, Logic.GetEntityMaxHealth(newEntity) - info.Health)
+	if info.ScriptName then
+		SetEntityName(newEntity, info.ScriptName)
 	end
-	local offsetX, offsetY;
-	offsetX = 20*math.random(-5,5);
-	offsetY = 50*math.random(1,10);
-	local newEntity = AI.Entity_CreateFormation(_playerId, _leaderType, 0, _soldiers or 0, _posX+offsetX, _posY-600-offsetY, 0, 0, _experience, 0)
-	Logic.HurtEntity(newEntity, Logic.GetEntityMaxHealth(newEntity) - _health); 
-	if _scriptName then
-		SetEntityName(newEntity, _scriptName);
-	end
+	table.remove(SW.Bastille.Resorts[_bastille], _id)
+	return true
 end
-
+function SW.Bastille.SyncedReleaseAllUnits( _bastilleId)
+	if SW.Bastille.Resorts[_bastilleId] == nil then return end
+	while(SW.Bastille.Resorts[_bastilleId][1]) do
+		if not SW.Bastille.ReleaseUnit(_bastilleId, 1) then
+			--can't remove all leaders due to attraction limit
+			break;
+		end
+	end
+	SW.Bastille.UpdateCompleteGUI()
+end
 function SW.Bastille.GUIAction_ReleaseAllUnits()
 	local sel = GUI.GetSelectedEntity();
 	if SW.Bastille.Resorts[sel] == nil then
 		return;
 	end
-	local pos, info;
-	while(SW.Bastille.Resorts[sel][1]) do
-		if not SW.Bastille.ReleaseUnit(sel, 1) then
-			-- can't remove all leaders due to attraction limit
-			break;
-		end
-	end
-	SW.Bastille.UpdateCompleteGUI();
+	Sync.Call("SW.Bastille.SyncedReleaseAllUnits", sel)
 end
 
 function SW.Bastille.GUIAction_ReleaseUnit(_id)
