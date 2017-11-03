@@ -383,6 +383,27 @@ function SW.RandomChest.Action.EffectOverload( _pId, _x, _y)
 	StartSimpleHiResJob("SW_RandomChest_EffectOverload"..SW.RandomChest.EffectOverloadCount)
 	SW.RandomChest.EffectOverloadCount = SW.RandomChest.EffectOverloadCount + 1
 end
+function SW.RandomChest.Action.SILENCE( _pId, _x, _y)
+	if GUI.GetPlayerID() == _pId then
+		Message("Darin war Stille!")
+		SW.RandomChest.Action_SILENCE_BackUp = SW.RandomChest.Action_SILENCE_BackUp or OptionsSound_Menu.MainVolume
+		local myVar = 15
+		OptionsSound_Menu.MainVolume = 0
+		GDB.SetValue( "Config\\Sound\\MainVolume", 0)
+		SoundOptions.UpdateSound()
+		_G["SW_RandomChest_Action_SILENCEResetter"] = function()
+			myVar = myVar - 1
+			if myVar < 0 then
+				OptionsSound_Menu.MainVolume = SW.RandomChest.Action_SILENCE_BackUp
+				GDB.SetValue( "Config\\Sound\\MainVolume", SW.RandomChest.Action_SILENCE_BackUp)
+				SoundOptions.UpdateSound()
+				SW.RandomChest.Action_SILENCE_BackUp = nil
+				return true
+			end
+		end
+		StartSimpleJob("SW_RandomChest_Action_SILENCEResetter")
+	end
+end
 
 function NapoCreateEffect( _effId, _x, _y, _pId)
 	if _x <= 0 or _y <= 0 then return end
@@ -394,7 +415,6 @@ end
 --Ideen:
 --	CTHULHU:
 --		Sich ausbreitender Kreis aus Finsternis, der Bäume verdorren lässt?
---  Effektchoreographie mit FXDie, FXSalimHeal, DarioFear
 --	Ein eisiger Winter
 --	Eine Läuterung?
 --	Konfetti

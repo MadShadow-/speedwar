@@ -65,12 +65,12 @@ Rang Eroberer:
 
 Änderungen an Einheiten und Gebäuden:
 	Aussichtstürme und die bewaffneten Türme besitzen nun einen sehr großen Sichtradius.
-	Leichte Kavallerie macht mit ihrem ersten Angriff gegen Einheiten massiven Bonusschaden.
+	Leichte Kavallerie macht mit ihrem ersten Angriff gegen Einheiten massiven Bonusschaden, weil sie einen magischen Pfeil vorbereitet haben.
 	Leichte Kavallerie beschaffen euch Gold für jede Einheit, die von ihnen getötet wird. Die Menge des geplünderten Goldes ist in jedem Außenposten einsehbar.
 	Leibeigene kosten 15 Holz.
 	Veredeler und Minen sind deutlich effektiver. Der Ausbau von Veredelern erhöht auch die Menge, die pro Veredelungstick produziert wird.
 	Außenposten heilen sich auf Kosten der sich in der Nähe befindlichen Gebäude. 
-		Die effektiven HP eines Außenposten liegen bei 3000 + GesamtHP aller umliegenden Gebäude/10.
+		Die effektiven HP eines Außenposten liegen bei 1000 + GesamtHP aller umliegenden Gebäude/25.
 
 Neuerungen:
 	Ihr könnt Mauern ähnlich wie bei Anarkis Mauerbau bauen!
