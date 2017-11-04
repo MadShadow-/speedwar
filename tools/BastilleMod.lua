@@ -220,12 +220,15 @@ end
 
 function SW.Bastille.GUIAction_ReleaseUnit(_id)
 	local sel = GUI.GetSelectedEntity();
-	if SW.Bastille.Resorts[GUI.GetSelectedEntity()] == nil
-	or SW.Bastille.Resorts[GUI.GetSelectedEntity()][_id] == nil then
+	Sync.Call("SW.Bastille.ReleaseOneUnitSynced", sel, _id)
+end
+function SW.Bastille.ReleaseOneUnitSynced( _bastilleId, _slotId)
+	if SW.Bastille.Resorts[_bastilleId] == nil
+	or SW.Bastille.Resorts[_bastilleId][_slotId] == nil then
 		-- no units in this resort
 		return;
 	end	
-	if not SW.Bastille.ReleaseUnit(sel, _id) then
+	if not SW.Bastille.ReleaseUnit(_bastilleId, _slotId) then
 		return;
 	end
 	SW.Bastille.UpdateCompleteGUI()
