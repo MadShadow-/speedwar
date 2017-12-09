@@ -419,6 +419,8 @@ end
 --	Eine Läuterung?
 --	Konfetti
 --	Endraläer Krustenbrot
+--	KOMMUNISMUS
+--	FREIER WILLEN
 
 SW.RandomChest.Marys = {LookAt={X=500,Y=500}};
 function SW.RandomChest.Action.MaryBeGoodGuys(_pId)

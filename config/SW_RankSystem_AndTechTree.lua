@@ -26,7 +26,7 @@ SW.RankSystem.RankThresholds = {
 	8000
 }
 
-SW.RankSystem.UseCatchUp = false
+SW.RankSystem.UseCatchUp = true
 SW.RankSystem.KillPoints = 5		-- Points per settler killed
 SW.RankSystem.LosePoints = 1		-- Points per settler lost
 SW.RankSystem.BuildingPoints = 75	-- Points per building destroyed
