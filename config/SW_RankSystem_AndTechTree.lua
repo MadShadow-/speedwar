@@ -157,7 +157,7 @@ SW.BuildingTooltips.RData = { --Data for research tooltips
 	},
 	[Technologies.T_UpgradeBow3] = {
 		Tier = 4,
-		Buildings = {{Entities.PB_Sawmill1, Technologies.UP1_Sawmill}},
+		Buildings = {{Entities.PB_Sawmill2, Technologies.UP1_Sawmill}},
 		currBuilding = {Entities.PB_Archery2, Technologies.UP1_Archery}
 	},
 	[Technologies.T_UpgradeSpear1] = {

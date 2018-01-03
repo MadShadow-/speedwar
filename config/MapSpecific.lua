@@ -33,6 +33,26 @@ SW.StartPosData = {
 	-- SW Schlacht der Helden & SW Stilles Tal
 	--{ X = 36000, Y = 28500 },
 }
+SW.MapName = Framework.GetCurrentMapName()
+SW.TestMapsData = {
+	["(8) sw meadow"] = {
+		{ X = 32323, Y = 30976 },
+		{ X = 19461, Y = 21278 }
+	},
+	["(8) sw stilles tal"] = {
+		{ X = 35600, Y = 39300 }
+	},
+	["(8) sw schlacht der helden"] = {
+		{ X = 36000, Y = 28500 }
+	},
+	["(4) sw wooden"] = {
+		{ X = 4000, Y = 18000 },
+		{ X = 22000, Y = 6000 }
+	},
+}
+
+SW.StartPosData = SW.TestMapsData[SW.MapName] or SW.StartPosData
+
 function SW.SearchForSectors()
 	local n = 1
 	while IsExisting("SpawnSector"..n) do

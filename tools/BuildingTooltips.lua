@@ -659,7 +659,8 @@ function SW.BuildingTooltips.FixNeededBuilding()			--Used to give the currBuildi
 	SW.BuildingTooltips.GUIUpdate_TechnologyButtons = GUIUpdate_TechnologyButtons
 	GUIUpdate_TechnologyButtons = function( _button, _tech, _eType)
 		SW.BuildingTooltips.GUIUpdate_TechnologyButtons( _button, _tech, _eType) --call original
-		if Logic.GetTechnologyState( GUI.GetPlayerID(), _tech) == 4 then		-- already researched techs have no need to be changed
+		-- already researched techs & currently researching techs have no need to be changed
+		if Logic.GetTechnologyState( GUI.GetPlayerID(), _tech) == 4 or Logic.GetTechnologyState( GUI.GetPlayerID(), _tech) == 3 then
 			return
 		end
 		-- is technology modded? then enable buttons once requirements are met
