@@ -28,8 +28,8 @@ SW.StartPosData = {
 	--{ X = 4000, Y = 18000 };
 	--{ X = 22000, Y = 6000 };
 	-- SW Meadow:
-	{ X = 32323, Y = 30976 };
-	{ X = 19461, Y = 21278 };
+	--{ X = 32323, Y = 30976 };
+	--{ X = 19461, Y = 21278 };
 	-- SW Schlacht der Helden & SW Stilles Tal
 	--{ X = 36000, Y = 28500 },
 }
