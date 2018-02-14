@@ -29,6 +29,7 @@ SW = SW or {}
 SW.Walls = {}
 SW.Walls.Walllength = 400
 SW.Walls.Walltype = Entities.XD_WallStraight
+SW.Walls.WorldSize = Logic.WorldGetSize()
 SW.Walls.CornerSize = 50
 SW.Walls.CreateSchedule = {}
 SW.Walls.DestroySchedule = {}
@@ -465,6 +466,10 @@ end
 -- _pos is playerID
 function SW.Walls.CreateEntity( _eType, _x, _y, _rot, _pos)
 	SW.PreciseLog.Log("Mauerbau: Creating "..(Logic.GetEntityTypeName(_eType) or "unknown").." at X=".._x.." Y=".._y.." rot=".._rot.." for player ".._pos)
+	if _x <= 0 or x >= SW.Walls.WorldSize or _y <= 0 or _y >= SW.Walls.WorldSize then
+		_x = 100
+		_y = 100
+	end
 	if _eType == Entities.XD_WallCorner then	--Place real corner, hide it with model, create fake corner
 		local eId = Logic.CreateEntity( _eType, _x, _y, _rot, _pos)
 		Logic.SetModelAndAnimSet( eId, Models.XD_Rock1)

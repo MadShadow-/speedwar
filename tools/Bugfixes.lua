@@ -1,7 +1,7 @@
 -- Bug fixes
 
 -- Fix sell building bug & overclocking/blessing bug
-
+-- Fix invis leibi bug
 
 SW = SW or {}
 
@@ -9,6 +9,7 @@ SW.Bugfixes = {}
 SW.Bugfixes.BlessingCooldown = 90	--Cooldown for 90 seconds
 SW.Bugfixes.ListOfSoldBuildings = {}
 SW.Bugfixes.BlessingData = {}
+SW.Bugfixes.ToWipe = {}
 function SW.Bugfixes.Init()
 	SW.Bugfixes.SellBuilding = GUI.SellBuilding
 	GUI.SellBuilding = function( _eId)
@@ -48,6 +49,7 @@ function SW.Bugfixes.Init()
 		SW.Bugfixes.BlessingData[player][_blessCategory] = timee
 	end
 	SW.Bugfixes.FixBattleSerfBug()
+	SW.Bugfixes.FixInvisSerfBug()
 end
 SW.Bugfixes.FormationETypes = {
 	[Entities.PU_LeaderBow1] = true,
@@ -86,3 +88,28 @@ function SW.Bugfixes.FixBattleSerfBug()
 		end
 	end
 end
+function SW.Bugfixes.FixInvisSerfBug()
+	Trigger.RequestTrigger(Events.LOGIC_EVENT_ENTITY_DESTROYED, "SW_BugfixesIsOutpost", "SW_BugfixesOnOutpostDestroyed", 1)
+end
+function SW_BugfixesIsOutpost()
+	if Logic.GetEntityType(Event.GetEntityID()) == Entities.PB_Outpost1 then
+		return true
+	end
+	return false
+end
+function SW_BugfixesOnOutpostDestroyed()
+	local hqId = Event.GetEntityID()
+	local pos = GetPosition( hqId)
+	for eId in S5Hook.EntityIterator(Predicate.OfType(Entities.PU_Serf), Predicate.InCircle( pos.X, pos.Y, 500)) do
+		LuaDebugger.Log(eId)
+		table.insert( SW.Bugfixes.ToWipe, eId)
+	end
+	StartSimpleJob("SW_BugfixesDestroyJob")
+end
+function SW_BugfixesDestroyJob()
+	for i = table.getn(SW.Bugfixes.ToWipe), 1, -1 do
+		DestroyEntity(SW.Bugfixes.ToWipe[i])
+	end
+	return true
+end
+
