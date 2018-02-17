@@ -259,8 +259,6 @@ function SW.Activate(_seed)
 	SW.DefeatCondition_Create()
 	-- Faster construction and upgrade for buildings
 	SW.EnableFasterBuild()
-	-- Fix sell building bug
-	SW.EnableSellBuildingFix()
 	-- Activate Fire
 	--SW.FireMod.Init()
 	-- Enable tech tree
@@ -834,17 +832,6 @@ function SW.DebuggingStuff()
     	local Message = "@color:"..r..","..g..","..b.." "..name.." @color:255,255,255 > Ich habe das Skript manipuliert!"
 		XNetwork.Chat_SendMessageToAll( Message)
 	end
-	SW.Bugfixes.SellBuilding_Orig = SW.Bugfixes.SellBuilding
-	SW.Bugfixes.SellBuilding = function( _eId, _para)
-		SW.Bugfixes.SellBuilding_Orig( _eId)
-		if _para ~= 1 and XNetwork.Manager_DoesExist() == 1 then
-			local pId = GUI.GetPlayerID()
-			local name = XNetwork.GameInformation_GetLogicPlayerUserName( pId )
-			local r,g,b = GUI.GetPlayerColor( pId )
-			local Message = "@color:"..r..","..g..","..b.." "..name.." @color:255,255,255 > Ich benutze den Abreissbug und bin stolz."
-			XNetwork.Chat_SendMessageToAll( Message)
-		end
-	end
 end
 
 --			GENETIC DISPOSITION
@@ -1257,17 +1244,6 @@ function SW.EnableFasterBuild()
 	end
 end
 
-function SW.EnableSellBuildingFix()
-	--GameCallback_GainedResources
-	--Is not triggered by trades & sold buildings
-	SW.SellBuildingFixGainedResourcesOrig = GameCallback_GainedResources
-	GameCallback_GainedResources = function(_playerId, _type, _amount)
-		--Message( _playerId)
-		--Message( _type)
-		--Message( _amount)
-		SW.SellBuildingFixGainedResourcesOrig( _playerId, _type, _amount)
-	end
-end
 
 function SW.IsMultiplayer()
 	return XNetworkUbiCom.Manager_DoesExist() == 1 or XNetwork.Manager_DoesExist() == 1;

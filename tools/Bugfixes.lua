@@ -11,16 +11,17 @@ SW.Bugfixes.ListOfSoldBuildings = {}
 SW.Bugfixes.BlessingData = {}
 SW.Bugfixes.ToWipe = {}
 function SW.Bugfixes.Init()
-	SW.Bugfixes.SellBuilding = GUI.SellBuilding
+	local SellBuildingUpvalue = GUI.SellBuilding
+	local ListOfSoldBuildingsUpvalue = {}
 	GUI.SellBuilding = function( _eId)
-		if SW.Bugfixes.ListOfSoldBuildings[_eId] == nil then
-			SW.Bugfixes.ListOfSoldBuildings[_eId] = Logic.GetTime()
-			SW.Bugfixes.SellBuilding( _eId, 1)
-		elseif  SW.Bugfixes.ListOfSoldBuildings[_eId] + 60 < Logic.GetTime() then
-			SW.Bugfixes.ListOfSoldBuildings[_eId] = Logic.GetTime()
-			SW.Bugfixes.SellBuilding( _eId, 1)
+		if ListOfSoldBuildingsUpvalue[_eId] == nil then
+			ListOfSoldBuildingsUpvalue[_eId] = Logic.GetTime()
+			SellBuildingUpvalue( _eId)
+		elseif  ListOfSoldBuildingsUpvalue[_eId] + 60 < Logic.GetTime() then
+			ListOfSoldBuildingsUpvalue[_eId] = Logic.GetTime()
+			SellBuildingUpvalue( _eId)
 		else
-			--Message("Dieses Gebäude wird schon abgerissen!")
+			Message("Dieses Gebäude wird schon abgerissen!")
 		end
 	end
 	for i = 1, 8 do
@@ -113,3 +114,16 @@ function SW_BugfixesDestroyJob()
 	return true
 end
 
+--[[
+	SW.Bugfixes.SellBuilding_Orig = SW.Bugfixes.SellBuilding
+	SW.Bugfixes.SellBuilding = function( _eId, _para)
+		SW.Bugfixes.SellBuilding_Orig( _eId)
+		if _para ~= 1 and XNetwork.Manager_DoesExist() == 1 then
+			local pId = GUI.GetPlayerID()
+			local name = XNetwork.GameInformation_GetLogicPlayerUserName( pId )
+			local r,g,b = GUI.GetPlayerColor( pId )
+			local Message = "@color:"..r..","..g..","..b.." "..name.." @color:255,255,255 > Ich benutze den Abreissbug und bin stolz."
+			XNetwork.Chat_SendMessageToAll( Message)
+		end
+	end
+]]
