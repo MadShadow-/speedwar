@@ -110,63 +110,113 @@ function SW.IsEntityTypeInCategory(_eType, k)
 	end
 	return 0
 end
+--		VanillaWerte als Vergleich
+-- SW.BaseMovementspeed = { --Sets BaseMS by EntityCategory; Highest Value wins
+	-- ["Bow"] = 320,
+	-- ["Cannon"] = 180,  --Values for cannons: 240, 260, 220, 180
+	-- ["CavalryHeavy"] =  440,
+	-- ["CavalryLight"] = 480,
+	-- ["Hero"] = 400,
+	-- ["Rifle"] = 320,
+	-- ["Scout"] = 350,
+	-- ["Serf"]  = 400,
+	-- ["Spear"] = 360,
+	-- ["Sword"] = 360,
+	-- ["Thief"] = 400,
+	-- ["Worker"] = 320
+-- }
 SW.BaseMovementspeed = { --Sets BaseMS by EntityCategory; Highest Value wins
-	["Bow"] = 320,
-	["Cannon"] = 180,  --Values for cannons: 240, 260, 220, 180
-	["CavalryHeavy"] =  440,
-	["CavalryLight"] = 480,
-	["Hero"] = 400,
-	["Rifle"] = 320,
-	["Scout"] = 350,
-	["Serf"]  = 400,
-	["Spear"] = 360,
-	["Sword"] = 360,
-	["Thief"] = 400,
-	["Worker"] = 320
+	["Bow"] = 400,
+	["Cannon"] = 300,
+	["CavalryHeavy"] = 700,
+	["CavalryLight"] = 900,
+	["Hero"] = 400,		-- is this category necessary?
+	["Rifle"] = 400,
+	["Scout"] = 550,
+	["Serf"]  = 550,
+	["Spear"] = 480,
+	["Sword"] = 400,
+	["Thief"] = 550,
+	["Worker"] = 550
 }
-for k,v in pairs(SW.BaseMovementspeed) do
-	SW.BaseMovementspeed[k] = v*2
-end
+--	Doubled movement speed might be too much
+-- for k,v in pairs(SW.BaseMovementspeed) do
+	-- SW.BaseMovementspeed[k] = v*2
+-- end
 SW.MovementspeedTechInfluence = { --Balancechanges here!
 	["T_BetterChassis"] = {
 		Influenced = {"Cannon"},
-		SumPreFactor = 0,
-		Factor = 1.5,
+		SumPreFactor = 150,
+		Factor = 1,
 		SumPostFactor = 0
 	},
 	["T_BetterTrainingArchery"]= {
 		Influenced = {"Bow", "Rifle"},
 		SumPreFactor = 0,
-			Factor = 1.2,
-		SumPostFactor = 40
+		Factor = 1.25,
+		SumPostFactor = 0
 	},
 	["T_BetterTrainingBarracks"]= {
 		Influenced = {"Sword", "Spear"},
 		SumPreFactor = 0,
-		Factor = 1.2,
-		SumPostFactor = 30
-	},
-	["T_Shoeing"]= {
-		Influenced = {"CavalryHeavy", "CavalryLight"},
-		SumPreFactor = 0,
 		Factor = 1.25,
 		SumPostFactor = 0
 	},
-	["T_Shoes"]= {
-		Influenced = {"Serf", "Worker"},
-		SumPreFactor = 20,
-		Factor = 1.0,
+	["T_Shoeing"]= {
+		Influenced = {"CavalryHeavy", "CavalryLight"},
+		SumPreFactor = 100,
+		Factor = 1.25,
 		SumPostFactor = 0
 	},
-	["T_SuperTechnology"]= {
-		Influenced = {"Sword"},
-		SumPreFactor = 10,
-		Factor = 5.0,
-		SumPostFactor = 50
-	}
+	["T_SoftArcherArmor"]= {
+		Influenced = {"Bow"},
+		SumPreFactor = 50,
+		Factor = 1,
+		SumPostFactor = 0
+	},
+	["T_PaddedArcherArmor"]= {
+		Influenced = {"Bow"},
+		SumPreFactor = 50,
+		Factor = 1,
+		SumPostFactor = 0
+	},
+	["T_LeatherArcherArmor"]= {
+		Influenced = {"Bow"},
+		SumPreFactor = 100,
+		Factor = 1,
+		SumPostFactor = 0
+	},
+	["T_LeatherMailArmor"]= {
+		Influenced = {"Sword", "Spear"},
+		SumPreFactor = 50,
+		Factor = 1,
+		SumPostFactor = 0
+	},
+	["T_ChainMailArmor"]= {
+		Influenced = {"Sword", "Spear"},
+		SumPreFactor = 50,
+		Factor = 1,
+		SumPostFactor = 0
+	},
+	["T_PlateMailArmor"]= {
+		Influenced = {"Sword", "Spear"},
+		SumPreFactor = 100,
+		Factor = 1,
+		SumPostFactor = 0
+	},
+	["T_FleeceArmor"]= {
+		Influenced = {"Rifle"},
+		SumPreFactor = 100,
+		Factor = 1,
+		SumPostFactor = 0
+	},
+	["T_FleeceLinedLeatherArmor"]= {
+		Influenced = {"Rifle"},
+		SumPreFactor = 100,
+		Factor = 1,
+		SumPostFactor = 0
+	},
 }
-
-
 
 --[[ List of all supported ETypes
 "PU_Alchemist",

@@ -294,7 +294,7 @@ function SW.Activate(_seed)
 	-- Block weather change for some time after manual change
 	SW.WeatherBlock.Init()
 	-- Let's have a key trigger!
-	SW.KeyTrigger.Init();
+	-- SW.KeyTrigger.Init();
 	-- Now with better VCPlace distribution
 	SW.VCChange.Init()
 	-- We need HQ's! They are helpful
@@ -498,7 +498,7 @@ function SW.GetRealMS( _eId)
 			if start ~= nil or start2 ~= nil or start3 ~= nil then
 				SW.MovementspeedAltered[v] = true
 			else
-				SW.MovementspeedAltered[v] = true
+				SW.MovementspeedAltered[v] = false
 			end
 		end
 	end
@@ -573,8 +573,10 @@ function SW.ApplyMovementspeedBuff()
 					if start ~= nil or start2 ~= nil or start3 ~= nil then
 						local myEntities = SW.GetAllEntitiesOfTypeAndPlayer( v2, _pId)
 						local myMS = SW.GetMSByTypeAndPlayer( v2, _pId)
-						for k3,v3 in pairs(myEntities) do
-							SW.SetMovementspeed( v3, myMS)
+						if myMS ~= 100 then
+							for k3,v3 in pairs(myEntities) do
+								SW.SetMovementspeed( v3, myMS)
+							end
 						end
 					end
 				end
@@ -769,10 +771,6 @@ function SW.CallbackHacks()
 		SW.GameCallback_GUI_SelectionChanged();
 		if entityType == Entities.PU_Serf then
 			XGUIEng.ShowWidget("Build_Village", 0);
-		end
-		--Show HQ Menu in Outposts
-		if entityType == Entities.PB_Outpost1 then
-			SW.HeadquarterUpgrade.UpgradeButtonHandler(entityId)
 		end
 	end
 
@@ -1124,6 +1122,10 @@ function SW.DefeatConditionOnPlayerDefeated( _pId)	--Gets called once player des
 			local PlayerColor = " @color:" .. r .. "," .. g .. "," .. b .. ": ";
 			GUI.AddNote( PlayerColor..UserTool_GetPlayerName( _pId).." @color:255,255,255: "..XGUIEng.GetStringTableText( "InGameMessages/Note_PlayerXLostGame" ), 10);
 		end
+	end
+	--Make player name red
+	if XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID( _pId) == 1 then
+		Logic.SetPlayerRawName( _pId, "@color:255,0,0,140 "..XNetwork.GameInformation_GetLogicPlayerUserName( _pId ).." @color:255,255,255 " )
 	end
 	--Has team of _pId lost?
 	local lost = true

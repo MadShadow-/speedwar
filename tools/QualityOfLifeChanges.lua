@@ -44,6 +44,7 @@ function SW.QoL.Init()
 			SW.QoL.GUIAction_ExpelSettler()
 		end
 	end
+	SW.QoL.ShowHostOnPlayerDC()
 end
 -- Calls the  given func for all entities in selection
 -- During each call, only one entity is selected
@@ -86,3 +87,28 @@ function SW.QoL.ExpelSettler()
 	end
 	GUI.ExpelSettler( sel)
 end
+function SW.QoL.ShowHostOnPlayerDC()
+	SW.QoL.MPGame_ApplicationCallback_PlayerLeftGame = MPGame_ApplicationCallback_PlayerLeftGame
+	MPGame_ApplicationCallback_PlayerLeftGame = function( _pId, _misc)
+		SW.QoL.MPGame_ApplicationCallback_PlayerLeftGame( _pId, _misc)
+		SW.QoL.OnPlayerLeft()
+	end
+end
+function SW.QoL.OnPlayerLeft()
+	local hostAdress = XNetwork.Host_UserInSession_GetHostNetworkAddress()
+	local hostId = 0
+	for i = 1, 8 do
+		if hostAdress == XNetwork.GameInformation_GetNetworkAddressByPlayerID( i) then
+			hostId = i
+			break
+		end
+	end
+	if hostId == 0 then
+		Message("Host nicht gefunden!")
+	else
+		local r,g,b = GUI.GetPlayerColor(hostId)
+		local hostName = XNetwork.GameInformation_GetLogicPlayerUserName(hostId) or ""
+		Message("Aktueller Host: @color:"..r..","..g..","..b.." "..hostName.." @color:255,255,255 ")
+	end
+end
+
