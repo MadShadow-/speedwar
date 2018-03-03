@@ -281,6 +281,8 @@ function SW.Activate(_seed)
 	SW.LKavBuff.Init()
 	-- Window to display rank progress
 	SW.ProgressWindow.Init()
+	-- Make winCondition great again
+	SW.WinCondition.StartCountdown()
 	-- ActivateDebug()
 	if debugging.Debug then
 		ActivateDebug()

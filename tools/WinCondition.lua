@@ -1,6 +1,8 @@
 SW = SW or {}
 SW.WinCondition = {}
 SW.WinCondition.CellSize = 3200		-- 32 sm
+SW.WinCondition.Time = 90*60
+SW.WinCondition.Delays = 15*60
 -- WIN CONDITION
 -- SW.WinCondition.GetWinner will give winning team
 
@@ -16,6 +18,24 @@ function SW.WinCondition.Init()
 	end
 	SW.WinCondition.WorldSize = Logic.WorldGetSize()
 	SW.WinCondition.RelevantEntities = {}
+end
+function SW.WinCondition.StartCountdown()
+	StartSimpleJob("SW_WinConditionJob")
+	SW.WinCondition.DelayVar = SW.WinCondition.Delays
+	SW.WinCondition.TimeVar = SW.WinCondition.Time
+end
+function SW_WinConditionJob()
+	if SW.WinCondition.DelayVar < 0 then
+		SW.WinCondition.SW.WinCondition.GetWinner()
+		SW.WinCondition.DelayVar = SW.WinCondition.Delays
+	end
+	if SW.WinCondition.TimeVar < 0 then
+		SW.WinCondition.SW.WinCondition.GetWinner()
+		Message("Das Spiel sei beendet!")
+		return
+	end
+	SW.WinCondition.DelayVar = SW.WinCondition.DelayVar - 1
+	SW.WinCondition.TimeVar = SW.WinCondition.TimeVar - 1
 end
 function SW.WinCondition.UpdateRelevantEntities()
 	-- Entities that qualify for rule over area:

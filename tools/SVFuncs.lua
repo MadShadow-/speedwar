@@ -279,7 +279,7 @@ end
 -- Gets how many attraction slot this entity uses
 function SW.GetAttractionPlaceNeeded( _eType)
 	if Logic.GetEntityTypeName(_eType) ~= nil then
-		S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][136]:GetInt()
+		return S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][136]:GetInt()
 	end
 end
 -- Sets how many attraction slot this entity uses
@@ -291,7 +291,7 @@ function SW.SetAttractionPlaceNeeded( _eType, _slots)
 end
 -- Gets how many attraction slots this entity provides
 function SW.GetAttractionPlaceProvided( _eType)
-	S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][44]:GetInt()
+	return S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][44]:GetInt()
 end
 -- Sets how many attraction slots this entity provides
 function SW.SetAttractionPlaceProvided( _eType, _place)
