@@ -26,13 +26,13 @@ function SW.WinCondition.StartCountdown()
 end
 function SW_WinConditionJob()
 	if SW.WinCondition.DelayVar < 0 then
-		SW.WinCondition.SW.WinCondition.GetWinner()
+		SW.WinCondition.GetWinner()
 		SW.WinCondition.DelayVar = SW.WinCondition.Delays
 	end
 	if SW.WinCondition.TimeVar < 0 then
-		SW.WinCondition.SW.WinCondition.GetWinner()
+		SW.WinCondition.GetWinner()
 		Message("Das Spiel sei beendet!")
-		return
+		return true
 	end
 	SW.WinCondition.DelayVar = SW.WinCondition.DelayVar - 1
 	SW.WinCondition.TimeVar = SW.WinCondition.TimeVar - 1

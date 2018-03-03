@@ -772,6 +772,22 @@ function SW.CallbackHacks()
 		if entityType == Entities.PU_Serf then
 			XGUIEng.ShowWidget("Build_Village", 0);
 		end
+		if entityType == Entities.PB_Outpost1 then
+			if Logic.IsConstructionComplete( entityId) == 1 then
+				XGUIEng.ShowWidget("Headquarter", 1)
+				--XGUIEng.DoManualButtonUpdate(XGUIEng.GetWidgetID("Headquarter"));
+				XGUIEng.ShowWidget("Buy_Hero", 0);
+				XGUIEng.ShowWidget("Upgrade_Headquarter1", 0)
+				XGUIEng.ShowWidget("Upgrade_Headquarter2", 0)
+				-- Show tax menu if adjustable taxes are researched
+				if Logic.GetTechnologyState( GUI.GetPlayerID(), Technologies.GT_Literacy) == 4 then
+					XGUIEng.ShowWidget( "HQTaxes", 1)
+				end
+				XGUIEng.SetText("TaxLeaderSumOfPay", 0)		--Correct sum.
+			else
+				XGUIEng.ShowWidget("Headquarter", 0)
+			end
+		end
 	end
 
 
