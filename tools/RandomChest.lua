@@ -60,13 +60,6 @@ function SW.RandomChest.GenerateAtPos( _x, _y)
 	table.insert(SW.RandomChest.ListOfChests, {_x, _y, key, chestId})
 end
 
-function A(_a)
-	local key = SW.RandomChest.Keys[_a]
-	_x, _y = GUI.Debug_GetMapPositionUnderMouse();
-	local chestId = Logic.CreateEntity( Entities.XD_ChestClose, _x, _y, 0, 0)
-	table.insert(SW.RandomChest.ListOfChests, {_x, _y, key, chestId})
-end
-
 function SW_RandomChest_Job()
 	local version = 2
 	local t1 = XGUIEng.GetSystemTime()
@@ -222,6 +215,7 @@ function SW.RandomChest.Action.Bomb( _pId, _x, _y)
 		Message("Darin war eine Bombe!")
 	end
 	local bombId = Logic.CreateEntity(Entities.XD_Bomb1, _x, _y, 0, 0)
+	if bombId == 0 then return end
 	S5Hook.GetEntityMem(bombId)[31][0][4]:SetInt(600) --wait a minute...
 	S5Hook.GetEntityMem(bombId)[25]:SetFloat(5)
 end
@@ -432,43 +426,50 @@ end
 
 SW.RandomChest.Marys = {LookAt={X=500,Y=500}};
 function SW.RandomChest.Action.MaryBeGoodGuys(_pId)
-	local X,Y, sector;
-	sector = 0;
-	while(sector == 0) do
-		X = math.random(Logic.WorldGetSize()/10, Logic.WorldGetSize()-Logic.WorldGetSize()/10);
-		Y = math.random(Logic.WorldGetSize()/10, Logic.WorldGetSize()-Logic.WorldGetSize()/10);
-		_, _, sector = S5Hook.GetTerrainInfo(X, Y);
-	end
-	Message("@color:255,100,100 Scheiße "..tostring(UserTool_GetPlayerName(_pId)).." hat Mary gefunden!");
-	local x,y = Camera.ScrollGetLookAt();
-	SW.RandomChest.Marys.LookAt.X = x;
-	SW.RandomChest.Marys.LookAt.Y = y;
-	Camera.ScrollSetLookAt(X,Y);
-	local mary = Logic.CreateEntity(Entities.CU_Mary_de_Mortfichet, X, Y, 180, _pId);
-	Sound.PlayGUISound( Sounds.LevyTaxes, 125 );
-	Sound.PlayGUISound( Sounds.LevyTaxes, 125 ); 
-	Sound.PlayGUISound( Sounds.LevyTaxes, 125 );
-	gvCamera.DefaultFlag = 0
-	Camera.ZoomSetDistance(1000)
-	Logic.ForceFullExplorationUpdate();
-	table.insert(SW.RandomChest.Marys, mary);
-	Logic.SetTaskList(mary, TaskLists.TL_BATTLE_POISON);
-	SW.RandomChest.MaryCounter = 2;
-	Display.SetRenderFogOfWar(0)
-	StartSimpleJob("SW_RandomChest_CollectMary");
+    local X,Y, sector;
+    sector = 0;
+    while(sector == 0) do
+        X = math.random(Logic.WorldGetSize()/10, Logic.WorldGetSize()-Logic.WorldGetSize()/10);
+        Y = math.random(Logic.WorldGetSize()/10, Logic.WorldGetSize()-Logic.WorldGetSize()/10);
+        _, _, sector = S5Hook.GetTerrainInfo(X, Y);
+    end
+    Message("@color:255,100,100 Scheiße "..tostring(UserTool_GetPlayerName(_pId)).." hat Mary gefunden!");
+    local x,y = Camera.ScrollGetLookAt();
+    SW.RandomChest.Marys.LookAt.X = x;
+    SW.RandomChest.Marys.LookAt.Y = y;
+    Camera.ScrollSetLookAt(X,Y);
+    local mary = Logic.CreateEntity(Entities.CU_Mary_de_Mortfichet, X, Y, 180, _pId);
+    if mary == 0 then return end
+    Sound.PlayGUISound( Sounds.LevyTaxes, 125 );
+    Sound.PlayGUISound( Sounds.LevyTaxes, 125 ); 
+    Sound.PlayGUISound( Sounds.LevyTaxes, 125 );
+    gvCamera.DefaultFlag = 0
+    Camera.ZoomSetDistance(1000)
+    Logic.ForceFullExplorationUpdate();
+    table.insert(SW.RandomChest.Marys, mary);
+	GUI.SettlerCircularAttack(mary)
+    --Logic.SetTaskList(mary, TaskLists.TL_BATTLE_POISON);
+    SW.RandomChest.MaryCounter = 4;
+    Display.SetRenderFogOfWar(0)
+    if not SW.RandomChest.MaryJob then
+        SW.RandomChest.MaryJob = StartSimpleJob("SW_RandomChest_CollectMary");
+    end
 end
 
 function SW_RandomChest_CollectMary()
-	if SW.RandomChest.MaryCounter > 0 then
-		SW.RandomChest.MaryCounter = SW.RandomChest.MaryCounter - 1;
-		return;
-	end
-	gvCamera.DefaultFlag = 1;
-	Display.SetRenderFogOfWar(1)
-	local p = SW.RandomChest.Marys.LookAt;
-	Camera.ScrollSetLookAt(p.X,p.Y);
-	for i = 1, table.getn(SW.RandomChest.Marys) do
-		DestroyEntity(SW.RandomChest.Marys[i]);
-	end
-	return true;
+    if SW.RandomChest.MaryCounter > 0 then
+        SW.RandomChest.MaryCounter = SW.RandomChest.MaryCounter - 1;
+        return;
+    end
+    gvCamera.DefaultFlag = 1;
+    Display.SetRenderFogOfWar(1)
+    local p = SW.RandomChest.Marys.LookAt;
+    Camera.ScrollSetLookAt(p.X,p.Y);
+    for i = 1, table.getn(SW.RandomChest.Marys) do
+        LuaDebugger.Log("Deleting "..SW.RandomChest.Marys[i].." at "..Logic.GetTimeMs())
+        DestroyEntity(SW.RandomChest.Marys[i]);
+    end
+    SW.RandomChest.Marys = {LookAt={}};
+    SW.RandomChest.MaryJob = nil;
+    return true;
 end
