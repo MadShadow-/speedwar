@@ -30,7 +30,7 @@ function SW_WinConditionJob()
 		SW.WinCondition.DelayVar = SW.WinCondition.Delays
 	end
 	if SW.WinCondition.TimeVar < 0 then
-		SW.WinCondition.GetWinner()
+		SW.WinCondition.EndGame()
 		Message("Das Spiel sei beendet!")
 		return true
 	end
@@ -142,6 +142,19 @@ function SW.WinCondition.GetPlayerPoints( _pId)
 	if teamId == 0 then return 0 end
 	return SW.WinCondition.TeamScores[teamId]
 end
+function SW.WinCondition.EndGame()
+	local winnerTeam = SW.WinCondition.GetWinner()
+	Logic.SuspendAllEntities()
+	for i = 1, 8 do
+		if SW.DefeatConditionPlayerStates[i] then
+			if SW.WinCondition.TeamByPlayer[winnerTeam] ~= winnerTeam then
+				SW.DefeatConditionPlayerStates[i] = false
+				SW.DefeatConditionOnPlayerDefeated( i)
+			end
+		end
+	end
+end
+
 
 --[[
 Logic.SetPlayerRawName( playerId, XNetwork.GameInformation_GetLogicPlayerUserName( playerId ) );
