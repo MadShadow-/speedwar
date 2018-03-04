@@ -48,7 +48,7 @@ function SW.Walls.GUIChanges()
 	SW.Walls.SellBuilding = GUI.SellBuilding
 	GUI.SellBuilding = function( _eId)
 		if SW.Walls.ListOfWalls[_eId]  then
-			Sync.Call( "DestroyEntity", _eId) --TODO: use a fancier way to sell building with smoke?
+			Sync.Call( "SW.Walls.SellWall", _eId)
 		else
 			SW.Walls.SellBuilding( _eId)
 		end
@@ -466,7 +466,7 @@ end
 -- _pos is playerID
 function SW.Walls.CreateEntity( _eType, _x, _y, _rot, _pos)
 	SW.PreciseLog.Log("Mauerbau: Creating "..(Logic.GetEntityTypeName(_eType) or "unknown").." at X=".._x.." Y=".._y.." rot=".._rot.." for player ".._pos)
-	if _x <= 0 or x >= SW.Walls.WorldSize or _y <= 0 or _y >= SW.Walls.WorldSize then
+	if _x <= 0 or _x >= SW.Walls.WorldSize or _y <= 0 or _y >= SW.Walls.WorldSize then
 		_x = 100
 		_y = 100
 	end
@@ -660,7 +660,23 @@ function SW.Walls.GetNearestCandidate( _pos, _list)
 		return _list[currIndex]
 	end
 end
-
+SW.Walls.ListOfSoldBuildings = {}
+function SW.Walls.SellWall( _eId)
+	if SW.Walls.ListOfSoldBuildings[_eId] == nil then
+		SW.Walls.ListOfSoldBuildings[_eId] = Logic.GetTimeMs()
+	else
+		if SW.Walls.ListOfSoldBuildings[_eId] + 30000 <= Logic.GetTimeMs() then
+			SW.Walls.ListOfSoldBuildings[_eId] = Logic.GetTimeMs()
+		else 	--Gebäude wird schon abgerissen? RAUS
+			return
+		end
+	end
+	-- If script arrives at this point, wall may be sold
+	local pos = GetPosition( _eId)
+	Logic.CreateEffect( GGL_Effects.FXBuildingSmokeMedium, pos.X, pos.Y, 0)
+	Logic.HurtEntity( _eId, 10000)
+	-- Kein Ressourcereturn
+end
 
 function SW.Walls.Test(_len)
 	for dx = -6, 6 do

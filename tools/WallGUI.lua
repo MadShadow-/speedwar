@@ -135,7 +135,7 @@ SW.WallGUI.WallConstructionTooltips = {
 	{
 		"Mauer",
 		"Konstruktion",
-		"Ein Mauerfragment zum errichten einer Mauer.",
+		"Ein Mauerfragment zum Errichten einer Mauer.",
 		"Baut eine Mauer indem ihr mehrere Mauerfragmente nebeneinander errichtet"
 	},
 	{
@@ -153,7 +153,7 @@ SW.WallGUI.WallConstructionTooltips = {
 	{
 		"Standhafter Turm",
 		"Rang: " .. SW.BuildingTooltips.RankNames[2],
-		"Ermöglicht das bauen standhafter Türme in denen sich Militäreinheiten stationieren lassen.",
+		"Ermöglicht das Bauen standhafter Türme in denen sich Militäreinheiten stationieren lassen.",
 		"In diesem Turm könnt ihr Einheiten stationieren."
 	},
 	{

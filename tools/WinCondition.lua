@@ -129,6 +129,19 @@ function SW.WinCondition.GetWinner()
 	end
 	return winner
 end
+function SW.WinCondition.ForcePointUpdate()
+	if SW.WinCondition.WorldSize == nil then
+		SW.WinCondition.Init()
+	end
+	SW.WinCondition.UpdateRelevantEntities()
+	SW.WinCondition.SortByCells()
+	SW.WinCondition.EvaluateCells()
+end
+function SW.WinCondition.GetPlayerPoints( _pId)
+	local teamId = SW.WinCondition.TeamByPlayer[_pId]
+	if teamId == 0 then return 0 end
+	return SW.WinCondition.TeamScores[teamId]
+end
 
 --[[
 Logic.SetPlayerRawName( playerId, XNetwork.GameInformation_GetLogicPlayerUserName( playerId ) );

@@ -276,7 +276,7 @@ function SW.Activate(_seed)
 	-- Enable building walls
 	SW.Walls.Init()
 	-- Just for the lolz
-	SW.RandomChest.Init()
+	-- SW.RandomChest.Init()
 	-- Make LKav great again
 	SW.LKavBuff.Init()
 	-- Window to display rank progress
@@ -305,6 +305,8 @@ function SW.Activate(_seed)
 	SW.FixMarketPrices()
 	-- Check version
 	SW.RessCheck.ShoutVersion()
+	-- Make outposts more resilient against thieves
+	SW.SetKegFactor( Entities.PB_Outpost1, 0.1)
 end
 
 function SW.EnableStartingTechnologies()

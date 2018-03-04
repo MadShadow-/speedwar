@@ -30,7 +30,7 @@ function Sync2.Init()
 		["SW.Activate"] = true,
 		["SW.Bastille.TrackGroup"] = true,
 		["SW.Bastille.SpawnReleasedUnit"] = true,
-		["DestroyEntity"] = true,
+		["SW.Walls.SellWall"] = true,
 		["SW.Walls.ToggleGate"] = true,
 		["SW.WallGUI.PayCosts"] = true,
 		["SW.WallGUI.AddWallInConstructionToQueue"] = true,
