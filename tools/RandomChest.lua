@@ -59,6 +59,14 @@ function SW.RandomChest.GenerateAtPos( _x, _y)
 	local chestId = Logic.CreateEntity( Entities.XD_ChestClose, _x, _y, 0, 0)
 	table.insert(SW.RandomChest.ListOfChests, {_x, _y, key, chestId})
 end
+
+function A(_a)
+	local key = SW.RandomChest.Keys[_a]
+	_x, _y = GUI.Debug_GetMapPositionUnderMouse();
+	local chestId = Logic.CreateEntity( Entities.XD_ChestClose, _x, _y, 0, 0)
+	table.insert(SW.RandomChest.ListOfChests, {_x, _y, key, chestId})
+end
+
 function SW_RandomChest_Job()
 	local version = 2
 	local t1 = XGUIEng.GetSystemTime()

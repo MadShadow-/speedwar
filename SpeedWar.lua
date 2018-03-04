@@ -276,7 +276,7 @@ function SW.Activate(_seed)
 	-- Enable building walls
 	SW.Walls.Init()
 	-- Just for the lolz
-	-- SW.RandomChest.Init()
+	SW.RandomChest.Init()
 	-- Make LKav great again
 	SW.LKavBuff.Init()
 	-- Window to display rank progress
