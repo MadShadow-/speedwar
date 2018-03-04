@@ -1,6 +1,8 @@
 SW = SW or {};
 SW.ProgressWindow = {};
 SW.ProgressWindow.IsShown = false;
+SW.ProgressWindow.EntitiesLeftDisplayMax = 30;
+SW.ProgressWindow.EntitiesLeftColor = "@color:255,140,0";
 
 function SW.ProgressWindow.Init()
 
@@ -22,6 +24,14 @@ function SW.ProgressWindow.Init()
 		end
 		SW.ProgressWindow.GameCallback_GUI_SelectionChanged();
 	end
+	
+	SW.ProgressWindow.PlayerNames = {};
+	local r,g,b;
+	for playerId = 1,8 do
+		r,g,b = GUI.GetPlayerColor(playerId);
+		SW.ProgressWindow.PlayerNames[playerId] = "@color:"..r..","..g..","..b.. " " ..UserTool_GetPlayerName(playerId);
+	end
+	
 	-- initial GUI update
 	SW.ProgressWindow.RankUpGUIUpdate();
 	SW_ProgressWindow_UpdateScore();
@@ -30,14 +40,18 @@ end
 function SW.ProgressWindow.Show()
 	XGUIEng.ShowWidget("SWGameProgress", 1);
 	SW.ProgressWindow.UpdateScoreJobId = StartSimpleHiResJob("SW_ProgressWindow_UpdateScore");
+	-- receive win condition update
+	SW.WinCondition.ForcePointUpdate();
 end
 
 function SW.ProgressWindow.Hide()
 	XGUIEng.ShowWidget("SWGameProgress", 0);
-	EndJob("SW.ProgressWindow.UpdateScoreJobId");
+	EndJob(SW.ProgressWindow.UpdateScoreJobId);
 end
 
 function SW.ProgressWindow.RankUpGUIUpdate()
+	--[[
+	TODO: Maybe remove this from rank up updates
 	local curRank = SW.RankSystem.Rank[GUI.GetPlayerID()];
 	for i = 1, 4 do
 		if i == curRank then
@@ -47,7 +61,7 @@ function SW.ProgressWindow.RankUpGUIUpdate()
 			XGUIEng.SetText("SWGPRank"..i,
 			"@color:150,150,150 @center " .. SW.BuildingTooltips.RankNames[i]);
 		end
-	end
+	end]]
 end
 
 function SW_ProgressWindow_UpdateScore()
@@ -60,12 +74,36 @@ function SW_ProgressWindow_UpdateScore()
 		threshold = SW.RankSystem.RankThresholds[3];
 		curPoints = threshold;
 	end
-	XGUIEng.SetText("SWGPPoints", "@center " ..curPoints.."/"..threshold);
 	
+	local curRank = SW.RankSystem.Rank[GUI.GetPlayerID()];
 	local percentage = math.floor((curPoints / threshold) * 100);
-	XGUIEng.SetText("SWGPPercentage", "@center " .. percentage .. "%");
+	
+	XGUIEng.SetText("SWGPRank", "Rang: " .. SW.RankSystem.RankColors[curRank] .. " " .. SW.BuildingTooltips.RankNames[curRank] ..
+		" @color:255,255,255 "..curPoints.."/"..threshold.." ("..percentage.."%)");
+		
+	local playerOverview = "";
+	local t = {};
+	table.foreach(SW.Players, 
+	function(k, playerId)
+		table.insert(t, {playerId, SW.WinCondition.GetPlayerPoints(playerId)});
+	end);
+	t = SW.ProgressWindow.SortPlayers(t);
+	local entitiesleft;
+	for i = 1, table.getn(t) do
+		entitiesleft = SW.DefeatConditionPlayerEntities[t[i][1]];
+		if entitiesleft > SW.ProgressWindow.EntitiesLeftDisplayMax then
+			entitiesleft = SW.ProgressWindow.EntitiesLeftDisplayMax.."+";
+		end
+		playerOverview = playerOverview .. t[i][2] .. " " .. SW.ProgressWindow.PlayerNames[t[i][1]] .. " "..SW.ProgressWindow.EntitiesLeftColor.." "..entitiesleft.." @cr @color:255,255,255 ";
+	end
+	XGUIEng.SetText("SWGPPlayerOverview", playerOverview);
+		
 	
 	XGUIEng.SetText("SWGPLKavMoney", "@center Taler erbeutet: " .. tostring(SW.LKavBuff.Looted[GUI.GetPlayerID()]));
+	if Counter.Tick2("SW_ProgressWindow_UpdateScore", 100) then
+		-- every 10 seconds we update
+		SW.WinCondition.ForcePointUpdate();
+	end
 end
 
 function SW.ProgressWindow.GUIAction_ShowProgressWindow()
@@ -84,4 +122,17 @@ function SW.ProgressWindow.GUIUpdate_Tooltip()
 	XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomCosts, "");
 	XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomShortCut, "");
 	XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomText, tooltipDescr);
+end
+
+function SW.ProgressWindow.SortPlayers(_table)
+	local tmp;
+	for i = 1, table.getn(_table)-1 do
+		if _table[i][2] < _table[i+1][2] then
+			tmp = _table[i+1];
+			_table[i+1] = _table[i];
+			_table[i] = tmp;
+			i = 1;
+		end
+	end
+	return _table;
 end

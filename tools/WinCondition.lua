@@ -5,14 +5,14 @@ SW.WinCondition.Time = 90*60
 SW.WinCondition.Delays = 15*60
 -- WIN CONDITION
 -- SW.WinCondition.GetWinner will give winning team
+SW.WinCondition.TeamByPlayer = {}
+--XNetwork.GameInformation_GetLogicPlayerTeam
+for i = 0, 8 do
+	SW.WinCondition.TeamByPlayer[i] = 0
+end
 
 -- TODO: Players that have already lost are unable to score!
 function SW.WinCondition.Init()
-	SW.WinCondition.TeamByPlayer = {}
-	--XNetwork.GameInformation_GetLogicPlayerTeam
-	for i = 0, 8 do
-		SW.WinCondition.TeamByPlayer[i] = 0
-	end
 	for i = 1, table.getn(SW.Players) do
 		SW.WinCondition.TeamByPlayer[SW.Players[i]] = XNetwork.GameInformation_GetLogicPlayerTeam(SW.Players[i])
 	end
