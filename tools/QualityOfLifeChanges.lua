@@ -91,10 +91,10 @@ function SW.QoL.ShowHostOnPlayerDC()
 	SW.QoL.MPGame_ApplicationCallback_PlayerLeftGame = MPGame_ApplicationCallback_PlayerLeftGame
 	MPGame_ApplicationCallback_PlayerLeftGame = function( _pId, _misc)
 		SW.QoL.MPGame_ApplicationCallback_PlayerLeftGame( _pId, _misc)
-		SW.QoL.OnPlayerLeft()
+		StartSimpleJob("SW_QoL_OnPlayerLeft")
 	end
 end
-function SW.QoL.OnPlayerLeft()
+function SW_QoL_OnPlayerLeft()
 	local hostAdress = XNetwork.Host_UserInSession_GetHostNetworkAddress()
 	local hostId = 0
 	for i = 1, 8 do
@@ -110,5 +110,6 @@ function SW.QoL.OnPlayerLeft()
 		local hostName = XNetwork.GameInformation_GetLogicPlayerUserName(hostId) or ""
 		Message("Aktueller Host: @color:"..r..","..g..","..b.." "..hostName.." @color:255,255,255 ")
 	end
+	return true
 end
 

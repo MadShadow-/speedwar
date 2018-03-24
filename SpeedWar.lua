@@ -271,8 +271,6 @@ function SW.Activate(_seed)
 	SW.WallGUI.Init()
 	-- Activate Bastille Mod
 	SW.Bastille.Activate()
-	-- Just debug stuff
-	SW.DebuggingStuff()		--DO NOT REMOVE NOW; REMOVE IN FINAL VERSION AFTER TALKING WITH NAPO
 	-- Enable building walls
 	SW.Walls.Init()
 	-- Just for the lolz
@@ -294,7 +292,7 @@ function SW.Activate(_seed)
 	-- Block weather change for some time after manual change
 	SW.WeatherBlock.Init()
 	-- Let's have a key trigger!
-	-- SW.KeyTrigger.Init();
+	SW.KeyTrigger.Init();
 	-- Now with better VCPlace distribution
 	SW.VCChange.Init()
 	-- We need HQ's! They are helpful
@@ -801,57 +799,6 @@ function SW.CallbackHacks()
 			XGUIEng.ShowWidget("Build_Village", 0);
 		end;
 	end;
-end
-
---		DEBUG STUFF; REMOVE IN FINAL VERSION
-SW_GoodNumber = 519
-SW_BetterNumber = 1514
-function SW.DebuggingStuff()
-	-- Stuff worth protecting:
-	--		Functions in SW-table
-	--		Functions in GUI-table
-	--		Functions in _G with "GUI" in it
-	--		GameCallback_OnGameStart
-	-- Creates check sums of SW.Activate and GUI.SellBuilding
-	-- Used to call out bad people in multiplayer games
-	GenerateChecksum = function(_f)
-		local str = "";
-		xpcall(function() str = string.dump( _f) end, function(_s) end)
-		local checkSum = 0
-		for i = 1, string.len(str) do
-			checkSum = math.mod(checkSum + i*i*string.byte( str, i), 2017)
-		end
-		return checkSum
-	end
-	GenerateTableChecksum = function(_t)
-		local checksum = 0
-		for k,v in pairs(_t) do
-			if type(v) == "function" then
-				checksum = math.mod(checksum + GenerateChecksum(v), 2017)
-			elseif type(v) == "table" then
-				checksum = math.mod(checksum + GenerateTableChecksum(v), 2017)
-			end
-		end
-		return checksum
-	end
-	local debugggg = false
-	if GenerateTableChecksum(GUI) ~= SW_BetterNumber then
-		SW_BetterNumber = GenerateTableChecksum(GUI)
-		debugggg = true
-	end
-	if GenerateTableChecksum(SW) ~= SW_GoodNumber then
-		SW_GoodNumber = GenerateTableChecksum(SW)
-		debugggg = true
-	end
-	debugggg = false
-	if debugggg and XNetwork.Manager_DoesExist() == 1 then
-	--if debugggg then
-		local pId = GUI.GetPlayerID()
-		local name = XNetwork.GameInformation_GetLogicPlayerUserName( pId )
-		local r,g,b = GUI.GetPlayerColor( pId )
-    	local Message = "@color:"..r..","..g..","..b.." "..name.." @color:255,255,255 > Ich habe das Skript manipuliert!"
-		XNetwork.Chat_SendMessageToAll( Message)
-	end
 end
 
 --			GENETIC DISPOSITION

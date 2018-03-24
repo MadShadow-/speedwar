@@ -81,7 +81,7 @@ function Sync2.OnPrepMessageArrived( _msg, _pId)
 	Sync2.Tributes[tributeId].fs = fs
 	Sync2.Tributes[tributeId].Callback = function()
 		SW.PreciseLog.Log("Calling "..fs)
-		Sync2.ExecuteFunctionByString(fs)
+		Sync2.ExecuteFunctionByString(fs, _pId)
 		Sync2.NewTributeFor(Sync2.Tributes[tributeId].Player)
 		Sync2.ClearEntry(tributeId)
 	end
@@ -189,7 +189,7 @@ function Sync2.ConvertFunctionToString(_funcName, ...)
 	return str;
 end
 
-function Sync2.ExecuteFunctionByString(_str)
+function Sync2.ExecuteFunctionByString(_str, _sender)
 	local sx = Sync2.String.Separators;
 	local layers = {};
 	local parameters = {};
@@ -244,6 +244,7 @@ function Sync2.ExecuteFunctionByString(_str)
 		end
 		table.insert( parameters, pValue );
 	end
+	table.insert( parameters, _sender)
 	local ref = _G[layers[1]];
 	for i = 2, table.getn(layers) do
 		ref = ref[layers[i]];
