@@ -15,6 +15,7 @@ SW = SW or {}
 SW.QoL = {}
 SW.QoL.LeaderTypes = {}
 function SW.QoL.Init()
+	Input.KeyBindDown(Keys.Space, "SW.QoL.RemoveWorkingSerfsInSelection()", 2);
 	for k,v in pairs(Entities) do
 		if string.find(k,"Leader") then
 			SW.QoL.LeaderTypes[v] = true
@@ -111,5 +112,24 @@ function SW_QoL_OnPlayerLeft()
 		Message("Aktueller Host: @color:"..r..","..g..","..b.." "..hostName.." @color:255,255,255 ")
 	end
 	return true
+end
+function SW.QoL.RemoveWorkingSerfsInSelection()
+	if XGUIEng.IsWidgetShown("Selection_Serf") == 0 then
+		-- original key bind of space
+		KeyBindings_JumpToLastHotSpot();
+		return;
+	end
+	local sel = {GUI.GetSelectedEntities()};
+	local tl, e;
+	for i = 1, table.getn(sel) do
+		if Logic.GetEntityType(sel[i]) == Entities.PU_Serf then
+			e = sel[i];
+			tl = Logic.GetCurrentTaskList(e);
+			if Logic.GetCurrentTaskList(e) == "TL_SERF_GO_TO_CONSTRUCTION_SITE"
+			or Logic.GetCurrentTaskList(e) == "TL_SERF_BUILD" then
+				GUI.DeselectEntity(e);
+			end
+		end
+	end
 end
 
