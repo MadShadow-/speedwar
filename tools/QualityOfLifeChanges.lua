@@ -5,11 +5,12 @@
 --Done:
 -- Refresh all troops in selection
 -- Expel all entities in selection
+-- Host is shown if player leaves
+-- Pressing [Space] deselects all serfs tasked with constructing something
+-- Pressing [Alt] while pressing the serf button on the top of the screen selects all idle serfs
 
 --Planned:
 -- Upgrade all buildings of same type in range?
--- Toggle all nearby gates of same type?
--- Use  [Ctrl] to use effect
 
 SW = SW or {}
 SW.QoL = {}
@@ -46,6 +47,7 @@ function SW.QoL.Init()
 		end
 	end
 	SW.QoL.ShowHostOnPlayerDC()
+	SW.QoL.InitSelectingIdleSerfs()
 end
 -- Calls the  given func for all entities in selection
 -- During each call, only one entity is selected
@@ -132,4 +134,20 @@ function SW.QoL.RemoveWorkingSerfsInSelection()
 		end
 	end
 end
-
+function SW.QoL.InitSelectingIdleSerfs()
+	SW.QoL.GUIAction_FindIdleSerf = GUIAction_FindIdleSerf
+	GUIAction_FindIdleSerf = function(_arg)
+		if XGUIEng.IsModifierPressed( Keys.ModifierAlt) == 1 then
+			GUI.ClearSelection()
+			local pId = GUI.GetPlayerID()
+			local maxx = math.min( 20, Logic.GetNumberOfIdleSerfs( pId))
+			local currId = 0
+			for i = 1, maxx do
+				currId = Logic.GetNextIdleSerf( 1, currId)
+				GUI.SelectEntity( currId)
+			end
+		else
+			SW.QoL.GUIAction_FindIdleSerf( _arg)
+		end
+	end
+end
