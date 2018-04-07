@@ -10,6 +10,8 @@ SW.WallGUI.ModelChanged = false;
 SW.WallGUI.DummysInConstruction = {};
 SW.WallGUI.SelectedWallDestroyed = false;
 SW.WallGUI.ScriptNameBuildingCounter = 0;
+-- 
+SW.WallGUI.PlayerLocal_WallQueue = {};
 SW.WallGUI.Costs =
 {
 	["Wall"] = {
@@ -192,10 +194,18 @@ function SW.WallGUI.Init()
 	SW.WallGUI.GameCallback_GUI_StateChanged = GameCallback_GUI_StateChanged;
 	GameCallback_GUI_StateChanged = function( _StateNameID, _Armed )
 		if SW.WallGUI.DummyPlaced then
-			Sync.Call("SW.WallGUI.PayCosts", GUI.GetPlayerID(), SW.WallGUI.Costs[SW.WallGUI.LatestWallType]);
-			Sync.Call("SW.WallGUI.AddWallInConstructionToQueue", SW.WallGUI.LatestEntity, SW.WallGUI.LatestWallType, SW.WallGUI.LatestWallNewWall);
+			-- now with a list
+			--Sync.Call("SW.WallGUI.PayCosts", GUI.GetPlayerID(), SW.WallGUI.Costs[SW.WallGUI.LatestWallType]);
+			--Sync.Call("SW.WallGUI.AddWallInConstructionToQueue", SW.WallGUI.LatestEntity, SW.WallGUI.LatestWallType, SW.WallGUI.LatestWallNewWall);
+			local wallInfo;
+			for i = 1, table.getn(SW.WallGUI.PlayerLocal_WallQueue) do
+				wallInfo = SW.WallGUI.PlayerLocal_WallQueue[i];
+				Sync.Call("SW.WallGUI.PayCosts", GUI.GetPlayerID(), SW.WallGUI.Costs[wallInfo[2]]);
+				Sync.Call("SW.WallGUI.AddWallInConstructionToQueue", wallInfo[1], wallInfo[2], wallInfo[3]);
+			end
 			SW.PreciseLog.Log("Sending "..SW.WallGUI.LatestWallType.." with "..tostring(SW.WallGUI.LatestWallNewWall), "WallGUI")
 			SW.WallGUI.DummyPlaced = false;
+			SW.WallGUI.PlayerLocal_WallQueue = {};
 		end
 		if _StateNameID ~= 1 and _StateNameID ~= 2 then
 			SW.WallGUI.LatestGUIState = _StateNameID;
@@ -355,8 +365,14 @@ function SW_WallGUI_OnEntityCreated()
 			Message("Walls: no type found!");
 			return; 
 		end
-		SW.WallGUI.LatestEntity = entityId;
+		--SW.WallGUI.LatestEntity = entityId;
+		-- Now we have a list
+		SW.WallGUI.PlayerLocal_AddEntityToQueue(entityId)
 		SW.WallGUI.DummyPlaced = true;
+end
+
+function SW.WallGUI.PlayerLocal_AddEntityToQueue(_entityId)
+	table.insert(SW.WallGUI.PlayerLocal_WallQueue, {_entityId, SW.WallGUI.LatestWallType, SW.WallGUI.LatestWallNewWall});
 end
 
 function SW.WallGUI.AddWallInConstructionToQueue( _entityId, _wall, _isNewWall)
