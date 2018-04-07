@@ -3,7 +3,7 @@ SW.BuildingTooltips = SW.BuildingTooltips or {}
 SW.RankSystem = SW.RankSystem or {}
 
 SW.RankSystem.RankColors = {
-	"@color:139,69,19",
+	"@color:115,209,65",
 	"@color:255,255,51",
 	"@color:255,153,51",
 	"@color:255,0,51",

@@ -41,32 +41,82 @@ function WeatherSets_HotSummer( _ID)
 	Display.GfxSetSetSnowStatus(_ID, 0, 1.0, 0)
 	Display.GfxSetSetSnowEffectStatus(_ID, 0.0, 0.8, 0)
 end
-if false then
-	Ambient = {
-		R = 143,
-		G = 254,
-		B = 9
-	}
-	Source = {
-		R = 55,
-		G = 55,
-		B = 55
-	}
+-- Make changeable:
+--  Sunposition, Suncolor, ambientcolor
+--[[Display.GfxSetSetLightParams(WeatherID, TransitionStart, TransitionEnd,
+                             PositionX, PositionY, PositionZ,
+                             AmbientR, AmbientG, AmbientB,
+                             DiffuseR, DiffuseG, DiffuseB)
+]]
+--  FogColor
+--[[Display.GfxSetSetFogParams(WeatherID, TransitionStart, TransitionEnd, Flag,
+                           ColorR, ColorG, ColorB,
+                           FogStart, FogEnd)
+]]
+GFXHelper = {}
+GFXHelper.Focus = "SunPos"
+GFXHelper.Coord = 1
+GFXHelper.Data = {
+	SunPos = {40, -15, -50},
+	SunCol = {255, 254, 230},
+	AmbCol = {120, 110, 110},
+	FogCol = {152,172,182}
+}
+GFXHelper.FogStart = 2000
+GFXHelper.FogEnd = 32000
+function GFXHelper.Init()
+	Input.KeyBindDown(Keys.Add, "GFXHelper.Increase()", 2)
+	Input.KeyBindDown(Keys.Subtract, "GFXHelper.Decrease()", 2)
 	GroupSelection_SelectTroops = function(_k)
-		LuaDebugger.Log(_k)
 		if _k == 1 then
-			Source.R = Source.R + 1
+			GFXHelper.Focus = "SunPos"
 		elseif _k == 2 then
-			Source.R = Source.R - 1
+			GFXHelper.Focus = "SunCol"
 		elseif _k == 3 then
-			Source.G = Source.G + 1
+			GFXHelper.Focus = "AmbCol"
 		elseif _k == 4 then
-			Source.G = Source.G - 1
-		elseif _k == 5 then
-			Source.B = Source.B + 1
-		else
-			Source.B = Source.B - 1
+			GFXHelper.Focus = "FogCol"
+		elseif _k == 7 then
+			GFXHelper.Coord = 1
+		elseif _k == 8 then
+			GFXHelper.Coord = 2
+		elseif _k == 9 then
+			GFXHelper.Coord = 3
 		end
-		Display.GfxSetSetLightParams(1,  0.0, 1.0, 40, -15, -50, 143, 254, 9, Source.R, Source.G, Source.B)
+		GFXHelper.UpdateMsg()
 	end
+end
+function GFXHelper.UpdateMsg()
+	Message("Now selected: "..GFXHelper.Focus.." with coordinate "..GFXHelper.Coord)
+end
+function GFXHelper.Increase()
+	if GFXHelper.Focus == "SunPos" then
+		GFXHelper.Data.SunPos[GFXHelper.Coord] = GFXHelper.Data.SunPos[GFXHelper.Coord] + 1
+		Message("Now: "..GFXHelper.Data.SunPos[GFXHelper.Coord])
+	else
+		local val = GFXHelper.Data[GFXHelper.Focus][GFXHelper.Coord]
+		if val < 255 then
+			GFXHelper.Data[GFXHelper.Focus][GFXHelper.Coord] = val + 1
+			Message("Now: "..GFXHelper.Data[GFXHelper.Focus][GFXHelper.Coord])
+		end
+	end
+	GFXHelper.UpdateGFX()
+end
+function GFXHelper.Decrease()
+	if GFXHelper.Focus == "SunPos" then
+		GFXHelper.Data.SunPos[GFXHelper.Coord] = GFXHelper.Data.SunPos[GFXHelper.Coord] - 1
+		Message("Now: "..GFXHelper.Data.SunPos[GFXHelper.Coord])
+	else
+		local val = GFXHelper.Data[GFXHelper.Focus][GFXHelper.Coord]
+		if val > 0 then
+			GFXHelper.Data[GFXHelper.Focus][GFXHelper.Coord] = val - 1
+			Message("Now: "..GFXHelper.Data[GFXHelper.Focus][GFXHelper.Coord])
+		end
+	end
+	GFXHelper.UpdateGFX()
+end
+function GFXHelper.UpdateGFX()
+	Display.GfxSetSetLightParams( 1, 0, 1, unpack(GFXHelper.Data.SunPos), unpack(GFXHelper.Data.AmbCol), unpack(GFXHelper.Data.SunCol))
+	Display.GfxSetSetFogParams( 1, 0.0, 1.0, 1, 
+	GFXHelper.Data.FogCol[1], GFXHelper.Data.FogCol[2],GFXHelper.Data.FogCol[3], GFXHelper.FogStart, GFXHelper.FogEnd)
 end

@@ -81,8 +81,10 @@ function SW_ProgressWindow_UpdateScore()
 	XGUIEng.SetText("SWGPRank", "Rang: " .. SW.RankSystem.RankColors[curRank] .. " " .. SW.BuildingTooltips.RankNames[curRank] ..
 		" @color:255,255,255 "..curPoints.."/"..threshold.." ("..percentage.."%)");
 		
-	local playerOverview = "";
+	local playerOverview = "Punkte # "..SW.ProgressWindow.EntitiesLeftColor.." Anzahl Entities @color:255,255,255,255 # Name @cr ";
 	local t = {};
+	-- t contains for each player a table
+	-- { pId, WinConditionPoints}
 	table.foreach(SW.Players, 
 	function(k, playerId)
 		table.insert(t, {playerId, SW.WinCondition.GetPlayerPoints(playerId)});
@@ -94,7 +96,12 @@ function SW_ProgressWindow_UpdateScore()
 		if entitiesleft > SW.ProgressWindow.EntitiesLeftDisplayMax then
 			entitiesleft = SW.ProgressWindow.EntitiesLeftDisplayMax.."+";
 		end
-		playerOverview = playerOverview .. t[i][2] .. " " .. SW.ProgressWindow.PlayerNames[t[i][1]] .. " "..SW.ProgressWindow.EntitiesLeftColor.." "..entitiesleft.." @cr @color:255,255,255 ";
+		playerOverview = playerOverview.." "..t[i][2].." "
+		playerOverview = playerOverview..SW.ProgressWindow.EntitiesLeftColor.." "..entitiesleft.." "
+		--playerOverview = playerOverview .. t[i][2] .. " " .. SW.ProgressWindow.PlayerNames[t[i][1]] .. " @color:255,255,255 : "
+		--..SW.ProgressWindow.GetRankName(t[i][1])..SW.ProgressWindow.EntitiesLeftColor.." "..entitiesleft.." @cr @color:255,255,255 ";
+		playerOverview = playerOverview..SW.RankSystem.RankColors[SW.RankSystem.Rank[t[i][1]]].." "..UserTool_GetPlayerName(t[i][1])
+		.." @color:255,255,255 @cr "
 	end
 	XGUIEng.SetText("SWGPPlayerOverview", playerOverview);
 		
@@ -104,6 +111,17 @@ function SW_ProgressWindow_UpdateScore()
 		-- every 10 seconds we update
 		SW.WinCondition.ForcePointUpdate();
 	end
+end
+function SW.ProgressWindow.GetPointString( _score, _n)
+	local scoreString = "".._score
+	while string.len(scoreString) < _n do
+		scoreString = scoreString.." "
+	end
+	return scoreString
+end
+function SW.ProgressWindow.GetRankName( _pId)
+	local rId = SW.RankSystem.Rank[_pId]
+	return SW.RankSystem.RankColors[rId].." "..SW.BuildingTooltips.RankNames[rId].." @color:255,255,255 "
 end
 
 function SW.ProgressWindow.GUIAction_ShowProgressWindow()

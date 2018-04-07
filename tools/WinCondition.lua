@@ -6,6 +6,7 @@ SW.WinCondition.Delays = 15*60
 -- WIN CONDITION
 -- SW.WinCondition.GetWinner will give winning team
 SW.WinCondition.TeamByPlayer = {}
+SW.WinCondition.ConstructionSiteTypes = {}
 --XNetwork.GameInformation_GetLogicPlayerTeam
 for i = 0, 8 do
 	SW.WinCondition.TeamByPlayer[i] = 0
@@ -13,8 +14,19 @@ end
 
 -- TODO: Players that have already lost are unable to score!
 function SW.WinCondition.Init()
-	for i = 1, table.getn(SW.Players) do
-		SW.WinCondition.TeamByPlayer[SW.Players[i]] = XNetwork.GameInformation_GetLogicPlayerTeam(SW.Players[i])
+	if not SW.IsMultiplayer() then	--SP
+		for i = 1, 8 do
+			SW.WinCondition.TeamByPlayer[i] = i
+		end
+	else	--MP
+		for i = 1, table.getn(SW.Players) do
+			SW.WinCondition.TeamByPlayer[SW.Players[i]] = XNetwork.GameInformation_GetLogicPlayerTeam(SW.Players[i])
+		end
+	end
+	for k,v in pairs(Entities) do
+		if string.find( k, "ZB") then
+			SW.WinCondition.ConstructionSiteTypes[v] = true
+		end
 	end
 	SW.WinCondition.WorldSize = Logic.WorldGetSize()
 	SW.WinCondition.RelevantEntities = {}
@@ -43,7 +55,7 @@ function SW.WinCondition.UpdateRelevantEntities()
 	-- Leaders
 	SW.WinCondition.RelevantEntities = S5Hook.EntityIteratorTableize( Predicate.OfCategory(EntityCategories.Leader))
 	for eId in S5Hook.EntityIterator( Predicate.IsBuilding()) do
-		if Logic.IsConstructionComplete(eId) == 1 then
+		if Logic.IsConstructionComplete(eId) == 1 and SW.WinCondition.ConstructionSiteTypes[Logic.GetEntityType(eId)] == nil then
 			table.insert( SW.WinCondition.RelevantEntities, eId)
 		end
 	end
