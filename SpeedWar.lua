@@ -1068,22 +1068,22 @@ function SW.DefeatCondition_Create()
 	end
 end
 function SW.DefeatConditionOnPlayerDefeated( _pId)	--Gets called once player destroyed - one time call
+	local r,g,b = GUI.GetPlayerColor( _pId );
+	local PlayerColor = " @color:" .. r .. "," .. g .. "," .. b;
 	if GUI.GetPlayerID() == _pId then		--show defeated player he has lost FOREVER
 		GUI.AddStaticNote("@color:255,0,0: " .. XGUIEng.GetStringTableText( "InGameMessages/Note_PlayerLostGame" ))
 	else						--show other players defeat of player _pId
 		if XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID( _pId) == 1 then
-			local r,g,b = GUI.GetPlayerColor( _pId );
-			local PlayerColor = " @color:" .. r .. "," .. g .. "," .. b .. ": ";
-			GUI.AddNote( PlayerColor..UserTool_GetPlayerName( _pId).." @color:255,255,255: "..XGUIEng.GetStringTableText( "InGameMessages/Note_PlayerXLostGame" ), 10);
+			GUI.AddNote( PlayerColor.." :"..UserTool_GetPlayerName( _pId).." @color:255,255,255: "..XGUIEng.GetStringTableText( "InGameMessages/Note_PlayerXLostGame" ), 10);
 		end
 	end
 	--Destroy players HQ
 	for eId in S5Hook.EntityIterator(Predicate.OfPlayer(_pId), Predicate.OfType(Entities.PB_Headquarters3)) do
 		DestroyEntity( eId)
 	end
-	--Make player name red
+	--(Make player name red) NOT ANYMORE BLYAT
 	if XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID( _pId) == 1 then
-		Logic.SetPlayerRawName( _pId, "@color:255,0,0,140 "..XNetwork.GameInformation_GetLogicPlayerUserName( _pId ).." @color:255,255,255 " )
+		Logic.SetPlayerRawName( _pId, PlayerColor..",140 "..XNetwork.GameInformation_GetLogicPlayerUserName( _pId ).." @color:255,255,255 " )
 	end
 	--Has team of _pId lost?
 	local lost = true
