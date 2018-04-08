@@ -91,11 +91,14 @@ function SW.QoL.ExpelSettler()
 	GUI.ExpelSettler( sel)
 end
 function SW.QoL.ShowHostOnPlayerDC()
+	if not SW.IsMultiplayer() then return end
 	SW.QoL.MPGame_ApplicationCallback_PlayerLeftGame = MPGame_ApplicationCallback_PlayerLeftGame
 	MPGame_ApplicationCallback_PlayerLeftGame = function( _pId, _misc)
 		SW.QoL.MPGame_ApplicationCallback_PlayerLeftGame( _pId, _misc)
 		StartSimpleJob("SW_QoL_OnPlayerLeft")
 	end
+	local hostNColor, hostN = SW.QoL.GetHostName()
+	XGUIEng.SetText("MainMenuWindow_NetworkGame", "@center Host: "..hostN)
 end
 function SW_QoL_OnPlayerLeft()
 	local hostAdress = XNetwork.Host_UserInSession_GetHostNetworkAddress()
@@ -106,14 +109,27 @@ function SW_QoL_OnPlayerLeft()
 			break
 		end
 	end
+	local hostNColor, hostN = SW.QoL.GetHostName()
+	Message("Aktueller Host: "..hostNColor)
+	XGUIEng.SetText("MainMenuWindow_NetworkGame", "@center Host: "..hostN)
+	return true
+end
+function SW.QoL.GetHostName()
+	local hostAdress = XNetwork.Host_UserInSession_GetHostNetworkAddress()
+	local hostId = 0
+	for i = 1, 8 do
+		if hostAdress == XNetwork.GameInformation_GetNetworkAddressByPlayerID( i) then
+			hostId = i
+			break
+		end
+	end
 	if hostId == 0 then
-		Message("Host nicht gefunden!")
+		return "Unknown", "Unknown"
 	else
 		local r,g,b = GUI.GetPlayerColor(hostId)
 		local hostName = XNetwork.GameInformation_GetLogicPlayerUserName(hostId) or ""
-		Message("Aktueller Host: @color:"..r..","..g..","..b.." "..hostName.." @color:255,255,255 ")
+		return " @color:"..r..","..g..","..b.." "..hostName.." @color:255,255,255 ", hostName
 	end
-	return true
 end
 function SW.QoL.RemoveWorkingSerfsInSelection()
 	if XGUIEng.IsWidgetShown("Selection_Serf") == 0 then
