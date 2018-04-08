@@ -2,7 +2,7 @@ SW = SW or {};
 SW.ProgressWindow = {};
 SW.ProgressWindow.IsShown = false;
 SW.ProgressWindow.EntitiesLeftDisplayMax = 30;
-SW.ProgressWindow.EntitiesLeftColor = "@color:255,140,0";
+SW.ProgressWindow.EntitiesLeftColor = "@color:205,79,57";
 
 function SW.ProgressWindow.Init()
 
@@ -153,4 +153,11 @@ function SW.ProgressWindow.SortPlayers(_table)
 		end
 	end
 	return _table;
+end
+
+function SW.ProgressWindow.Test()
+	SW.Players = {1,2,3,4}
+	for i = 2, 4 do 
+		SW.RankSystem.Rank[i] = i 
+	end
 end
