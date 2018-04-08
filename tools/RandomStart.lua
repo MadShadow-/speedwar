@@ -26,8 +26,8 @@ function SW.EnableRandomStart()
 	SW.RandomStartPositions = {};
 	SW.RandomStartValidSectors = {}
 	local sector
-	for i = 1,table.getn(SW.StartPosData) do
-		_, _, sector = S5Hook.GetTerrainInfo(SW.StartPosData[i].X, SW.StartPosData[i].Y);
+	for i = 1,table.getn(SW.MapSpecific.PlayerStartSectors) do
+		_, _, sector = S5Hook.GetTerrainInfo(SW.MapSpecific.PlayerStartSectors[i].X, SW.MapSpecific.PlayerStartSectors[i].Y);
 		table.insert(SW.RandomStartValidSectors, sector)
 	end;
 	for i = 1, 8 do

@@ -25,7 +25,7 @@ end
 function SW.RandomChest.GenerateChest()
 	--Same procedure as random start
 	local success = false
-	local positions = SW.StartPosData
+	local positions = SW.MapSpecific.PlayerStartSectors
 	local sectors = {};
 	local _, _, sector;
 	for i = 1,table.getn(positions) do

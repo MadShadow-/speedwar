@@ -28,6 +28,11 @@ function GameCallback_OnGameStart()
 	-- calculate check some after loading scripts
 	SW.RessCheck.StartVersionCheck()
 	
+	local ret = InstallS5Hook();
+	if (ret) then
+		SW.OnS5HookLoaded();
+	end;
+	
 	SetupHighlandWeatherGfxSet()
 	-- how about some vision?
 	Display.GfxSetSetFogParams(3, 0.0, 1.0, 1, 152,172,182, 3000,19500)
@@ -52,8 +57,9 @@ function GameCallback_OnGameStart()
 		ResearchAllUniversityTechnologies = true,
 	};
 	
+	SW.MapSpecific.LoadConfig();
 	for i = 1, 8 do
-		for k,v in pairs(SW.StartRessourceData) do
+		for k,v in pairs(SW.MapSpecific.StartRessources) do
 			Logic.AddToPlayersGlobalResource( i, k, v)
 		end
 		--Tools.GiveResouces(i, 0, 700, 500, 0, 0, 0);
@@ -94,11 +100,6 @@ function GameCallback_OnGameStart()
 	Mission_InitWeatherGfxSets = function()end
 	
 	Camera.RotSetFlipBack(0);
-
-	local ret = InstallS5Hook();
-	if (ret) then
-		SW.OnS5HookLoaded();
-	end;
 
 	-- für alle custom names die wir brauchen - wird von WallGUI verwendet
 	SW.CustomNames = {};
@@ -211,8 +212,6 @@ function SW.Activate(_seed)
 	end
 	SW.IsActivated = true;
 	
-	Message("SW activated");
-	
 	-- village centers shall be removed and replaced by outposts
 	SW.EnableOutpostVCs();
 	SW.RankSystem.ApplyGUIChanges();
@@ -305,6 +304,8 @@ function SW.Activate(_seed)
 	SW.RessCheck.ShoutVersion()
 	-- Make outposts more resilient against thieves
 	SW.SetKegFactor( Entities.PB_Outpost1, 0.1)
+	-- Enable map specific changes
+	SW.MapSpecific.OnGameStartCallback();
 end
 
 function SW.EnableStartingTechnologies()
@@ -355,14 +356,15 @@ function SW.EnableRandomWeather()
 	local startSummerLength = 240 		-- minutes of starting summer
 	local numOfPeriods = 50
 	-- END OF CONFIG, DO NOT CHANGE
-	if SW.WeatherData.UseCustomWeather then
-		for k,v in pairs(baseChance) do
-			baseChance[k] = SW.WeatherData.BaseChances[k] or baseChance[k]
-		end
-		for k,v in pairs(range) do
-			range[k] = SW.WeatherData.Range[k] or range[k]
-		end
+	
+	-- overwriting values by map specific script
+	for k,v in pairs(baseChance) do
+		baseChance[k] = SW.MapSpecific.WeatherBaseChances[k] or baseChance[k]
 	end
+	for k,v in pairs(range) do
+		range[k] = SW.MapSpecific.WeatherDuration[k] or range[k]
+	end
+	
 	local baseChanceSum = 0
 	for i = 1, numOfWeatherStates do
 		baseChanceSum = baseChanceSum + baseChance[i]
