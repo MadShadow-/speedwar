@@ -7,10 +7,14 @@
 -- Expel all entities in selection
 -- Host is shown if player leaves
 -- Pressing [Space] deselects all serfs tasked with constructing something
--- Pressing [Alt] while pressing the serf button on the top of the screen selects all idle serfs
+-- Holding [Alt] while pressing the serf button on the top of the screen selects all idle serfs
+-- Holding [Strg] while pressing button in markets changes buy amount by 250
+-- Holding [Alt] while pressing button in markets changes buy amount by 1 000
+-- Holding [Strg] and [Alt] while pressing button in markets changes buy amount by 5 000
 
 --Planned:
 -- Upgrade all buildings of same type in range?
+
 
 SW = SW or {}
 SW.QoL = {}
@@ -48,6 +52,7 @@ function SW.QoL.Init()
 	end
 	SW.QoL.ShowHostOnPlayerDC()
 	SW.QoL.InitSelectingIdleSerfs()
+	SW.QoL.MarketFixes()
 end
 -- Calls the  given func for all entities in selection
 -- During each call, only one entity is selected
@@ -165,5 +170,23 @@ function SW.QoL.InitSelectingIdleSerfs()
 		else
 			SW.QoL.GUIAction_FindIdleSerf( _arg)
 		end
+	end
+end
+function SW.QoL.MarketFixes()
+	GUIAction_MarketToggleResource = function(_value, _resource)
+		if XGUIEng.IsModifierPressed( Keys.ModifierControl ) == 1 then
+			_value = _value * 5
+		end
+		if XGUIEng.IsModifierPressed( Keys.ModifierAlt ) == 1 then
+			_value = _value * 20
+		end
+		--calculate new amount of resource to buy
+		_resource = _resource + _value
+		--minus is forbidden
+		if _resource <= 0 then
+			_resource = 0
+		end
+		--Return new amount of resource to buy
+		return _resource
 	end
 end

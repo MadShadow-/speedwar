@@ -34,9 +34,9 @@ function WeatherSets_SourRain(_ID)
 end
 
 function WeatherSets_HotSummer( _ID)
-	Display.GfxSetSetLightParams( _ID,  0.0, 1.0, 0, -10, -20,  220,220,170,  255,255,255)
+	Display.GfxSetSetLightParams( _ID,  0.0, 1.0, 4,0,-37, 165,178,146, 255,239,215)
 	Display.GfxSetSetSkyBox(_ID, 0.0, 1.0, "YSkyBox04")
-	Display.GfxSetSetFogParams( _ID, 0.0, 1.0, 1, 150, 150, 50, 20000,30000)
+	Display.GfxSetSetFogParams( _ID, 0.0, 1.0, 1, 201,203,185, 2000, 32000)
 	Display.GfxSetSetRainEffectStatus(_ID, 0.0, 1.0, 0)
 	Display.GfxSetSetSnowStatus(_ID, 0, 1.0, 0)
 	Display.GfxSetSetSnowEffectStatus(_ID, 0.0, 0.8, 0)
@@ -57,10 +57,10 @@ GFXHelper = {}
 GFXHelper.Focus = "SunPos"
 GFXHelper.Coord = 1
 GFXHelper.Data = {
-	SunPos = {40, -15, -50},
-	SunCol = {255, 254, 230},
-	AmbCol = {120, 110, 110},
-	FogCol = {152,172,182}
+	SunPos = {90, -15, -95},
+	SunCol = {225,100,80},
+	AmbCol = {230,85,100},
+	FogCol = {255,205,155}
 }
 GFXHelper.FogStart = 2000
 GFXHelper.FogEnd = 32000

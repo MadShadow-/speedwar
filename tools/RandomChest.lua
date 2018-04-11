@@ -406,6 +406,114 @@ function SW.RandomChest.Action.SILENCE( _pId, _x, _y)
 		StartSimpleJob("SW_RandomChest_Action_SILENCEResetter")
 	end
 end
+SW.RandomChest.ConwayDis = 200
+function SW.RandomChest.Action.GameOfLife( _pId, _x, _y)
+	if GUI.GetPlayerID() == _pId then
+		Message("Darin war Conways Spiel des Lebens!")
+	end
+	if SW.RandomChest.Conway == nil then
+		StartSimpleJob("SW_RandomChest_ConwayJob")
+		SW.RandomChest.Conway = {}
+		SW.RandomChest.ConwayTimer = 0
+	end
+	local t = {
+		pos = {X = _x, Y = _y},
+		field = {}
+	}
+	for i = 1, 10 do
+		t.field[i] = {}
+		for j = 1, 10 do
+			local alivee = (math.random(1,3)==1)
+			local eType = Entities.XD_DeadBush1
+			if alivee then
+				eType = Entities.XD_GreeneryBush5
+			end
+			t.field[i][j] = {
+				alive = alivee, 
+				eId = NapoCreateEntity( eType, _x + i*SW.RandomChest.ConwayDis, _y + j * SW.RandomChest.ConwayDis)
+			}
+		end
+	end
+	table.insert( SW.RandomChest.Conway, t)
+end
+function SW_RandomChest_ConwayJob()
+	local t1 = XGUIEng.GetSystemTime()
+	SW.RandomChest.ConwayTimer = SW.RandomChest.ConwayTimer + 1
+	if SW.RandomChest.ConwayTimer >= 30 then
+		SW.RandomChest.ConwayTimer = 0
+	else
+		return
+	end
+	local toRemove = false
+	for k,v in pairs(SW.RandomChest.Conway) do
+		local nextField = {}
+		for x = 1, 10 do
+			nextField[x] = {}
+			for y = 1, 10 do
+				nextField[x][y] = {}
+			end
+		end
+		for x = 1, 10 do
+			for y = 1, 10 do
+				if v.field[x][y].alive then	--Living cell, handle logic
+					local count = SW.RandomChest.ConwayGetNeighborCount( v.field, x, y)
+					nextField[x][y].alive = (count > 1 and count <  4) --cell lives if count = 2,3
+				else
+					-- dead cell becomes alive if exactly 3 neighbors
+					nextField[x][y].alive = (SW.RandomChest.ConwayGetNeighborCount( v.field, x, y) == 3)
+				end
+			end
+		end
+		local allDead = true
+		-- Logic handled, now effects on world
+		local pos = v.pos
+		for x = 1, 10 do
+			for y = 1, 10 do
+				if nextField[x][y] ~= v.field[x][y] then
+					if v.field[x][y].eId ~= 0 then
+						DestroyEntity( v.field[x][y].eId)
+					end
+					local eType = Entities.XD_DeadBush1
+					if v.field[x][y].alive then
+						eType = Entities.XD_GreeneryBush5
+					end
+					v.field[x][y].eId = NapoCreateEntity( eType, pos.X + SW.RandomChest.ConwayDis*x, pos.Y + SW.RandomChest.ConwayDis*y)
+				end
+				if v.field[x][y].alive then
+					allDead = false
+				end
+				v.field[x][y].alive = nextField[x][y].alive
+			end
+		end
+		if allDead then
+			toRemove = k
+		end
+	end
+	if toRemove then table.remove(SW.RandomChest.Conway, toRemove) end
+	local t2 = XGUIEng.GetSystemTime()
+	--LuaDebugger.Log(t2-t1)
+end
+-- Tote Zelle mit 3 Nachbarn -> Lebt
+-- Lebende Zelle mit <2 Nachbarn stirbt
+-- Lebende Zelle mit >3 Nachbarn lebt
+function SW.RandomChest.ConwayGetNeighborCount(_field, _x, _y)
+	local count = 0
+	for x = _x-1, _x + 1 do
+		for y = _y-1, _y+1 do
+			if _field[SW.RandomChest.ConwayGetGoodIndex(x)][SW.RandomChest.ConwayGetGoodIndex(y)].alive then
+				count = count + 1
+			end
+		end
+	end
+	if _field[_x][_y].alive then
+		count = count - 1
+	end
+	return count
+end
+-- maps _n to [1;10]
+function SW.RandomChest.ConwayGetGoodIndex( _n)
+	return math.mod( _n+9, 10) + 1
+end
 
 function NapoCreateEffect( _effId, _x, _y, _pId)
 	if _x <= 0 or _y <= 0 then return end
@@ -413,7 +521,16 @@ function NapoCreateEffect( _effId, _x, _y, _pId)
 	if _x >= worldSize or _y >= worldSize then return end
 	Logic.CreateEffect(_effId, _x, _y, _pId)
 end
-
+function NapoCreateEntity( _eType, _x, _y)
+	if _x <= 0 or _y <= 0 then return 0 end
+	local worldSize = Logic.WorldGetSize()
+	if _x >= worldSize or _y >= worldSize then return 0 end
+	return Logic.CreateEntity( _eType, _x, _y, 0, 0)
+end
+function SW.RandomChest.Test()
+	local pos = GetPosition(GUI.GetSelectedEntity())
+	SW.RandomChest.Action.GameOfLife( 1, pos.X, pos.Y)
+end
 --Ideen:
 --	CTHULHU:
 --		Sich ausbreitender Kreis aus Finsternis, der Bäume verdorren lässt?
@@ -421,6 +538,7 @@ end
 --	Eine Läuterung?
 --	Konfetti
 --	Endraläer Krustenbrot
+--  Game of Life!
 --	KOMMUNISMUS
 --	FREIER WILLEN
 

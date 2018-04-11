@@ -2,7 +2,6 @@ SW = SW or {}
 SW.WinCondition = {}
 SW.WinCondition.CellSize = 3200		-- 32 sm
 SW.WinCondition.Time = 90*60
-SW.WinCondition.Delays = 15*60
 -- WIN CONDITION
 -- SW.WinCondition.GetWinner will give winning team
 SW.WinCondition.TeamByPlayer = {}
@@ -33,20 +32,14 @@ function SW.WinCondition.Init()
 end
 function SW.WinCondition.StartCountdown()
 	StartSimpleJob("SW_WinConditionJob")
-	SW.WinCondition.DelayVar = SW.WinCondition.Delays
 	SW.WinCondition.TimeVar = SW.WinCondition.Time
 end
 function SW_WinConditionJob()
-	if SW.WinCondition.DelayVar < 0 then
-		SW.WinCondition.GetWinner()
-		SW.WinCondition.DelayVar = SW.WinCondition.Delays
-	end
 	if SW.WinCondition.TimeVar < 0 then
 		SW.WinCondition.EndGame()
 		Message("Das Spiel sei beendet!")
 		return true
 	end
-	SW.WinCondition.DelayVar = SW.WinCondition.DelayVar - 1
 	SW.WinCondition.TimeVar = SW.WinCondition.TimeVar - 1
 end
 function SW.WinCondition.UpdateRelevantEntities()
@@ -159,7 +152,7 @@ function SW.WinCondition.EndGame()
 	Logic.SuspendAllEntities()
 	for i = 1, 8 do
 		if SW.DefeatConditionPlayerStates[i] then
-			if SW.WinCondition.TeamByPlayer[winnerTeam] ~= winnerTeam then
+			if SW.WinCondition.TeamByPlayer[i] ~= winnerTeam then
 				SW.DefeatConditionPlayerStates[i] = false
 				SW.DefeatConditionOnPlayerDefeated( i)
 			end
