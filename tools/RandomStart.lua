@@ -173,3 +173,54 @@ end
 function SW.RandomStartGetDistance( _pos1, _pos2)
 	return math.sqrt( (_pos1.X-_pos2.X)^2 + (_pos1.Y - _pos2.Y)^2)
 end
+
+--Fixed starts
+function SW.DoFixedPositions()
+	if SW.IsMultiplayer() then
+		local isHuman;
+		for i = 1, 8 do
+			isHuman = XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i);
+			if isHuman == 1 then
+				-- TODO remove spectators.
+				SW.FixedPosForPlayer(i);
+			end;
+		end;
+	else
+		SW.FixedPosForPlayer(1);
+	end;
+end
+function SW.FixedPosForPlayer( _pId)
+	local data = SpeedwarConfig.PlayerStartPos[_pId]
+	if type(data) ~= "table" then
+		data = GetPosition(data)
+	end
+	SW.CreatePlayerAtPos( _pId, data.X, data.Y)
+end
+function SW.CreatePlayerAtPos( _pId, _x, _y)
+	if GUI.GetPlayerID() == _pId then
+		GUI.CreateMinimapMarker( _x, _y, 0);
+	else
+		if Logic.GetDiplomacyState(GUI.GetPlayerID(), _pId) == Diplomacy.Hostile then
+			GUI.CreateMinimapMarker(_x,_y,3);
+		else
+			GUI.CreateMinimapMarker(_x,_y,0);
+		end
+	end
+	table.insert(SW.RandomStartPositions,{X=_x,Y=_y});
+	local newEnt, oldEnt, newRanX, newRanY;
+	local rndSector = -1;
+	for i = 1, 8 do
+		oldEnt = newEnt;
+		while(rndSector ~= sectorID) do
+			newRanX = _x+math.random(-200,200);
+			newRanY = _y+math.random(-200,200);
+			_, _, rndSector = S5Hook.GetTerrainInfo(_x, _y);
+		end
+		newEnt = AI.Entity_CreateFormation(_pId, Entities.PU_Serf, 0, 0, newRanX, newRanY, 0, _x, _y, 0)
+		Logic.EntityLookAt(newEnt, oldEnt);
+		if GUI.GetPlayerID() == _pId then
+			Camera.ScrollSetLookAt(_x,_y);
+		end
+	end
+end
+

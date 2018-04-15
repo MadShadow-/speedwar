@@ -136,8 +136,15 @@ function SW.QoL.GetHostName()
 		return " @color:"..r..","..g..","..b.." "..hostName.." @color:255,255,255 ", hostName
 	end
 end
+function SW.QoL.IsSerfInSelection()
+	local selection = {GUI.GetSelectedEntities()}
+	for k,v in pairs(selection) do
+		if Logic.GetEntityType( v) == Entities.PU_Serf then return true end
+	end
+	return false
+end
 function SW.QoL.RemoveWorkingSerfsInSelection()
-	if XGUIEng.IsWidgetShown("Selection_Serf") == 0 then
+	if not SW.QoL.IsSerfInSelection() then
 		-- original key bind of space
 		KeyBindings_JumpToLastHotSpot();
 		return;
@@ -152,6 +159,8 @@ function SW.QoL.RemoveWorkingSerfsInSelection()
 			or Logic.GetCurrentTaskList(e) == "TL_SERF_BUILD" then
 				GUI.DeselectEntity(e);
 			end
+		else
+			GUI.DeselectEntity(sel[i])
 		end
 	end
 end

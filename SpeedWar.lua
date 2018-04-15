@@ -250,10 +250,22 @@ function SW.Activate(_seed)
 	SW.EnableMortalRemains()
 	-- Recruiting costs for one weapon stay the same for all levels
 	SW.UnifyRecruitingCosts()
+	-- Recruiting time is unified among all military buildings
+	SW.UnifyRecruitingTime()
 	-- Jeder mag Plünderer :D
 	SW.EnablePillage()
-	-- Random StartPos
-	SW.EnableRandomStart()
+	
+	-- Start positions
+	if SpeedwarConfig ~= nil then
+		if SpeedwarConfig.PlayerFixedStart then
+			SW.DoFixedPositions()
+		else
+			SW.EnableRandomStart()
+		end
+	else
+		SW.EnableRandomStart()
+	end
+	
 	-- Defeatcondition - all entities of player destroyed
 	SW.DefeatCondition_Create()
 	-- Faster construction and upgrade for buildings
@@ -1217,6 +1229,20 @@ function SW.EnableFasterBuild()
 	end
 end
 
+--			UNIFIED RECRUTING
+function SW.UnifyRecruitingTime()
+	local types = {
+		Entities.PB_Barracks1,
+		Entities.PB_Barracks2,
+		Entities.PB_Archery1,
+		Entities.PB_Archery2,
+		Entities.PB_Stable1,
+		Entities.PB_Stable2
+	}
+	for k,v in pairs(types) do
+		SW.SetRecruitingTime( v, 20)
+	end
+end
 
 function SW.IsMultiplayer()
 	return XNetworkUbiCom.Manager_DoesExist() == 1 or XNetwork.Manager_DoesExist() == 1;
@@ -1348,11 +1374,21 @@ function CreateIceTime(_id)
 end
 
 function CreateLovelyEvening(_id)
+	-- MAD
 	Display.GfxSetSetSkyBox(_id, 0.0, 1.0, "YSkyBox05")
 	Display.GfxSetSetSnowStatus(_id, 0, 1.0, 0)
 	Display.GfxSetSetSnowEffectStatus(_id, 0.0, 1.0, 0)
 	Display.GfxSetSetRainEffectStatus(_id, 0.0, 1.0, 0)
 	Display.GfxSetSetFogParams(_id, 0.0, 1.0, 1, 255,205,155, 6000,30000)
 	Display.GfxSetSetLightParams(_id,  0.0, 1.0, 90, -15, -95,  225,100,80,  230,85,100)
+	if true then return true end
+	--NOIGI
+	Display.GfxSetSetSkyBox(1, 0.2, 0.8, "YSkyBox07")
+    Display.GfxSetSetRainEffectStatus(1, 0.0, 1.0, 0)
+    Display.GfxSetSetSnowStatus(1, 0, 1.0, 0)
+    Display.GfxSetSetSnowEffectStatus(1, 0.0, 0.8, 0)
+    Display.GfxSetSetFogParams(1, 0.0, 1.0, 1, 150,150,170, 3000,33000)
+	Display.GfxSetSetLightParams(1, 0.0, 1.0, -120,120,-70, 60,80,80, 255,150,72)
+
 end
 

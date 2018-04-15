@@ -64,8 +64,8 @@ function SW_LKavBuff_OnEntityHurtEntity()
 	end
 	if SW.LKavBuff.LastAttack[att] + SW.LKavBuff.FirstStrikeRecharge < time then     	--enough time went by?
 		SW.LKavBuff.ApplyDamage( def, SW.LKavBuff.FirstStrikeBonus)
+		SW.LKavBuff.LastAttack[att] = time
 	end
-	SW.LKavBuff.LastAttack[att] = time
 end
 function SW.LKavBuff.SoldierGetLeader(_eId)
 	if IsDead(_eId) then		--Never trust a scripting value of a dead entity

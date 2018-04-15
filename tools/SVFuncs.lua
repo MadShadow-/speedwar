@@ -12,6 +12,7 @@ SW.ScriptingValueBackup.RecruitingTime = SW.ScriptingValueBackup.RecruitingTime 
 SW.ScriptingValueBackup.AttractionProvided = SW.ScriptingValueBackup.AttractionProvided or {}
 SW.ScriptingValueBackup.AttractionNeeded = SW.ScriptingValueBackup.AttractionNeeded or {}
 SW.ScriptingValueBackup.KegFactor = SW.ScriptingValueBackup.KegFactor or {}
+SW.ScriptingValueBackup.WorkTimeChangeWork = SW.ScriptingValueBackup.WorkTimeChangeWork or {}
 function SW.ResetScriptingValueChanges()
 	for k,v in pairs(SW.ScriptingValueBackup.ConstructionCosts) do
 		SW.SetConstructionCosts(k, v);
@@ -43,6 +44,9 @@ function SW.ResetScriptingValueChanges()
 	
 	for k, v in pairs(SW.ScriptingValueBackup.KegFactor) do
 		SW.SetKegFactor(k,v)
+	end
+	for k, v in pairs(SW.ScriptingValueBackup.WorkTimeChangeWork) do
+		SW.SetWorkTimeChangeWork(k,v)
 	end
 end;
 
@@ -316,6 +320,20 @@ function SW.GetKegFactor( _eType)
 	return 0
 end
 
+function SW.SetWorkTimeChangeWork( _eType, _val)
+	if S5Hook.GetRawMem(9002416)[0][16][_eType*8+5][4][0]:GetInt() ~= 7809936 then
+		return false
+	end
+	SW.ScriptingValueBackup.WorkTimeChangeWork[_eType] = SW.ScriptingValueBackup.WorkTimeChangeWork[_eType] or SW.GetWorkTimeChangeWork(_eType)
+	S5Hook.GetRawMem(9002416)[0][16][_eType*8+5][4][17]:SetInt( val)
+	return true
+end
+function SW.GetWorkTimeChangeWork( _eType)
+	if S5Hook.GetRawMem(9002416)[0][16][_eType*8+5][4][0]:GetInt() ~= 7809936 then
+		return 0
+	end
+	return S5Hook.GetRawMem(9002416)[0][16][_eType*8+5][4][17]:GetInt()
+end
 
 
 function SW.SetMotivationBoost( _eType, _mot)				--DO NOT CALL; ITS PURE EVIL; SUMMONS CTHULHU

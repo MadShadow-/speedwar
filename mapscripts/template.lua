@@ -40,6 +40,9 @@ SpeedwarConfig = {
 		-- if there is anything you'd like to do ..
 		-- this is called when serfs get spawned
 	end,
+	EverySecond = function()	--TODO: IMPLEMENT IT
+		-- stuff that is called every second
+	end
 	
 	PlayerStartSectors = {
 		--{ X = 32323, Y = 30976 },
@@ -54,6 +57,20 @@ SpeedwarConfig = {
 		[ResourceType.Iron]   = 0, 
 		[ResourceType.Sulfur] = 0
 	},
+	
+	-- Muss auf true gesetzt werden, falls fixe Startpositionen verwendet werden sollen
+	PlayerFixedStart = false,
+	PlayerStartPos = {		-- accepts position table, entity name or entity id
+		[1] = "Start_P1", --Spieler 1 spawnt auf Skriptentity mit Namen Start_P1
+		[2] = "Start_P1", --Spieler 1 spawnt auf Skriptentity mit Namen Start_P2
+		[3] = "Start_P1", --Spieler 1 spawnt auf Skriptentity mit Namen Start_P3
+		[4] = "Start_P1", --Spieler 1 spawnt auf Skriptentity mit Namen Start_P4
+		[5] = "Start_P1", --Spieler 1 spawnt auf Skriptentity mit Namen Start_P5
+		[6] = "Start_P1", --Spieler 1 spawnt auf Skriptentity mit Namen Start_P6
+		[7] = "Start_P1", --Spieler 1 spawnt auf Skriptentity mit Namen Start_P7
+		[8] = "Start_P1", --Spieler 1 spawnt auf Skriptentity mit Namen Start_P8
+	}
+	
 	--[[
 	-- WeatherConfiguration
 	-- If enable this tables, they overwrite the original values
