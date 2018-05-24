@@ -731,14 +731,13 @@ function SW_OnEntityCreatedOutpost()
 		end
 	end
 end
-
+SW_ToDestroyEntities = {}
 function SW_DestroySafe(_entityID)
-	SW_ToDestroyEntities = SW_ToDestroyEntites or {};
 	function SW_DestroyJob()
 		for i = table.getn( SW_ToDestroyEntities), 1, -1 do
 			DestroyEntity( SW_ToDestroyEntities[i])
-			table.remove(SW_ToDestroyEntities, i);
 		end
+		SW_ToDestroyEntities = {}
 		return true;
 	end;
 	table.insert(SW_ToDestroyEntities, _entityID);

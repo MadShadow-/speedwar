@@ -11,7 +11,6 @@
 -- TODO LIST:
 
 -- Change algorithm for closing wall, currently not good.
--- Better SellBuilding with smoke(and ressource return?)
 
 
 -- Better use for closing elements:
@@ -530,8 +529,11 @@ function SW.Walls.PlaceClosingWallNEW( pos, player)
 	local dis
 	local disMin = SW.Walls.Walllength - 2*SW.Walls.CornerSize
 	disMin = disMin*disMin
+	-- 600 == Length of gate
 	local disMax = 600 + 2*SW.Walls.CornerSize
 	disMax = disMax*disMax
+	-- use val^2 to avoid math.sqrt
+	-- search for corners with appropriate distance
 	for k,v in pairs(listOfCorners) do
 		for k2,v2 in pairs(listOfCorners) do
 			if k2 > k then
@@ -544,6 +546,7 @@ function SW.Walls.PlaceClosingWallNEW( pos, player)
 			end
 		end
 	end
+	-- list now contains a list of pairs of positions where a wall might be good
 	-- Found all corners in suitable distance
 	local list2 = {}
 	for k,v in pairs(list) do
@@ -563,6 +566,7 @@ function SW.Walls.PlaceClosingWallNEW( pos, player)
 			end
 		end
 	end
+	-- list2 contains entries with pos, angle und walltype that might complete a wall
 	--LuaDebugger.Break()
 	local toPlace = SW.Walls.GetNearestCandidate( pos, list2)
 	if toPlace ~= nil then
@@ -769,3 +773,5 @@ function SW.Walls.CreateSettlement()
 		Logic.CreateEntity( data[i][1], data[i][2], data[i][3], 0, 1)
 	end
 end
+
+SW.Walls = SW.Walls2

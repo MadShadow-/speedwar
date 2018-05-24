@@ -336,8 +336,63 @@ function SW.GetWorkTimeChangeWork( _eType)
 end
 
 
-function SW.SetMotivationBoost( _eType, _mot)				--DO NOT CALL; ITS PURE EVIL; SUMMONS CTHULHU
-	S5Hook.GetRawMem(9002416)[0][16][_type*8+5][2][26][4]:GetFloat()
+SW.SV = {}
+-- Entries { type, vtable, index, float/int}
+--	false == float, true == int for float/int
+--  2 == Beh, 1 and 0 not implemented
+SW.SV.Data = {
+	["WorkTimeChangeWork"] = {2, 7809936, 17, true},
+	["RecruitingTime"] = {2, 7834420, 9, false}
+}
+SW.SV.BackUps = {}
+-- Makes heavy use of upvalues!
+function SW.SV.Init()
+	for k,v in pairs(SW.SV.Data) do
+		local c = {type = v[1], vTable = v[2], index = v[3], int = v[4]}
+		if c.type == 2 then	--Behaviortable
+			SW.SV["Get"..k] = function( _eType)
+				local behPointer = SW.SV.SearchForBehTable( _eType, c.vTable)
+				if behPointer ~= nil then
+					if c.int then
+						return behPointer[c.index]:GetInt()
+					else
+						return behPointer[c.index]:GetFloat()
+					end
+				end
+			end
+			SW.SV.BackUps[k] = {}
+			local kCopy = k
+			SW.SV["Set"..k] = function( _eType, _val)
+				local behPointer = SW.SV.SearchForBehTable( _eType, c.vTable)
+				if behPointer ~= nil then
+					SW.SV.BackUps[kCopy][_eType] = SW.SV.BackUps[kCopy][_eType] or SW.SV["Get"..kCopy](_eType)
+					if c.int then
+						return behPointer[c.index]:SetInt( _val)
+					else
+						return behPointer[c.index]:SetFloat( _val)
+					end
+				else
+					Message("Failed to set "..kCopy.." for ".._eType)
+				end
+			end
+		end
+	end	
+end
+function SW.SV.SearchForBehTable( _eType, _vTable)
+	local typePointer = S5Hook.GetRawMem(9002416)[0][16]
+	local behPointer = typePointer[_eType*8+5]
+	local upperBorder = typePointer[_eType*8+7]:GetInt()
+	local i = 0
+	while typePointer[_eType*8+5]:Offset(i):GetInt() < upperBorder do
+		--LuaDebugger.Log(behPointer[i]:GetInt())
+		if behPointer[i]:GetInt() > 0 then	--adress looks good, check associated vtable
+			--LuaDebugger.Log(behPointer[i][0]:GetInt())
+			if behPointer[i][0]:GetInt() == _vTable then
+				return behPointer[i]
+			end
+		end
+		i = i + 1
+	end
 end
 
 -- Searches in memory for this value
