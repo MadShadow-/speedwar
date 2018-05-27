@@ -18,8 +18,6 @@ SW.Walls2.ListOfCorners = {}	--Values: [pId] = list of {X, Y, eId, numNeighbours
 SW.Walls2.GateOffsets = {}	--Values: {secondX, secondY, gateX, gateY}
 SW.Walls2.WallOffsets = {}	--Values: {secondX, secondY, wallX, wallY, angle}
 function SW.Walls2.Init()
-	ResearchAllUniversityTechnologies(1)
-	AddStone(5000)
 	local self = SW.Walls2
 	-- Get all good offsets
 	local maxDisWall = math.floor((self.Walllength + self.CornerSize*2)/100)
@@ -48,7 +46,14 @@ function SW.Walls2.Init()
 		SW.Walls2.ListOfCorners[i] = {}
 	end
 	self.InitGUIHooks()
+	self.WorldSize = Logic.WorldGetSize()
 	self.DestroyTriggerId = Trigger.RequestTrigger( Events.LOGIC_EVENT_ENTITY_DESTROYED, "SW_Walls2_OnDestroyed", "SW_Walls2_OnDestroyedAction", 1)
+end
+function SW.Walls2.DebugStuff()
+	for i = 1, 8 do
+		ResearchAllUniversityTechnologies(i)
+		AddStone(i, 5000)
+	end
 end
 function SW_Walls2_OnDestroyed()
 	-- Interesting events:
@@ -238,6 +243,8 @@ function SW.Walls2.PlaceNormalWall( _pos, _pId)
 		end
 		-- Good offset found? Get position!
 		local wData = self.WallOffsets[key]
+		LuaDebugger.Log("Wall at corner: X="..data.X.." Y="..data.Y)
+		LuaDebugger.Log("Angle "..wData[5].." newCorner X="..data.X + wData[3].." Y="..data.Y + wData[4])
 		SW.Walls2.CreateWall( _pId, {X = data.X + wData[1], Y = data.Y + wData[2]}, wData[5], {X = data.X + wData[3], Y = data.Y + wData[4]})
 	end
 end
@@ -351,6 +358,7 @@ function SW.Walls2.PlaceClosingWall( _pos, _pId)
 			return
 		end
 	end
+	Message("Abschlussmauer: Kein guter Bauplatz gefunden. Leite Selbstzerstörung ein.")
 end
 -- list is like list of offsets in init
 -- returns postion table if good, nil if not
@@ -386,21 +394,24 @@ end
 
 -- the additional arguments are positions for wall corners that have to be placed
 function SW.Walls2.CreateWall( _pId, _pos, _angle, ...)
+	if not SW.Walls2.IsPosValid( _pos) then return end
 	Logic.CreateEntity( SW.Walls2.WallType, _pos.X, _pos.Y, _angle+90, _pId)
 	for i = 1, arg.n do
-		if Logic.GetEntityAtPosition(arg[i].X, arg[i].Y) == 0 then
+		if Logic.GetEntityAtPosition(arg[i].X, arg[i].Y) == 0 and SW.Walls2.IsPosValid(arg[i]) then
 			local eId = Logic.CreateEntity( Entities.XD_WallCorner, arg[i].X, arg[i].Y, 0, _pId)
 			if eId == 0 then Message("Mauerbau: Failed to create corner at X="..arg[i].X.." Y="..arg[i].Y) end
 			MakeInvulnerable( eId)
 			Logic.SetEntitySelectableFlag( eId, 0)
 			table.insert(SW.Walls2.ListOfCorners[_pId], { X = arg[i].X, Y = arg[i].Y, eId = eId, numNeighbours = SW.Walls2.GetNeighbourCount(arg[i], _pId)})
+		else
+			Message("Mauerbau: Failed to create corner at X="..arg[i].X.." Y="..arg[i].Y..": Pos invalid or used")
 		end
 	end
 	SW.Walls2.UpdateCornerList( _pId)
 end
 function SW.Walls2.CreateGate( _pId, _pos, _angle, ...)
 	for i = 1, arg.n do
-		if Logic.GetEntityAtPosition(arg[i].X, arg[i].Y) == 0 then
+		if Logic.GetEntityAtPosition(arg[i].X, arg[i].Y) == 0 and SW.Walls2.IsPosValid(arg[i]) then
 			local eId = Logic.CreateEntity( Entities.XD_WallCorner, arg[i].X, arg[i].Y, 0, _pId)
 			if eId == 0 then Message("Mauerbau: Failed to create corner at X="..arg[i].X.." Y="..arg[i].Y) end
 			MakeInvulnerable( eId)
@@ -408,13 +419,14 @@ function SW.Walls2.CreateGate( _pId, _pos, _angle, ...)
 			table.insert(SW.Walls2.ListOfCorners[_pId], { X = arg[i].X, Y = arg[i].Y, eId = eId, numNeighbours = SW.Walls2.GetNeighbourCount(arg[i], _pId)})
 		end
 	end
+	if not SW.Walls2.IsPosValid( _pos) then return 0 end
 	local eId = Logic.CreateEntity( Entities.XD_WallStraightGate_Closed, _pos.X, _pos.Y, _angle+90, _pId)
 	SW.Walls2.UpdateCornerList( _pId)
 	return eId
 end
 function SW.Walls2.CreateGateOpen( _pId, _pos, _angle, ...)
 	for i = 1, arg.n do
-		if Logic.GetEntityAtPosition(arg[i].X, arg[i].Y) == 0 then
+		if Logic.GetEntityAtPosition(arg[i].X, arg[i].Y) == 0 and SW.Walls2.IsPosValid(arg[i]) then
 			local eId = Logic.CreateEntity( Entities.XD_WallCorner, arg[i].X, arg[i].Y, 0, _pId)
 			if eId == 0 then Message("Mauerbau: Failed to create corner at X="..arg[i].X.." Y="..arg[i].Y) end
 			MakeInvulnerable( eId)
@@ -422,6 +434,7 @@ function SW.Walls2.CreateGateOpen( _pId, _pos, _angle, ...)
 			table.insert(SW.Walls2.ListOfCorners[_pId], { X = arg[i].X, Y = arg[i].Y, eId = eId, numNeighbours = SW.Walls2.GetNeighbourCount(arg[i], _pId)})
 		end
 	end
+	if not SW.Walls2.IsPosValid( _pos) then return 0 end
 	local eId = Logic.CreateEntity( Entities.XD_WallStraightGate, _pos.X, _pos.Y, _angle+90, _pId)
 	SW.Walls2.UpdateCornerList( _pId)
 	return eId
@@ -458,7 +471,9 @@ function SW.Walls2.GetNeighbourCount( _pos, _pId, _exclude)
 	end
 	return count, lastEntity
 end
-
+function SW.Walls2.IsPosValid( _pos)
+	return (_pos.X > 0 and _pos.X < SW.Walls2.WorldSize and _pos.Y > 0 and _pos.Y < SW.Walls2.WorldSize)
+end
 
 
 

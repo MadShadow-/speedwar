@@ -5,14 +5,6 @@ SW.ScriptingValueBackup = SW.ScriptingValueBackup or {};
 SW.ScriptingValueBackup.ConstructionCosts = SW.ScriptingValueBackup.ConstructionCosts or {};
 SW.ScriptingValueBackup.RecruitingCosts = SW.ScriptingValueBackup.RecruitingCosts or {};
 SW.ScriptingValueBackup.UpgradeCosts = SW.ScriptingValueBackup.UpgradeCosts or {};
-SW.ScriptingValueBackup.UpgradeTime = SW.ScriptingValueBackup.UpgradeTime or {};
-SW.ScriptingValueBackup.ConstructionTime = SW.ScriptingValueBackup.ConstructionTime or {};
-SW.ScriptingValueBackup.Exploration = SW.ScriptingValueBackup.Exploration or {};
-SW.ScriptingValueBackup.RecruitingTime = SW.ScriptingValueBackup.RecruitingTime or {};
-SW.ScriptingValueBackup.AttractionProvided = SW.ScriptingValueBackup.AttractionProvided or {}
-SW.ScriptingValueBackup.AttractionNeeded = SW.ScriptingValueBackup.AttractionNeeded or {}
-SW.ScriptingValueBackup.KegFactor = SW.ScriptingValueBackup.KegFactor or {}
-SW.ScriptingValueBackup.WorkTimeChangeWork = SW.ScriptingValueBackup.WorkTimeChangeWork or {}
 function SW.ResetScriptingValueChanges()
 	for k,v in pairs(SW.ScriptingValueBackup.ConstructionCosts) do
 		SW.SetConstructionCosts(k, v);
@@ -25,29 +17,7 @@ function SW.ResetScriptingValueChanges()
 	for k, v in pairs(SW.ScriptingValueBackup.UpgradeCosts) do
 		SW.SetUpgradeCosts(k,v);
 	end;
-	
-	for k, v in pairs(SW.ScriptingValueBackup.UpgradeTime) do
-		SW.SetUpgradeTime(k,v);
-	end;
-	for k, v in pairs(SW.ScriptingValueBackup.ConstructionTime) do
-		SW.SetConstructionTime(k,v);
-	end;
-	for k, v in pairs(SW.ScriptingValueBackup.Exploration) do
-		SW.SetExploration(k,v);
-	end;
-	for k, v in pairs(SW.ScriptingValueBackup.AttractionProvided) do
-		SW.SetAttractionPlaceProvided(k,v);
-	end
-	for k, v in pairs(SW.ScriptingValueBackup.AttractionNeeded) do
-		SW.SetAttractionPlaceNeeded(k,v);
-	end
-	
-	for k, v in pairs(SW.ScriptingValueBackup.KegFactor) do
-		SW.SetKegFactor(k,v)
-	end
-	for k, v in pairs(SW.ScriptingValueBackup.WorkTimeChangeWork) do
-		SW.SetWorkTimeChangeWork(k,v)
-	end
+	SW.SV.GreatReset()
 end;
 
 --HelperFunc: Set Movement speed of given entity
@@ -57,15 +27,6 @@ end
 --HelperFunc: Get Movement speed of given entity
 function SW.GetMovementspeed( _eId)
 	return S5Hook.GetEntityMem( _eId)[31][1][5]:GetFloat()
-end
---HelperFunc: Set construction time of given entity type, developed by mcb
-function SW.SetConstructionTime( _eType, _time)
-	SW.ScriptingValueBackup.ConstructionTime[_eType] = SW.ScriptingValueBackup.ConstructionTime[_eType] or SW.GetConstructionTime(_eType);
-	S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][55]:SetInt(_time);
-end
---HelperFunc: Get construction time of given entity type, developed by mcb
-function SW.GetConstructionTime( _eType)
-	return S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][55]:GetInt();
 end
 --HelperFunc: Set construction cost of given entity type, developed by mcb
 function SW.SetConstructionCosts( _eType, _costTable)
@@ -180,15 +141,6 @@ function SW.AddExperiencePoints( _eId, _exp)
 	end
 	S5Hook.GetEntityMem( _eId)[31][3][32]:SetInt( currExp + _exp)
 end
---HelperFunc: Set exploration range in settler meters
-function SW.SetExploration( _eType, _range)
-	SW.ScriptingValueBackup.Exploration[_eType] = SW.ScriptingValueBackup.Exploration[_eType] or SW.GetExploration(_eType);
-	S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][19]:SetFloat( _range);
-end
---HelperFunc: Get exploration range in settler meters
-function SW.GetExploration( _eType)
-	S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][19]:GetFloat();
-end
 --HelperFunc: Get upgrade costs of building
 function SW.GetUpgradeCosts( _eType)
 	local resourceTypes = {
@@ -239,118 +191,41 @@ function SW.SetUpgradeCosts( _eType, _costTable)
 		S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][v]:SetFloat( _costTable[k]);
 	end
 end
---HelperFunc: Get upgrade time of given building
-function SW.GetUpgradeTime( _eType)
-	return S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][80]:GetFloat();
-end
---HelperFunc: Set upgrade time of given building
-function SW.SetUpgradeTime( _eType, _time)
-	SW.ScriptingValueBackup.UpgradeTime[_eType] = SW.ScriptingValueBackup.UpgradeTime[_eType] or SW.GetUpgradeTime(_eType);
-	S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][80]:SetFloat( _time);
-end
--- Set recruiting time for this building type, only for barracks, archerys and stables!
-function SW.SetRecruitingTime( _eType, _time)
-	local index = {
-		[Entities.PB_Barracks1] = 4,
-		[Entities.PB_Barracks2] = 4,
-		[Entities.PB_Archery1] = 4,
-		[Entities.PB_Archery2] = 6,
-		[Entities.PB_Stable1] = 4,
-		[Entities.PB_Stable2] = 4
-	}
-	if index[_eType] == nil then return false end
-	local behTable = S5Hook.GetRawMem(9002416)[0][16][_eType*8+5][index[_eType]]
-	if behTable[0] ~= 7834420 then return false end		--GGL::CBarrackBehavior == 7834420
-	SW.ScriptingValueBackup.RecruitingTime[_eType] = SW.ScriptingValueBackup.RecruitingTime[_eType] or SW.GetRecruitingTime(_eType)
-	behTable[9]:SetFloat( _time)
-end
--- Get recruiting time for this building type, only for barracks, archerys and stables!
-function SW.GetRecruitingTime( _eType)
-	local index = {
-		[Entities.PB_Barracks1] = 4,
-		[Entities.PB_Barracks2] = 4,
-		[Entities.PB_Archery1] = 4,
-		[Entities.PB_Archery2] = 6,
-		[Entities.PB_Stable1] = 4,
-		[Entities.PB_Stable2] = 4
-	}
-	if index[_eType] == nil then return 0 end
-	local behTable = S5Hook.GetRawMem(9002416)[0][16][_eType*8+5][index[_eType]]
-	if behTable[0] ~= 7834420 then return 0 end		--GGL::CBarrackBehavior == 7834420
-	return behTable[9]:GetFloat()
-end
-
--- Gets how many attraction slot this entity uses
-function SW.GetAttractionPlaceNeeded( _eType)
-	if Logic.GetEntityTypeName(_eType) ~= nil then
-		return S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][136]:GetInt()
-	end
-end
--- Sets how many attraction slot this entity uses
-function SW.SetAttractionPlaceNeeded( _eType, _slots)
-	if Logic.GetEntityTypeName(_eType) ~= nil then
-		SW.ScriptingValueBackup.AttractionNeeded[_eType] = SW.ScriptingValueBackup.AttractionNeeded[_eType] or SW.GetAttractionPlaceNeeded( _eType)
-		S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][136]:SetInt(_slots)
-	end
-end
--- Gets how many attraction slots this entity provides
-function SW.GetAttractionPlaceProvided( _eType)
-	return S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][44]:GetInt()
-end
--- Sets how many attraction slots this entity provides
-function SW.SetAttractionPlaceProvided( _eType, _place)
-	SW.ScriptingValueBackup.AttractionProvided[_eType] = SW.ScriptingValueBackup.AttractionProvided[_eType] or SW.GetAttractionPlaceProvided( _eType)
-	S5Hook.GetRawMem(9002416)[0][16][_eType * 8 + 2][44]:SetInt(_place)
-end
-
--- Sets damage the keg deals; 1 = 80% MaxHP, 0.1 = 8% MaxHP
-function SW.SetKegFactor( _eType, _factor)
-	if S5Hook.GetRawMem(9002416)[0][16][_eType*8+2][0]:GetInt() == 7793784 then
-		if SW.ScriptingValueBackup.KegFactor[_eType] == nil then
-			SW.ScriptingValueBackup.KegFactor[_eType] = SW.GetKegFactor( _eType)
-		end
-		S5Hook.GetRawMem(9002416)[0][16][_eType*8+2][124]:SetFloat( _factor)
-	end
-end
-function SW.GetKegFactor( _eType)
-	-- at 0: 7793784
-	if S5Hook.GetRawMem(9002416)[0][16][_eType*8+2][0]:GetInt() == 7793784 then
-		return S5Hook.GetRawMem(9002416)[0][16][_eType*8+2][124]:GetFloat()
-	end
-	return 0
-end
-
-function SW.SetWorkTimeChangeWork( _eType, _val)
-	if S5Hook.GetRawMem(9002416)[0][16][_eType*8+5][4][0]:GetInt() ~= 7809936 then
-		return false
-	end
-	SW.ScriptingValueBackup.WorkTimeChangeWork[_eType] = SW.ScriptingValueBackup.WorkTimeChangeWork[_eType] or SW.GetWorkTimeChangeWork(_eType)
-	S5Hook.GetRawMem(9002416)[0][16][_eType*8+5][4][17]:SetInt( val)
-	return true
-end
-function SW.GetWorkTimeChangeWork( _eType)
-	if S5Hook.GetRawMem(9002416)[0][16][_eType*8+5][4][0]:GetInt() ~= 7809936 then
-		return 0
-	end
-	return S5Hook.GetRawMem(9002416)[0][16][_eType*8+5][4][17]:GetInt()
-end
 
 
 SW.SV = {}
 -- Entries { type, vtable, index, float/int}
 --	false == float, true == int for float/int
---  2 == Beh, 1 and 0 not implemented
+--  type:
+--  2 == Beh
+--	1 == Logic
+
+-- for each entry, 2 functions are created:
+--	SV["Set"..key]( _eType, val), sets key for the entity type
+--	SV["Get"..key]( _eType), gets key for the entity
 SW.SV.Data = {
 	["WorkTimeChangeWork"] = {2, 7809936, 17, true},
-	["RecruitingTime"] = {2, 7834420, 9, false}
+	["RecruitingTime"] = {2, 7834420, 9, false},
+	["RefinedPerTick"] = {2, 7818276, 5, false},
+	["WorkerTransportAmount"] = {2, 7809936, 24, true},
+	["AmountToMine"] = {2, 7821340, 4, true},
+	-- Logic for buildings, GGL::CGLBuildingProps == 7793784
+	["KegFactor"] = {1, 7793784, 124, false},
+	["AttractionPlaceProvided"] = {1, 7793784, 44, true},
+	["UpgradeTime"] = {1, 7793784, 80, false},
+	["Exploration"] = {1, 7793784, 19, false},
+	["ConstructionTime"] = {1, 7793784, 55, true},
+	["BuildingMaxHealth"] = {1, 7793784, 13, true},
+	-- Logic for entities, GGL::CGLSettlerProps == 7791768
+	["AttractionPlaceNeeded"] = {1, 7791768, 136, true}	
 }
 SW.SV.BackUps = {}
--- Makes heavy use of upvalues!
+-- Makes use of upvalues!
 function SW.SV.Init()
 	for k,v in pairs(SW.SV.Data) do
-		local c = {type = v[1], vTable = v[2], index = v[3], int = v[4]}
+		local c = {type = v[1], vTable = v[2], index = v[3], int = v[4]}	--Create a copy of v for use
 		if c.type == 2 then	--Behaviortable
-			SW.SV["Get"..k] = function( _eType)
+			SW["Get"..k] = function( _eType)
 				local behPointer = SW.SV.SearchForBehTable( _eType, c.vTable)
 				if behPointer ~= nil then
 					if c.int then
@@ -362,14 +237,40 @@ function SW.SV.Init()
 			end
 			SW.SV.BackUps[k] = {}
 			local kCopy = k
-			SW.SV["Set"..k] = function( _eType, _val)
+			SW["Set"..k] = function( _eType, _val)
 				local behPointer = SW.SV.SearchForBehTable( _eType, c.vTable)
 				if behPointer ~= nil then
-					SW.SV.BackUps[kCopy][_eType] = SW.SV.BackUps[kCopy][_eType] or SW.SV["Get"..kCopy](_eType)
+					SW.SV.BackUps[kCopy][_eType] = SW.SV.BackUps[kCopy][_eType] or SW["Get"..kCopy](_eType)
 					if c.int then
-						return behPointer[c.index]:SetInt( _val)
+						behPointer[c.index]:SetInt( _val)
 					else
-						return behPointer[c.index]:SetFloat( _val)
+						behPointer[c.index]:SetFloat( _val)
+					end
+				else
+					Message("Failed to set "..kCopy.." for ".._eType)
+				end
+			end
+		elseif c.type == 1 then	--Logic table
+			SW["Get"..k] = function( _eType)
+				local logicPointer = S5Hook.GetRawMem(9002416)[0][16][_eType*8+2]
+				if logicPointer[0]:GetInt() == c.vTable then
+					if c.int then
+						return logicPointer[c.index]:GetInt()
+					else
+						return logicPointer[c.index]:GetFloat()
+					end
+				else return -1 end
+			end
+			SW.SV.BackUps[k] = {}
+			local kCopy = k
+			SW["Set"..k] = function( _eType, _val)
+				local logicPointer = S5Hook.GetRawMem(9002416)[0][16][_eType*8+2]
+				if logicPointer[0]:GetInt() == c.vTable then
+					SW.SV.BackUps[kCopy][_eType] = SW.SV.BackUps[kCopy][_eType] or SW["Get"..kCopy](_eType)
+					if c.int then
+						logicPointer[c.index]:SetInt( _val)
+					else
+						logicPointer[c.index]:SetFloat( _val)
 					end
 				else
 					Message("Failed to set "..kCopy.." for ".._eType)
@@ -377,6 +278,14 @@ function SW.SV.Init()
 			end
 		end
 	end	
+end
+function SW.SV.GreatReset()
+	for k,v in pairs(SW.SV.BackUps) do
+		for k2,v2 in pairs(v) do	--k2 == eType, v2 == val
+			SW["Set"..k]( k2, v2)
+		end
+		SW.SV.BackUps[k] = {}
+	end
 end
 function SW.SV.SearchForBehTable( _eType, _vTable)
 	local typePointer = S5Hook.GetRawMem(9002416)[0][16]
@@ -395,52 +304,4 @@ function SW.SV.SearchForBehTable( _eType, _vTable)
 	end
 end
 
--- Searches in memory for this value
--- starts with given pointer and tries to follow every pointer it finds
---S5Hook.GetRawMem(9002416)[0][16][71*8+5][2]:GetInt()
---SW.MemoryCrawlerFloat( S5Hook.GetRawMem(9002416)[0][16][82*8+5][2], 0.04, 100, 3)
-function SW.MemoryCrawlerFloat( _startPoint, _val, _width, _depth, ...)
-	S5Hook.SetPreciseFPU()
-	for i = 0, _width do
-		if SW.MemoryCrawlerIsPointer( _startPoint[i]:GetInt()) and _depth > 0 then
-			LuaDebugger.Log("Following pointer ".._startPoint[i]:GetInt().." with depth ".._depth)
-			--LuaDebugger.Break()
-			if arg[1] ~= nil then
-				SW.MemoryCrawlerFloat( _startPoint[i], _val, _width, _depth-1, unpack(arg), i)
-			else
-				SW.MemoryCrawlerFloat( _startPoint[i], _val, _width, _depth-1, i)
-			end
-		else
-			if math.abs(_val - _startPoint[i]:GetFloat()) < 0.001 then
-				LuaDebugger.Log("Val found: ".._startPoint[i]:GetFloat())
-				LuaDebugger.Log("Arg[1]: "..tostring(arg[1]))
-				LuaDebugger.Log("Arg[2]: "..tostring(arg[2]))
-				LuaDebugger.Log("Arg[3]: "..tostring(arg[3]))
-				LuaDebugger.Log( i)
-			end
-		end
-	end
-end
-SW.MemoryCrawlerBlackList = {
-	[401926152] = true,
-	[410058508] = true
-}
-function SW.MemoryCrawlerIsPointer( _val)
-	if _val > 5000000 and _val < 450000000 and (not (_val > 10000000 and _val < 350000000))then
-		if math.mod(_val,4) == 0 then
-			if SW.MemoryCrawlerBlackList[_val] == nil then
-				return true
-			end
-		end
-	end
-	return false
-end
 
---[[
-Log: "Val found: 0.03999999910593"
-Log: "Arg[1]: 26"
-Log: "Arg[2]: nil"
-Log: "Arg[3]: nil"
-Log: 4
-
-]]
