@@ -71,7 +71,7 @@ function Sync2.NewTributeFor(_pId)
 	local tributeId = AddTribute(tributeData)
 	Sync2.Tributes[tributeId] = tributeData
 	Sync2.Tributes[tributeId].Player = _pId
-	Sync2.Tributes[tributeId].Used = false
+	Sync2.Tributes[tributeId].Used = false 
 	Sync2.Tributes[tributeId].myId = tributeId
 end
 function Sync2.OnPrepMessageArrived( _msg, _pId)
