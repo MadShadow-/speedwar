@@ -40,8 +40,8 @@ SpeedwarConfig = {
 		-- if there is anything you'd like to do ..
 		-- this is called when serfs get spawned
 	end,
-	EverySecond = function()	--TODO: IMPLEMENT IT
-		-- stuff that is called every second
+	EverySecond = function()
+		-- stuff that is called every second, return true does not end job
 	end
 	
 	PlayerStartSectors = {
@@ -62,13 +62,13 @@ SpeedwarConfig = {
 	PlayerFixedStart = false,
 	PlayerStartPos = {		-- accepts position table, entity name or entity id
 		[1] = "Start_P1", --Spieler 1 spawnt auf Skriptentity mit Namen Start_P1
-		[2] = "Start_P1", --Spieler 1 spawnt auf Skriptentity mit Namen Start_P2
-		[3] = "Start_P1", --Spieler 1 spawnt auf Skriptentity mit Namen Start_P3
-		[4] = "Start_P1", --Spieler 1 spawnt auf Skriptentity mit Namen Start_P4
-		[5] = "Start_P1", --Spieler 1 spawnt auf Skriptentity mit Namen Start_P5
-		[6] = "Start_P1", --Spieler 1 spawnt auf Skriptentity mit Namen Start_P6
-		[7] = "Start_P1", --Spieler 1 spawnt auf Skriptentity mit Namen Start_P7
-		[8] = "Start_P1", --Spieler 1 spawnt auf Skriptentity mit Namen Start_P8
+		[2] = "Start_P2", --Spieler 2 spawnt auf Skriptentity mit Namen Start_P2
+		[3] = "Start_P3", --Spieler 3 spawnt auf Skriptentity mit Namen Start_P3
+		[4] = "Start_P4", --Spieler 4 spawnt auf Skriptentity mit Namen Start_P4
+		[5] = "Start_P5", --Spieler 5 spawnt auf Skriptentity mit Namen Start_P5
+		[6] = "Start_P6", --Spieler 6 spawnt auf Skriptentity mit Namen Start_P6
+		[7] = "Start_P7", --Spieler 7 spawnt auf Skriptentity mit Namen Start_P7
+		[8] = "Start_P8", --Spieler 8 spawnt auf Skriptentity mit Namen Start_P8
 	}
 	
 	--[[

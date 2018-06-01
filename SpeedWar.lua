@@ -212,6 +212,8 @@ function SW.Activate(_seed)
 	end
 	SW.IsActivated = true;
 	
+	-- create all SV related functions
+	SW.SV.Init()
 	-- village centers shall be removed and replaced by outposts
 	SW.EnableOutpostVCs();
 	SW.RankSystem.ApplyGUIChanges();
@@ -317,7 +319,13 @@ function SW.Activate(_seed)
 	-- Make outposts more resilient against thieves
 	SW.SetKegFactor( Entities.PB_Outpost1, 0.1)
 	-- Enable map specific changes
-	SW.MapSpecific.OnGameStartCallback();
+	if SpeedwarConfig.OnGameStartCallback ~= nil then
+		SpeedwarConfig.OnGameStartCallback();
+	end
+	if SpeedwarConfig.EverySecond ~= nil then
+		SW_MapSpecificJob = function() SpeedwarConfig.EverySecond() end
+		StartSimpleJob("SW_MapSpecificJob")
+	end
 end
 
 function SW.EnableStartingTechnologies()
@@ -731,14 +739,13 @@ function SW_OnEntityCreatedOutpost()
 		end
 	end
 end
-
+SW_ToDestroyEntities = {}
 function SW_DestroySafe(_entityID)
-	SW_ToDestroyEntities = SW_ToDestroyEntites or {};
 	function SW_DestroyJob()
 		for i = table.getn( SW_ToDestroyEntities), 1, -1 do
 			DestroyEntity( SW_ToDestroyEntities[i])
-			table.remove(SW_ToDestroyEntities, i);
 		end
+		SW_ToDestroyEntities = {}
 		return true;
 	end;
 	table.insert(SW_ToDestroyEntities, _entityID);
@@ -1313,7 +1320,7 @@ end
 	Framework.CloseGame = function()
 		SW.ResetScriptingValueChanges();
 		SW.RefineryPush.Reset();
-		SW.ResetBuildingMaxHealth();
+		-- SW.ResetBuildingMaxHealth(); --	 no more need for this function
 		S5Hook.AddArchive("extra2/shr/maps/user/speedwar/backtotheroots.bba");
 		S5Hook.ReloadEntities();
 		S5Hook.RemoveArchive();

@@ -433,7 +433,7 @@ function SW.WallGUI.CreateEntity(_entityType, _position, _playerId, _wallTypeStr
 	-- not part of the GUI anymore
 	-- this is the logic part
 	-- to be continued by napo
-	LuaDebugger.Log(_wallTypeString);
+	-- LuaDebugger.Log(_wallTypeString);
 	--NOW IS NAPO TIME
 	--FEAR ME
 	local newEntityId;
