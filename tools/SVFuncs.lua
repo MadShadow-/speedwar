@@ -199,6 +199,7 @@ SW.SV = {}
 --  type:
 --  2 == Beh
 --	1 == Logic
+--  index can be a table, only implemented for behTables atm
 
 -- for each entry, 2 functions are created:
 --	SV["Set"..key]( _eType, val), sets key for the entity type
@@ -217,8 +218,13 @@ SW.SV.Data = {
 	["ConstructionTime"] = {1, 7793784, 55, true},
 	["BuildingMaxHealth"] = {1, 7793784, 13, true},
 	-- Logic for entities, GGL::CGLSettlerProps == 7791768
-	["AttractionPlaceNeeded"] = {1, 7791768, 136, true}	
+	["AttractionPlaceNeeded"] = {1, 7791768, 136, true},
+	-- BehTable for motivation, 7836116 == GGL::CAffectMotivationBehaviorProps
+	["MotivationProvided"] = {2, 7836116, 4, false},
+	-- BehTable for residences / farms, 7823028 == GGL::CLimitedAttachmentBehaviorProperties
+	["PlacesProvided"] = {2, 7823028, {5,7}, true}
 }
+
 SW.SV.BackUps = {}
 -- Makes use of upvalues!
 function SW.SV.Init()
@@ -229,9 +235,9 @@ function SW.SV.Init()
 				local behPointer = SW.SV.SearchForBehTable( _eType, c.vTable)
 				if behPointer ~= nil then
 					if c.int then
-						return behPointer[c.index]:GetInt()
+						return SW.SV.UnpackIndex( behPointer, c.index):GetInt()
 					else
-						return behPointer[c.index]:GetFloat()
+						return SW.SV.UnpackIndex( behPointer, c.index):GetFloat()
 					end
 				end
 			end
@@ -242,9 +248,9 @@ function SW.SV.Init()
 				if behPointer ~= nil then
 					SW.SV.BackUps[kCopy][_eType] = SW.SV.BackUps[kCopy][_eType] or SW["Get"..kCopy](_eType)
 					if c.int then
-						behPointer[c.index]:SetInt( _val)
+						SW.SV.UnpackIndex( behPointer, c.index):SetInt( _val)
 					else
-						behPointer[c.index]:SetFloat( _val)
+						SW.SV.UnpackIndex( behPointer, c.index):SetFloat( _val)
 					end
 				else
 					Message("Failed to set "..kCopy.." for ".._eType)
@@ -301,6 +307,25 @@ function SW.SV.SearchForBehTable( _eType, _vTable)
 			end
 		end
 		i = i + 1
+	end
+end
+function SW.SV.UnpackIndex( _p, _t)
+	if type(_t) == "number" then
+		return _p[_t]
+	end
+	for i = 1, table.getn(_t) do
+		_p = _p[_t[i]]
+	end
+	return _p
+end
+
+SVTests = {}
+SVTests.VTable = 7836116 --GGL::CAffectMotivationBehaviorProps
+function SVTests.Print( _eType, _lim)
+	local pointer = SW.SV.SearchForBehTable( _eType, SVTests.VTable)
+	if pointer == nil then return end
+	for i = 0, _lim do
+		LuaDebugger.Log(i.." "..pointer[i]:GetInt().." "..pointer[i]:GetFloat())
 	end
 end
 

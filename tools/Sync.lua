@@ -96,6 +96,8 @@ function Sync.AddCall(_f)
 end
 function Sync.OverwriteTributeCallback(_id, _fs)
 	Sync.Tributes[_id].Callback = function()
+		LuaDebugger.Log("Executing tribute ".._id)
+		LuaDebugger.Log("fs: ".._fs)
 		Sync.ExecuteFunctionByString(_fs)
 		Sync.CreateNewTribut(Sync.Tributes[_id].Player)
 		Sync.Tributes[_id] = nil
@@ -124,7 +126,7 @@ function Sync.OnAcknowledgeMessageArrived(_msg, _pId)
 end
 
 function Sync.Send(_str)
-	if MCS.T.IsMultiplayer() then
+	if SW.IsMultiplayer() then
 		XNetwork.Chat_SendMessageToAll(_str)
 	else
 		MPGame_ApplicationCallback_ReceivedChatMessage(_str, 0, GUI.GetPlayerID())
