@@ -155,6 +155,7 @@ function SW.WinCondition.EndGame()
 			if SW.WinCondition.TeamByPlayer[i] ~= winnerTeam then
 				SW.DefeatConditionPlayerStates[i] = false
 				SW.DefeatConditionOnPlayerDefeated( i)
+				SW.WinCondition.GameOver = true
 			end
 		end
 	end

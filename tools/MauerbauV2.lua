@@ -243,8 +243,6 @@ function SW.Walls2.PlaceNormalWall( _pos, _pId)
 		end
 		-- Good offset found? Get position!
 		local wData = self.WallOffsets[key]
-		LuaDebugger.Log("Wall at corner: X="..data.X.." Y="..data.Y)
-		LuaDebugger.Log("Angle "..wData[5].." newCorner X="..data.X + wData[3].." Y="..data.Y + wData[4])
 		SW.Walls2.CreateWall( _pId, {X = data.X + wData[1], Y = data.Y + wData[2]}, wData[5], {X = data.X + wData[3], Y = data.Y + wData[4]})
 	end
 end
@@ -358,7 +356,7 @@ function SW.Walls2.PlaceClosingWall( _pos, _pId)
 			return
 		end
 	end
-	Message("Abschlussmauer: Kein guter Bauplatz gefunden. Leite Selbstzerstörung ein.")
+	SW.Walls2.MsgForPlayer( _pId, "Abschlussmauer: Kein guter Bauplatz gefunden. Leite Selbstzerstörung ein.")
 end
 -- list is like list of offsets in init
 -- returns postion table if good, nil if not
@@ -397,7 +395,7 @@ function SW.Walls2.CreateWall( _pId, _pos, _angle, ...)
 	if not SW.Walls2.IsPosValid( _pos) then return end
 	Logic.CreateEntity( SW.Walls2.WallType, _pos.X, _pos.Y, _angle+90, _pId)
 	for i = 1, arg.n do
-		if Logic.GetEntityAtPosition(arg[i].X, arg[i].Y) == 0 and SW.Walls2.IsPosValid(arg[i]) then
+		if SW.Walls2.IsPosValid(arg[i]) then
 			local eId = Logic.CreateEntity( Entities.XD_WallCorner, arg[i].X, arg[i].Y, 0, _pId)
 			if eId == 0 then Message("Mauerbau: Failed to create corner at X="..arg[i].X.." Y="..arg[i].Y) end
 			MakeInvulnerable( eId)
@@ -411,7 +409,7 @@ function SW.Walls2.CreateWall( _pId, _pos, _angle, ...)
 end
 function SW.Walls2.CreateGate( _pId, _pos, _angle, ...)
 	for i = 1, arg.n do
-		if Logic.GetEntityAtPosition(arg[i].X, arg[i].Y) == 0 and SW.Walls2.IsPosValid(arg[i]) then
+		if SW.Walls2.IsPosValid(arg[i]) then
 			local eId = Logic.CreateEntity( Entities.XD_WallCorner, arg[i].X, arg[i].Y, 0, _pId)
 			if eId == 0 then Message("Mauerbau: Failed to create corner at X="..arg[i].X.." Y="..arg[i].Y) end
 			MakeInvulnerable( eId)
@@ -426,7 +424,7 @@ function SW.Walls2.CreateGate( _pId, _pos, _angle, ...)
 end
 function SW.Walls2.CreateGateOpen( _pId, _pos, _angle, ...)
 	for i = 1, arg.n do
-		if Logic.GetEntityAtPosition(arg[i].X, arg[i].Y) == 0 and SW.Walls2.IsPosValid(arg[i]) then
+		if SW.Walls2.IsPosValid(arg[i]) then
 			local eId = Logic.CreateEntity( Entities.XD_WallCorner, arg[i].X, arg[i].Y, 0, _pId)
 			if eId == 0 then Message("Mauerbau: Failed to create corner at X="..arg[i].X.." Y="..arg[i].Y) end
 			MakeInvulnerable( eId)
@@ -472,9 +470,17 @@ function SW.Walls2.GetNeighbourCount( _pos, _pId, _exclude)
 	return count, lastEntity
 end
 function SW.Walls2.IsPosValid( _pos)
-	return (_pos.X > 0 and _pos.X < SW.Walls2.WorldSize and _pos.Y > 0 and _pos.Y < SW.Walls2.WorldSize)
+	return ((_pos.X > 0 and _pos.X < SW.Walls2.WorldSize and _pos.Y > 0 and _pos.Y < SW.Walls2.WorldSize) and not SW.Walls2.IsWall( Logic.GetEntityType( Logic.GetEntityAtPosition( _pos.X, _pos.Y))))
+end
+function SW.Walls2.IsWall( _type)
+	return ( _type == Entities.XD_WallStraightGate or _type == Entities.XD_WallStraightGate_Closed or _type == Entities.XD_WallStraight)
 end
 
+function SW.Walls2.MsgForPlayer( _pId, _s)
+	if GUI.GetPlayerID() == _pId then
+		Message( _s)
+	end
+end
 
 
 

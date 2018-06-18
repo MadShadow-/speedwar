@@ -1079,6 +1079,7 @@ end
 
 --		DEFEAT CONDITION
 SW.DefeatConditionPlayerStates = {}
+SW.VisionEntities = {}
 function SW.DefeatCondition_Create()
 	SW.DefeatCondition_GetExistingEntities()
 	Trigger.RequestTrigger( Events.LOGIC_EVENT_ENTITY_CREATED, "SW_DefeatConditionCondition","SW_Defeat_On_Entity_Created",1 );
@@ -1126,6 +1127,7 @@ function SW.DefeatConditionOnPlayerDefeated( _pId)	--Gets called once player des
 		for i = 1, SW.MaxPlayers do
 			if team( _pId) == team(i) then
 				local viewCenter = Logic.CreateEntity(Entities.XD_ScriptEntity, -1, -1, 90, i)
+				table.insert(SW.VisionEntities, viewCenter)
 				Logic.SetEntityExplorationRange( viewCenter, 2000) --2000 > 768 * sqrt(2)
 			end
 		end
@@ -1153,6 +1155,7 @@ function SW.DefeatConditionOnPlayerDefeated( _pId)	--Gets called once player des
 		for i = 1, SW.MaxPlayers do
 			if team(i) == vicTeam then
 				local viewCenter = Logic.CreateEntity(Entities.XD_ScriptEntity, -1, -1, 90, i)
+				table.insert(SW.VisionEntities, viewCenter)
 				Logic.SetEntityExplorationRange( viewCenter, 2000) --2000 > 768 * sqrt(2)
 			end
 		end
@@ -1211,6 +1214,17 @@ function SW.DefeatCondition_GetExistingEntities()
 	end
 end
 
+function SW.ResumeGame()
+	if not SW.WinCondition.GameOver then	--Game has not ended yet or is already resumed
+		return
+	end
+	SW.WinCondition.GameOver = false
+	Logic.ResumeAllEntities()
+	for k,v in pairs(SW.VisionEntities) do
+		DestroyEntity(v)
+	end
+	SW.VisionEntities = {}
+end
 --			FASTER BUILDING
 function SW.EnableFasterBuild()
 	--if true then return end

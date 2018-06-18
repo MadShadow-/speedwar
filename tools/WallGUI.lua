@@ -200,7 +200,7 @@ function SW.WallGUI.Init()
 			local wallInfo;
 			for i = 1, table.getn(SW.WallGUI.PlayerLocal_WallQueue) do
 				wallInfo = SW.WallGUI.PlayerLocal_WallQueue[i];
-				Sync.Call("SW.WallGUI.PayCosts", GUI.GetPlayerID(), SW.WallGUI.Costs[wallInfo[2]]);
+				Sync.Call("SW.WallGUI.PayCosts", GUI.GetPlayerID(), wallInfo[2]);
 				Sync.Call("SW.WallGUI.AddWallInConstructionToQueue", wallInfo[1], wallInfo[2], wallInfo[3]);
 			end
 			SW.PreciseLog.Log("Sending "..SW.WallGUI.LatestWallType.." with "..tostring(SW.WallGUI.LatestWallNewWall), "WallGUI")
@@ -620,7 +620,8 @@ function SW.WallGUI.CreateCostString( _costs )
 end
 
 
-function SW.WallGUI.PayCosts( _playerId, _costs )
+function SW.WallGUI.PayCosts( _playerId, _costKey)
+	local _costs = SW.WallGUI.Costs[_costKey]
 	AddGold  ( _playerId, - math.min(GetGold(_playerId),   _costs[1] or 0) );
 	AddClay  ( _playerId, - math.min(GetClay(_playerId),   _costs[2] or 0) );
 	AddWood  ( _playerId, - math.min(GetWood(_playerId),   _costs[3] or 0) );

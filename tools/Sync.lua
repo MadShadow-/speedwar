@@ -21,10 +21,11 @@ function Sync.Init()
 		["SW.Bastille.TrackGroup"] = true,
 		["SW.Bastille.SyncedReleaseAllUnits"] = true,
 		["SW.Bastille.ReleaseOneUnitSynced"] = true,
-		["SW.Walls.SellWall"] = true,
-		["SW.Walls.ToggleGate"] = true,
+		["SW.Walls2.SellWall"] = true,
+		["SW.Walls2.ToggleGate"] = true,
 		["SW.WallGUI.PayCosts"] = true,
 		["SW.WallGUI.AddWallInConstructionToQueue"] = true,
+		["SW.ResumeGame"] = true
 	};
 	
 	-- numOfTributes determines actions at the same time
@@ -165,6 +166,7 @@ function Sync.ExecuteFunctionByString(_s)
 	local start = string.find(_s, string.char(4))
 	local fString = string.sub(_s, 1, start-1)
 	if Sync.UseWhitelist and not Sync.Whitelist[fString] then
+		SW.PreciseLog.Log("Bad fs: ".._s, "SyncError")
 		return;
 	end
 	local arguments = Sync.StringToTable(string.sub(_s, start+1))

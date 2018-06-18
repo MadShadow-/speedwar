@@ -159,7 +159,7 @@ function SW.RessCheck.GetTableCheckSum( _t)
 	return checkSum
 end
 function SW.RessCheck.StartVersionCheck()
-	local myVersion = SW.RessCheck.GetTableCheckSum(SW)
+	local myVersion = SW.RessCheck.GetTableCheckSum(SW) + SW.RessCheck.GetTableCheckSum(Sync)
 	SW.Version = myVersion
 	--LuaDebugger.Log("Version: "..myVersion)
 	SW.RessCheck.MPGame_ApplicationCallback_ReceivedChatMessageVersion = MPGame_ApplicationCallback_ReceivedChatMessage
