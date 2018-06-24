@@ -164,13 +164,8 @@ function SW.RessCheck.StartVersionCheck()
 	--LuaDebugger.Log("Version: "..myVersion)
 	SW.RessCheck.MPGame_ApplicationCallback_ReceivedChatMessageVersion = MPGame_ApplicationCallback_ReceivedChatMessage
 	MPGame_ApplicationCallback_ReceivedChatMessage = function( _msg, _teamChat, _sender)
-		if string.find(_msg, "VS") == 1 then
+		if string.find(_msg, string.char(9).."VS") then
 			SW.RessCheck.ReceivedVersionMsg( _msg, _sender, _teamChat)
-		elseif string.find( _msg, "!version") then	-- print version of all players
-			local pId = GUI.GetPlayerID()
-			local userName = XNetwork.GameInformation_GetLogicPlayerUserName( pId)
-			local r,g,b = GUI.GetPlayerColor( pId)
-			XNetwork.Chat_SendMessageToAll("@color:"..r..","..g..","..b.." "..userName.." @color:255,255,255 > Check sum: "..myVersion)
 		else
 			SW.RessCheck.MPGame_ApplicationCallback_ReceivedChatMessageVersion(_msg, _teamChat, _sender)
 		end
@@ -196,7 +191,7 @@ function SW.RessCheck.SendMsg(_s)
 	end
 end
 function SW.RessCheck.ShoutVersion()
-	SW.RessCheck.SendMsg("VS"..SW.Version)
+	SW.RessCheck.SendMsg(string.char(9).."VS"..SW.Version)
 	if not SW.IsMultiplayer() then return end
 	SW.RessCheck.InitHeartBeatStuff()
 	StartSimpleJob("SW_RessCheckWaitForHeartBeat")

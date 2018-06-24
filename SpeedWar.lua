@@ -318,6 +318,8 @@ function SW.Activate(_seed)
 	SW.RessCheck.ShoutVersion()
 	-- Make outposts more resilient against thieves
 	SW.SetKegFactor( Entities.PB_Outpost1, 0.1)
+	-- Chat commands!
+	SW.ChatCommands.Init()
 	-- Enable map specific changes
 	if SpeedwarConfig.OnGameStartCallback ~= nil then
 		SpeedwarConfig.OnGameStartCallback();
