@@ -16,6 +16,7 @@ SW.RandomStartEntropyWeight = 5000
 SW.RandomStartRessources = {} --list of all things that increase spawn chance
 SW.RandomStartEntropyPos = {}
 SW.RandomStartUseNewAlgorithm = false
+SW.RandomStartTeamSpawns = {}; -- i use this to let teams spawn together
 function SW.EnableRandomStart()
 	for k,v in pairs(SW.RandomStartWeights) do
 		for eId in S5Hook.EntityIterator(Predicate.OfType(k)) do
@@ -197,6 +198,11 @@ function SW.FixedPosForPlayer( _pId)
 	SW.CreatePlayerAtPos( _pId, data.X, data.Y)
 end
 function SW.CreatePlayerAtPos( _pId, _x, _y)
+	if SW.IsMultiplayer() and SW.GUI.Teamspawn == 1 then
+		if SW.GetTeamSpawn(_pId, _x, _y) then
+			_x, _y = SW.GetTeamSpawn(_pId);
+		end
+	end
 	if GUI.GetPlayerID() == _pId then
 		GUI.CreateMinimapMarker( _x, _y, 0);
 	else
@@ -222,5 +228,13 @@ function SW.CreatePlayerAtPos( _pId, _x, _y)
 			Camera.ScrollSetLookAt(_x,_y);
 		end
 	end
+end
+
+function SW.GetTeamSpawn(_playerId, _x, _y)
+	local team = XNetwork.GameInformation_GetPlayerTeam(_playerId);
+	if SW.RandomStartTeamSpawns[team] then
+		return SW.RandomStartTeamSpawns[team].X, SW.RandomStartTeamSpawns[team].Y;
+	end
+	SW.RandomStartTeamSpawns[team] = {X=_x,Y=_y};
 end
 

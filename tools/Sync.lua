@@ -25,7 +25,7 @@ function Sync.Init()
 		["SW.Walls2.ToggleGate"] = true,
 		["SW.WallGUI.PayCosts"] = true,
 		["SW.WallGUI.AddWallInConstructionToQueue"] = true,
-		["SW.ResumeGame"] = true
+		["SW.ResumeGame"] = true,
 	};
 	
 	-- numOfTributes determines actions at the same time
@@ -71,7 +71,7 @@ function Sync.Init()
 		Sync.Send(Sync.PrepareChar..id..fs);
 	end
 	Sync.CallNoSync = function(_func, ...)
-		Sync.Send(nosync .. Sync.CreateFunctionString(_func, unpack(arg)))
+		Sync.Send(Sync.NoSyncChar .. Sync.CreateFunctionString(_func, unpack(arg)))
 	end
 end
 function Sync.Call(_func, ...)

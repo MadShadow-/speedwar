@@ -1,7 +1,7 @@
 SW = SW or {}
 SW.WinCondition = {}
 SW.WinCondition.CellSize = 3200		-- 32 sm
-SW.WinCondition.Time = 90*60
+SW.WinCondition.Time = 90*60 -- this will be overwritten in SWGUI by startmenu callback
 -- WIN CONDITION
 -- SW.WinCondition.GetWinner will give winning team
 SW.WinCondition.TeamByPlayer = {}

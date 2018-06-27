@@ -91,7 +91,7 @@ function GameCallback_OnGameStart()
 		end
 	end
 	SW.IsHost = (SW.Host == SW.PlayerId);
-	
+
 	SW.SetupMPLogic();
 	Sync.Init();
 	SW.Logging.Init();
@@ -105,7 +105,10 @@ function GameCallback_OnGameStart()
 	SW.CustomNames = {};
 	S5Hook.SetCustomNames(SW.CustomNames);
 	
+	SW.GUI.Init();
+	
 	SW.IsActivated = false;
+	--[[
 	if SW.NrOfPlayers == 1 then
 		-- playing alone - no sync needed
 		SW.Activate(XGUIEng.GetSystemTime());
@@ -121,7 +124,7 @@ function GameCallback_OnGameStart()
 			end
 			StartSimpleJob("ActivateSpeedwar");
 		end
-	end
+	end]]
 	
 	SW.MPGame_ApplicationCallback_SyncChanged = MPGame_ApplicationCallback_SyncChanged;
 	MPGame_ApplicationCallback_SyncChanged = function(_Message, _SyncMode)
@@ -205,7 +208,7 @@ end;
 -- ################################################# --
 -------------------------------------------------------
 
-function SW.Activate(_seed)
+function SW.Activate()
 	if SW.IsActivated then
 		Message("@color:255,0,0 Warning: Tried to activate speedwar 2 times! - cancelled");
 		return;
@@ -217,7 +220,7 @@ function SW.Activate(_seed)
 	-- village centers shall be removed and replaced by outposts
 	SW.EnableOutpostVCs();
 	SW.RankSystem.ApplyGUIChanges();
-	math.randomseed(_seed);
+
 	SW.CallbackHacks();
 	-- leaders don't cost sold anymore
 	for playerId = 1,8 do
@@ -484,7 +487,6 @@ end
 function SW.EnableOutpostVCs()
 	-- load in archive while developing *-* --
 	S5Hook.AddArchive("extra2/shr/maps/user/speedwar/archive.bba");
-	S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml");
 	S5Hook.ReloadEntities();
 	S5Hook.RemoveArchive();
 	--Message("EnableOutpostVCs");
