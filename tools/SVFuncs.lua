@@ -28,6 +28,32 @@ end
 function SW.GetMovementspeed( _eId)
 	return S5Hook.GetEntityMem( _eId)[31][1][5]:GetFloat()
 end
+--sets remaining time until explosion in ticks
+function SW.SetKegTimer( _eId, _time)
+	if S5Hook.GetEntityMem( _eId)[31]:GetInt() == 0 then
+		return
+	end
+	if S5Hook.GetEntityMem( _eId)[31][0]:GetInt() == 0 then
+		return
+	end
+	if S5Hook.GetEntityMem( _eId)[31][0][0]:GetInt() ~= 7824600 then
+		return
+	end
+	S5Hook.GetEntityMem( _eId)[31][0][5]:SetInt( _time) 
+end
+function SW.GetKegTimer( _eId)
+	if S5Hook.GetEntityMem( _eId)[31]:GetInt() == 0 then
+		return
+	end
+	if S5Hook.GetEntityMem( _eId)[31][0]:GetInt() == 0 then
+		return
+	end
+	if S5Hook.GetEntityMem( _eId)[31][0][0]:GetInt() ~= 7824600 then
+		return
+	end
+	return S5Hook.GetEntityMem( _eId)[31][0][5]:GetInt() 
+end
+
 --HelperFunc: Set construction cost of given entity type, developed by mcb
 function SW.SetConstructionCosts( _eType, _costTable)
 	SW.ScriptingValueBackup.ConstructionCosts[_eType] = SW.ScriptingValueBackup.ConstructionCosts[_eType] or SW.GetConstructionCosts(_eType);
@@ -222,7 +248,12 @@ SW.SV.Data = {
 	-- BehTable for motivation, 7836116 == GGL::CAffectMotivationBehaviorProps
 	["MotivationProvided"] = {2, 7836116, 4, false},
 	-- BehTable for residences / farms, 7823028 == GGL::CLimitedAttachmentBehaviorProperties
-	["PlacesProvided"] = {2, 7823028, {5,7}, true}
+	["PlacesProvided"] = {2, 7823028, {5,7}, true},
+	-- Stuff for thief bombs
+	["ThiefKegDamage"] = {2, 7824728, 5, true},			-- damage against settlers, default 50
+	["ThiefKegDmgPercentage"] = {2, 7824728, 7, true},	-- damage against buildings, default 70
+	["ThiefKegRange"] = {2, 7824728, 4, false},
+	["ThiefKegDelay"] = {2, 7824728, 6, false}
 }
 
 SW.SV.BackUps = {}
@@ -329,4 +360,12 @@ function SVTests.Print( _eType, _lim)
 	end
 end
 
-
+--[[
+7824728 == GGL::CKegBehaviorProperties
+5 = dmg(Int); 7 = dmgPct(Int);
+4 = range(float); 6 = delay(float)
+8 könnte der effekt sein, der ist nämlich 17(int)
+S5Hook.GetEntityMem(134513)[31][0][5]:GetInt() liefert verbleibende Zeit für Bombe in Ticks
+> S5Hook.GetEntityMem(134513)[31][0][0]:GetInt()
+7824600
+]]

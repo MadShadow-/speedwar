@@ -55,6 +55,9 @@ SW.BuildingTooltips.MData = { --Data for military unit tooltips
 	[Technologies.MU_LeaderHeavyCavalry] = {
 		Tier = 3
 	},
+	[Technologies.MU_Thief] = {
+		Tier = 2
+	},
 	[Technologies.MU_LeaderSword] = {
 		Buildings = {{Entities.PB_Blacksmith1, Technologies.B_Blacksmith}}
 	},
@@ -236,6 +239,11 @@ SW.BuildingTooltips.RData = { --Data for research tooltips
 	},
 	[Technologies.T_ChangeWeather] = {
 		Tier = 2,
+	},
+	-- bombs need tier 3 and tier 2 tavern
+	[Technologies.T_ThiefSabotage] = {
+		Tier = 3,
+		currBuilding = { Entities.PB_Tavern2, Technologies.UP1_Tavern}
 	}
 } 
 SW.BuildingTooltips.UData = { --Data for research tooltips

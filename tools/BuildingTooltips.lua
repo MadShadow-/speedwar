@@ -59,7 +59,9 @@ SW.BuildingTooltips.TooltipBuyMilitaryRaw = {
 	["MenuFoundry/BuyCannon1_"] = Technologies.MU_Cannon1,
 	["MenuFoundry/BuyCannon2_"] = Technologies.MU_Cannon2,
 	["MenuFoundry/BuyCannon3_"] = Technologies.MU_Cannon3,
-	["MenuFoundry/BuyCannon4_"] = Technologies.MU_Cannon4
+	["MenuFoundry/BuyCannon4_"] = Technologies.MU_Cannon4,
+	["MenuTavern/BuyThief_"] = Technologies.MU_Thief,
+	["MenuTavern/BuyScout_"] = Technologies.MU_Scout
 }
 SW.BuildingTooltips.TooltipsResearchRaw = {
 	[Technologies.T_UpgradeHeavyCavalry1] = "MenuStables/UpgradeCavalryHeavy1",
@@ -118,7 +120,8 @@ SW.BuildingTooltips.TooltipsResearchRaw = {
 	[Technologies.GT_Mercenaries] = "MenuUniversity/Mercenaries",
 	[Technologies.GT_StandingArmy] = "MenuUniversity/StandingArmy",
 	[Technologies.GT_Tactics] = "MenuUniversity/Tactics",
-	[Technologies.GT_Strategies] = "MenuUniversity/Strategies"
+	[Technologies.GT_Strategies] = "MenuUniversity/Strategies",
+	[Technologies.T_ThiefSabotage] = "MenuTavern/ThiefSabotage"
 }
 SW.BuildingTooltips.TooltipsUpgradeRaw = {
 	["MenuClaymine/upgradeclaymine1_"] = Technologies.UP1_Claymine,
@@ -145,7 +148,8 @@ SW.BuildingTooltips.TooltipsUpgradeRaw = {
 	["MenuResidence/UpgradeResidence1_"] = Technologies.UP1_Residence,
 	["MenuResidence/UpgradeResidence2_"] = Technologies.UP2_Residence,
 	["MenuFarmX/UpgradeFarm1_"] = Technologies.UP1_Farm,
-	["MenuFarmX/UpgradeFarm2_"] = Technologies.UP2_Farm
+	["MenuFarmX/UpgradeFarm2_"] = Technologies.UP2_Farm,
+	["MenuTavern/upgradeTavern1_"] = Technologies.UP1_Tavern
 }
 --[[		--Not necessary anymore
 --GUITooltip_ConstructBuilding, second and third arg
