@@ -321,6 +321,8 @@ function SW.Activate()
 	SW.RessCheck.ShoutVersion()
 	-- Make outposts more resilient against thieves
 	SW.SetKegFactor( Entities.PB_Outpost1, 0.1)
+	-- and buff thieves against walls
+	SW.ThiefBuff.Init()
 	-- Chat commands!
 	SW.ChatCommands.Init()
 	-- Enable map specific changes

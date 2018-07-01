@@ -249,15 +249,23 @@ SW.SV.Data = {
 	["MotivationProvided"] = {2, 7836116, 4, false},
 	-- BehTable for residences / farms, 7823028 == GGL::CLimitedAttachmentBehaviorProperties
 	["PlacesProvided"] = {2, 7823028, {5,7}, true},
-	-- Stuff for thief bombs
+	-- Stuff for thief bombs, use type XD_Keg1
 	["ThiefKegDamage"] = {2, 7824728, 5, true},			-- damage against settlers, default 50
 	["ThiefKegDmgPercentage"] = {2, 7824728, 7, true},	-- damage against buildings, default 70
 	["ThiefKegRange"] = {2, 7824728, 4, false},
-	["ThiefKegDelay"] = {2, 7824728, 6, false}
+	["ThiefKegDelay"] = {2, 7824728, 6, false},
+    -- data for the thief itself, use type PU_Thief
+    ["ThiefBombRechargeTime"] = {2, 7824308, 4, true}, --default 90
+    ["ThiefBombArmTime"] = {2, 7824308, 5, false},  --default 5
+    ["ThiefBombDisarmTime"] = {2, 7824308, 6, false},  --default 3
+    -- data for stealing goods
+    ["ThiefTimeToSteal"] = {2, 7813600, 4, true}, --default 5
+    ["ThiefMinimumAmountToSteal"] = {2, 7813600, 5, true}, --default 100
+    ["ThiefMaximumAmountToSteal"] = {2, 7813600, 6, true} --default 200
 }
 
 SW.SV.BackUps = {}
--- Makes use of upvalues!
+-- Makes heavy use of upvalues!
 function SW.SV.Init()
 	for k,v in pairs(SW.SV.Data) do
 		local c = {type = v[1], vTable = v[2], index = v[3], int = v[4]}	--Create a copy of v for use
@@ -360,12 +368,39 @@ function SVTests.Print( _eType, _lim)
 	end
 end
 
+-- Data GGL::CKegPlacerBehaviorProperties
 --[[
-7824728 == GGL::CKegBehaviorProperties
-5 = dmg(Int); 7 = dmgPct(Int);
-4 = range(float); 6 = delay(float)
-8 könnte der effekt sein, der ist nämlich 17(int)
-S5Hook.GetEntityMem(134513)[31][0][5]:GetInt() liefert verbleibende Zeit für Bombe in Ticks
-> S5Hook.GetEntityMem(134513)[31][0][0]:GetInt()
-7824600
-]]
+-- > for i = 0, 20 do LuaDebugger.Log(i.." "..typePointer[8*631+5][18][i]:GetInt()) end
+-- Log: "0 7824308"
+-- Log: "1 7824296"		GGL::CKegPlacerBehavior?
+-- Log: "2 9"			GGL::CKegPlacerBehavior?
+-- Log: "3 -1089384361"
+-- Log: "4 90"			RechargeTime
+-- Log: "7 335"			TaskLists?
+-- Log: "8 336"			TaskLists?
+-- Log: "9 736"			Entity Type
+-- Log: "10 1116320153"
+-- Log: "11 -1946148832"
+-- Floats:
+-- Log: "3 -0.5676321387291"
+-- Log: "5 5"			ArmTime
+-- Log: "6 3"			DisarmTime
+-- Log: "10 68.846870422363"
+-- Log: "11 -9.8704285808038e-032"
+--]]
+-- Data GGL::CThiefBehaviorProperties
+--[[
+-- > for i = 0, 20 do LuaDebugger.Log(i.." "..typePointer[8*631+5][16][i]:GetInt().." "..typePointer[8*631+5][16][i]:GetFloat()) end
+-- Log: "0 7813600 1.0949185680848e-038"		vTable
+-- Log: "1 7813588 1.0949168865267e-038"		GGL::CThiefBehavior?
+-- Log: "2 8 1.1210387714599e-044"				GGL::CThiefBehavior?
+-- Log: "3 2061913623 5.9790606382992e+035"
+-- Log: "4 5 7.0064923216241e-045"				SecondsNeededToSteal
+-- Log: "5 100 1.4012984643248e-043"			MinimumAmountToSteal
+-- Log: "6 200 2.8025969286496e-043"			MaximumAmountToSteal
+-- Log: "7 647 9.0664010641816e-043"			CarryingModelID?
+-- Log: "8 331 4.6382979169151e-043"			TL_THIEF_STEAL_GOODS?
+-- Log: "9 332 4.6523109015584e-043"			TL_THIEF_SECURE_GOODS?
+-- Log: "10 1116320131 68.846702575684"
+-- Log: "11 -2013223150 -3.8714989096279e-034"
+--]]

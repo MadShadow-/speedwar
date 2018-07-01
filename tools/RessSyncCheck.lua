@@ -164,14 +164,18 @@ function SW.RessCheck.StartVersionCheck()
 	--LuaDebugger.Log("Version: "..myVersion)
 	SW.RessCheck.MPGame_ApplicationCallback_ReceivedChatMessageVersion = MPGame_ApplicationCallback_ReceivedChatMessage
 	MPGame_ApplicationCallback_ReceivedChatMessage = function( _msg, _teamChat, _sender)
-		if string.find(_msg, string.char(9).."VS") then
-			SW.RessCheck.ReceivedVersionMsg( _msg, _sender, _teamChat)
+		--LuaDebugger.Log(_msg)
+		local _, endd = string.find( _msg, string.char(9).."VS")
+		--LuaDebugger.Log(endd)
+		if endd then
+			SW.RessCheck.ReceivedVersionMsg( string.sub( _msg, endd+1), _sender, _teamChat)
 		else
 			SW.RessCheck.MPGame_ApplicationCallback_ReceivedChatMessageVersion(_msg, _teamChat, _sender)
 		end
 	end
 end
 function SW.RessCheck.ReceivedVersionMsg( _msg, _sender, _teamChat)
+	--LuaDebugger.Log( _msg)
 	-- Pattern finding:
 	--		%d is digit
 	--		%d+ is number
@@ -204,6 +208,10 @@ function SW.RessCheck.InitHeartBeatStuff()
 	SW.RessCheck.HeartBeatCountDown = 15
 end
 function SW_RessCheckWaitForHeartBeat()
+	if not SW.RessCheck.MsgSendInJob then
+		SW.RessCheck.SendMsg(string.char(9).."VS"..SW.Version)
+		SW.RessCheck.MsgSendInJob = true
+	end
 	SW.RessCheck.HeartBeatCountDown = SW.RessCheck.HeartBeatCountDown - 1
 	if SW.RessCheck.HeartBeatCountDown < 0 then
 		for i = 1, 8 do

@@ -1,22 +1,37 @@
 SW = SW or {}
 
 SW.ChatCommands = {}
-SW.ChatCommands.Commands = {}
+SW.ChatCommands.CommandsSynced = {}
+SW.ChatCommands.CallbacksSynced = {}
+SW.ChatCommands.Commands = {}		-- for commands that dont need to be synced, receiving those will trigger callback
 SW.ChatCommands.Callbacks = {}
 function SW.ChatCommands.Init()
+	for k,v in pairs(SW.ChatCommands.CallbacksSynced) do
+		table.insert( SW.ChatCommands.CommandsSynced, k)
+		Sync.Whitelist["SW.ChatCommands.CallbacksSynced."..k] = true
+	end
 	for k,v in pairs(SW.ChatCommands.Callbacks) do
 		table.insert( SW.ChatCommands.Commands, k)
-		Sync.Whitelist["SW.ChatCommands.Callbacks."..k] = true
 	end
 	SW.ChatCommands.GameCallback_GUI_ChatStringInputDone = GameCallback_GUI_ChatStringInputDone
 	GameCallback_GUI_ChatStringInputDone = function( _msg, _wId)
-		for k,v in pairs(SW.ChatCommands.Commands) do
+		for k,v in pairs(SW.ChatCommands.CommandsSynced) do
 			if string.find( _msg, "!"..v) then
-				Sync.Call("SW.ChatCommands.Callbacks."..v, GUI.GetPlayerID())
+				Sync.Call("SW.ChatCommands.CallbacksSynced."..v, GUI.GetPlayerID())
 				return
 			end
 		end
 		SW.ChatCommands.GameCallback_GUI_ChatStringInputDone( _msg, _wId)
+	end
+	SW.ChatCommands.MPGame_ApplicationCallback_ReceivedChatMessage = MPGame_ApplicationCallback_ReceivedChatMessage
+	MPGame_ApplicationCallback_ReceivedChatMessage = function( _msg, _sender, _teamChat)
+		for k,v in pairs(SW.ChatCommands.Commands) do
+			if string.find( _msg, "!"..v) then
+				SW.ChatCommands.Callbacks[v]( GUI.GetPlayerID())
+				return
+			end
+		end
+		SW.ChatCommands.MPGame_ApplicationCallback_ReceivedChatMessage( _msg, _sender, _teamChat)
 	end
 end
 function SW.ChatCommands.SendMsg( _s)
@@ -30,9 +45,9 @@ function SW.ChatCommands.GetPlayerName(_pId)
 	return " @color:"..r..","..g..","..b.." "..userName.." @color:255,255,255 "
 end
 function SW.ChatCommands.Callbacks.version( _pId)
-	SW.ChatCommands.SendMsg(SW.ChatCommands.GetPlayerName( GUI.GetPlayerID()).."> Check sum: "..myVersion)
+	SW.ChatCommands.SendMsg(SW.ChatCommands.GetPlayerName( GUI.GetPlayerID()).."> Check sum: "..SW.Version)
 end
-function SW.ChatCommands.Callbacks.resume( _pId)
+function SW.ChatCommands.CallbacksSynced.resume( _pId)
 	Message("Spieler"..SW.ChatCommands.GetPlayerName(_pId).."will das Spiel fortsetzen.")
 	if not SW.WinCondition.GameOver then
 		Message("Das Spiel ist noch nicht vorbei!")
@@ -80,13 +95,13 @@ function SW_ChatCommands_resumeVoteJob()
 		return true
 	end
 end
-function SW.ChatCommands.Callbacks.participate( _pId)
+function SW.ChatCommands.CallbacksSynced.participate( _pId)
 	if SW.ChatCommands.VoteStarted then
 		SW.ChatCommands.VoteData[_pId] = true
 		Message(SW.ChatCommands.GetPlayerName(_pId).."bleibt im Spiel.")
 	end
 end
-function SW.ChatCommands.Callbacks.abstain( _pId)
+function SW.ChatCommands.CallbacksSynced.abstain( _pId)
 	if SW.ChatCommands.VoteStarted then
 		SW.ChatCommands.VoteData[_pId] = false
 		Message(SW.ChatCommands.GetPlayerName(_pId).."will neutral bleiben.")
