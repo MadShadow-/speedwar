@@ -1380,7 +1380,7 @@ function CreateDarkStorm(_id)
 	Display.GfxSetSetSnowEffectStatus(_id, start, endt, 0)
 	Display.GfxSetSetRainEffectStatus(_id, 0.5, 4.0, 1)
 	Display.GfxSetSetFogParams(_id, start, endt, 1, 10,10,40, 0,30000)
-	Display.GfxSetSetLightParams(_id,  start, endt, 20, -15, -50,  20,20,35,  155,155,255)
+	Display.GfxSetSetLightParams(_id,  start, endt, 20, -15, -50,  60,60,90,  105,105,155)
 end
 
 function CreateSnowyRain(_id)
@@ -1402,20 +1402,20 @@ end
 
 function CreateLovelyEvening(_id)
 	-- MAD
+	-- Display.GfxSetSetSkyBox(_id, 0.0, 1.0, "YSkyBox05")
+	-- Display.GfxSetSetSnowStatus(_id, 0, 1.0, 0)
+	-- Display.GfxSetSetSnowEffectStatus(_id, 0.0, 1.0, 0)
+	-- Display.GfxSetSetRainEffectStatus(_id, 0.0, 1.0, 0)
+	-- Display.GfxSetSetFogParams(_id, 0.0, 1.0, 1, 255,205,155, 6000,30000)
+	-- Display.GfxSetSetLightParams(_id,  0.0, 1.0, 90, -15, -95,  225,100,80,  230,85,100)
+	-- if true then return true end
+	-- basierend auf Noigis Abenddämmerung
 	Display.GfxSetSetSkyBox(_id, 0.0, 1.0, "YSkyBox05")
 	Display.GfxSetSetSnowStatus(_id, 0, 1.0, 0)
 	Display.GfxSetSetSnowEffectStatus(_id, 0.0, 1.0, 0)
-	Display.GfxSetSetRainEffectStatus(_id, 0.0, 1.0, 0)
-	Display.GfxSetSetFogParams(_id, 0.0, 1.0, 1, 255,205,155, 6000,30000)
-	Display.GfxSetSetLightParams(_id,  0.0, 1.0, 90, -15, -95,  225,100,80,  230,85,100)
-	if true then return true end
-	--NOIGI
-	Display.GfxSetSetSkyBox(1, 0.2, 0.8, "YSkyBox07")
-    Display.GfxSetSetRainEffectStatus(1, 0.0, 1.0, 0)
-    Display.GfxSetSetSnowStatus(1, 0, 1.0, 0)
-    Display.GfxSetSetSnowEffectStatus(1, 0.0, 0.8, 0)
-    Display.GfxSetSetFogParams(1, 0.0, 1.0, 1, 150,150,170, 3000,33000)
-	Display.GfxSetSetLightParams(1, 0.0, 1.0, -120,120,-70, 60,80,80, 255,150,72)
+    Display.GfxSetSetRainEffectStatus(_id, 0.0, 1.0, 0)
+    Display.GfxSetSetFogParams(_id, 0.0, 1.0, 1, 150,150,170, 3000,33000)
+	Display.GfxSetSetLightParams(_id, 0.0, 1.0, -120,120,-70, 130,80,80, 255,70,50)
 
 end
 

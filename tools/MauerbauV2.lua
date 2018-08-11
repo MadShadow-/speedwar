@@ -209,7 +209,7 @@ function SW.Walls2.UpdateCornerList( _pId)
 		t[i].numNeighbours = SW.Walls2.GetNeighbourCount( t[i], _pId)
 	end
 end
-function SW.Walls2.PlaceNormalWall( _pos, _pId)
+function SW.Walls2.PlaceNormalWall( _pos, _pId, _angle)
 	local self = SW.Walls2
 	-- first get all nearby corners
 	local cornerKey
@@ -222,7 +222,8 @@ function SW.Walls2.PlaceNormalWall( _pos, _pId)
 		end
 	end
 	if cornerKey == nil then	-- No corner found? Create new wall
-		SW.Walls2.CreateWall( _pId, _pos, 90, {X = _pos.X, Y = _pos.Y+200}, {X = _pos.X, Y = _pos.Y-200})
+		SW.Walls2.PlaceStartWall( _pos, _pId, _angle)
+		--SW.Walls2.CreateWall( _pId, _pos, 90, {X = _pos.X, Y = _pos.Y+200}, {X = _pos.X, Y = _pos.Y-200})
 	else	-- Corner found? Place wall next to it!
 		-- We found a good corner, calculate angle
 		local data = self.ListOfCorners[_pId][cornerKey]
@@ -246,7 +247,7 @@ function SW.Walls2.PlaceNormalWall( _pos, _pId)
 		SW.Walls2.CreateWall( _pId, {X = data.X + wData[1], Y = data.Y + wData[2]}, wData[5], {X = data.X + wData[3], Y = data.Y + wData[4]})
 	end
 end
-function SW.Walls2.PlaceGate( _pos, _pId)
+function SW.Walls2.PlaceGate( _pos, _pId, _angle)
 	local self = SW.Walls2
 	-- first get all nearby corners
 	local cornerKey
@@ -259,7 +260,8 @@ function SW.Walls2.PlaceGate( _pos, _pId)
 		end
 	end
 	if cornerKey == nil then	-- No corner found? Create new gate
-		SW.Walls2.CreateGate( _pId, _pos, 90, {X = _pos.X, Y = _pos.Y+300}, {X = _pos.X, Y = _pos.Y-300})
+		SW.Walls2.PlaceStartGate( _pos, _pId, _angle)
+		--SW.Walls2.CreateGate( _pId, _pos, 90, {X = _pos.X, Y = _pos.Y+300}, {X = _pos.X, Y = _pos.Y-300})
 	else	-- Corner found? Place wall next to it!
 		-- We found a good corner, calculate angle
 		local data = self.ListOfCorners[_pId][cornerKey]
@@ -283,12 +285,87 @@ function SW.Walls2.PlaceGate( _pos, _pId)
 		SW.Walls2.CreateGate( _pId, {X = data.X + wData[1], Y = data.Y + wData[2]}, wData[5], {X = data.X + wData[3], Y = data.Y + wData[4]})
 	end
 end
-function SW.Walls2.PlaceStartWall( _pos, _pId)
-	SW.Walls2.CreateWall( _pId, _pos, 90, {X = _pos.X, Y = _pos.Y+200}, {X = _pos.X, Y = _pos.Y-200})
+function SW.Walls2.PlaceStartWall( _pos, _pId, _angle)
+	if not _angle then
+		_angle = 90
+	end
+	local offSize = 200
+	local offX = math.cos(math.rad(_angle))*offSize
+	local offY = math.sin(math.rad(_angle))*offSize
+	SW.Walls2.CreateWall( _pId, _pos, _angle, {X = _pos.X+offX, Y = _pos.Y+offY}, {X = _pos.X-offX, Y = _pos.Y-offY})
 end
-function SW.Walls2.PlaceStartGate( _pos, _pId)
-	SW.Walls2.CreateGate( _pId, _pos, 90, {X = _pos.X, Y = _pos.Y+300}, {X = _pos.X, Y = _pos.Y-300})
+function SW.Walls2.PlaceStartGate( _pos, _pId, _angle)
+	if not _angle then
+		_angle = 90
+	end
+	local offSize = 300
+	local offX = math.cos(math.rad(_angle))*offSize
+	local offY = math.sin(math.rad(_angle))*offSize
+	SW.Walls2.CreateGate( _pId, _pos, _angle, {X = _pos.X+offX, Y = _pos.Y+offY}, {X = _pos.X-offX, Y = _pos.Y-offY})
 end
+-- rotation logic:
+-- 	rotation of 90 degrees equals corners at x, y \pm 200
+-- 	rotation of 0 degrees equals corners at x\pm 200, y
+--  so in general fpr rotation \alpha use x \pm cos(\alpha), y \pm sin(\alpha)
+
+-- closing wall simi edition
+--	searches for nearby corners, then tries to attach wall to this corner in given rotation
+--	note: there are only 12 valid angles, so the argument will be changed to the next good angle
+--[[was ich noch ganz cool fände, wäre ein mauerstück, welches ähnlich der abschlussmauer 
+angebaut wird, nur wird die rotation der mauer selbst verwendet 
+(-> also anbauen in einem bestimmten winkel, unabh. der position)
+]]
+function SW.Walls2.PlaceSimiClosingWall( _pos, _pId, _angle)
+	local self = SW.Walls2
+	-- Get list of nearby corners
+	local cornerKeyList = {}
+	for k,v in pairs(self.ListOfCorners[_pId]) do
+		-- v = { X, Y, eId}
+		if self.GetDistanceSquared( _pos, {X = v.X, Y = v.Y}) < self.SnapDistance*self.SnapDistance then	--Distance is good enough
+			table.insert(cornerKeyList, k)
+		end
+	end
+	-- now find next best angle to attach thingie
+	local offsetKey
+	local dis = 1000
+	for k,v in pairs(self.WallOffsets) do
+		if self.GetAngleDiff( _angle, v[5]) < dis then
+			offsetKey = k
+			dis = self.GetAngleDiff( _angle, v[5])
+		end
+	end
+	-- so angle is now a valid thing
+	-- check all nearby corners if a wall is that angle is attachable
+	local entry
+	local wallX = self.WallOffsets[offsetKey][3]
+	local wallY = self.WallOffsets[offsetKey][4]
+	local validKeys = {}
+	for k,v in pairs(cornerKeyList) do
+		entry = self.ListOfCorners[_pId][v]
+		--{X, Y, eId, numNeighbours}
+		if self.IsPosValid{X = entry.X + wallX, Y = entry.Y + wallY} then
+			table.insert( validKeys, v)
+		end
+	end
+	-- now all valid positions are found, place wall at good spot(= closest to _pos)
+	local dis = 1000000000
+	local key
+	for k,v in pairs(validKeys) do
+		if self.GetDistanceSquared( _pos, self.ListOfCorners[_pId][v]) < dis then
+			dis = self.GetDistanceSquared( _pos, self.ListOfCorners[_pId][v])
+			key = v
+		end
+	end
+	if key == nil then
+		Message("FUCK THIS SHUIT")
+		return
+	end
+	local cornerData = self.ListOfCorners[_pId][key] 	-- {X, Y, eId, numNeighbours}
+	local offsetData = self.WallOffsets[offsetKey] 		-- {secondX, secondY, wallX, wallY, angle}
+	SW.Walls2.CreateWall( _pId, {X = cornerData.X + offsetData[1], Y = cornerData.Y + offsetData[2]}, offsetData[5], 
+	                      {X = cornerData.X + offsetData[3], Y = cornerData.Y + offsetData[4]})
+end
+
 -- closing wall
 -- Algorithm:
 --	1. Search for corners where a wall is placeable inbetween
@@ -389,7 +466,6 @@ end
 function SW.Walls2.GetAngleDiff( _a1, _a2)
 	return math.mod( _a1-_a2 + 360, 360)
 end
-
 -- the additional arguments are positions for wall corners that have to be placed
 function SW.Walls2.CreateWall( _pId, _pos, _angle, ...)
 	if not SW.Walls2.IsPosValid( _pos) then return end

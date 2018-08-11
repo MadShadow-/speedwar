@@ -29,8 +29,8 @@ function WeatherSets_SourRain(_ID)
 	Display.GfxSetSetRainEffectStatus(_ID, 0.0, 1.0, 1)
 	Display.GfxSetSetSnowStatus(_ID, 0, 1.0, 0)
 	Display.GfxSetSetSnowEffectStatus(_ID, 0.0, 0.8, 0)
-	Display.GfxSetSetFogParams( _ID, 0.0, 1.0, 1, 0, 150, 50, 3000,30000)
-	Display.GfxSetSetLightParams( _ID,  0.0, 1.0, 40, -15, -50, 23, 104, 9,  0,0,0)
+	Display.GfxSetSetFogParams( _ID, 0.0, 1.0, 1, 0, 120, 50, 3000,30000)
+	Display.GfxSetSetLightParams( _ID,  0.0, 1.0, 40, -15, -50, 40,80,40,  60,90,70)
 end
 
 function WeatherSets_HotSummer( _ID)
