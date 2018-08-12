@@ -3,16 +3,9 @@ SW = SW or {}
 SW.ChatCommands = {}
 SW.ChatCommands.CommandsSynced = {}
 SW.ChatCommands.CallbacksSynced = {}
-SW.ChatCommands.Commands = {}		-- for commands that dont need to be synced, receiving those will trigger callback
+SW.ChatCommands.Commands = {"version"}		-- for commands that dont need to be synced, receiving those will trigger callback
 SW.ChatCommands.Callbacks = {}
 function SW.ChatCommands.Init()
-	for k,v in pairs(SW.ChatCommands.CallbacksSynced) do
-		table.insert( SW.ChatCommands.CommandsSynced, k)
-		Sync.Whitelist["SW.ChatCommands.CallbacksSynced."..k] = true
-	end
-	for k,v in pairs(SW.ChatCommands.Callbacks) do
-		table.insert( SW.ChatCommands.Commands, k)
-	end
 	SW.ChatCommands.GameCallback_GUI_ChatStringInputDone = GameCallback_GUI_ChatStringInputDone
 	GameCallback_GUI_ChatStringInputDone = function( _msg, _wId)
 		for k,v in pairs(SW.ChatCommands.CommandsSynced) do

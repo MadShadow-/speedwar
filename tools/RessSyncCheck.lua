@@ -158,6 +158,7 @@ function SW.RessCheck.GetTableCheckSum( _t)
 	end
 	return checkSum
 end
+SW.RessCheck.VersionKey = "VSKeyDONOTUSE"
 function SW.RessCheck.StartVersionCheck()
 	local myVersion = SW.RessCheck.GetTableCheckSum(SW) + SW.RessCheck.GetTableCheckSum(Sync)
 	SW.Version = myVersion
@@ -165,7 +166,7 @@ function SW.RessCheck.StartVersionCheck()
 	SW.RessCheck.MPGame_ApplicationCallback_ReceivedChatMessageVersion = MPGame_ApplicationCallback_ReceivedChatMessage
 	MPGame_ApplicationCallback_ReceivedChatMessage = function( _msg, _teamChat, _sender)
 		--LuaDebugger.Log(_msg)
-		local _, endd = string.find( _msg, string.char(9).."VS")
+		local _, endd = string.find( _msg, SW.RessCheck.VersionKey)
 		--LuaDebugger.Log(endd)
 		if endd then
 			SW.RessCheck.ReceivedVersionMsg( string.sub( _msg, endd+1), _sender, _teamChat)
@@ -181,6 +182,7 @@ function SW.RessCheck.ReceivedVersionMsg( _msg, _sender, _teamChat)
 	--		%d+ is number
 	local start, finish = string.find(_msg, "%d+")
 	local num = tonumber(string.sub(_msg,start, finish))
+	LuaDebugger.Log("got version by ".._sender..": "..num)
 	if num ~= SW.Version then
 		Message("VersionChecker: "..UserTool_GetPlayerName(_sender).." has another version!")
 		--XNetwork.Chat_SendMessageToAll("VersionChecker: Different versions for "..UserTool_GetPlayerName(_sender).." and "..UserTool_GetPlayerName(GUI.GetPlayerID()))
@@ -188,6 +190,7 @@ function SW.RessCheck.ReceivedVersionMsg( _msg, _sender, _teamChat)
 	if SW.RessCheck.VersionMsgArrived then
 		SW.RessCheck.VersionMsgArrived[_sender] = true
 	end
+	--LuaDebugger.Log("SUCCESS")
 end
 function SW.RessCheck.SendMsg(_s)
 	if SW.IsMultiplayer() then
@@ -195,7 +198,8 @@ function SW.RessCheck.SendMsg(_s)
 	end
 end
 function SW.RessCheck.ShoutVersion()
-	SW.RessCheck.SendMsg(string.char(9).."VS"..SW.Version)
+	--SW.RessCheck.SendMsg("VS"..SW.Version)
+	LuaDebugger.Log("Shouting version "..SW.Version)
 	if not SW.IsMultiplayer() then return end
 	SW.RessCheck.InitHeartBeatStuff()
 	StartSimpleJob("SW_RessCheckWaitForHeartBeat")
@@ -205,12 +209,13 @@ function SW.RessCheck.InitHeartBeatStuff()
 	for i = 1, 8 do
 		SW.RessCheck.VersionMsgArrived[i] = ((XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i) ~= 1) or GUI.GetPlayerID() == i)
 	end
+	SW.RessCheck.VersionCooldown = 5
 	SW.RessCheck.HeartBeatCountDown = 15
 end
 function SW_RessCheckWaitForHeartBeat()
-	if not SW.RessCheck.MsgSendInJob then
-		SW.RessCheck.SendMsg(string.char(9).."VS"..SW.Version)
-		SW.RessCheck.MsgSendInJob = true
+	SW.RessCheck.VersionCooldown = SW.RessCheck.VersionCooldown - 1
+	if SW.RessCheck.VersionCooldown == 0 then
+		SW.RessCheck.SendMsg(SW.RessCheck.VersionKey..SW.Version)
 	end
 	SW.RessCheck.HeartBeatCountDown = SW.RessCheck.HeartBeatCountDown - 1
 	if SW.RessCheck.HeartBeatCountDown < 0 then

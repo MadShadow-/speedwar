@@ -104,8 +104,12 @@ function GameCallback_OnGameStart()
 	-- für alle custom names die wir brauchen - wird von WallGUI verwendet
 	SW.CustomNames = {};
 	S5Hook.SetCustomNames(SW.CustomNames);
-	
-	SW.GUI.Init();
+	if CNetwork then
+		S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml")
+		SW.Activate(CXNetwork.GameInformation_GetRandomseed())
+	else
+		SW.GUI.Init();
+	end
 	
 	SW.IsActivated = false;
 	--[[
@@ -455,14 +459,26 @@ function SW.EnableRandomWeather()
 		currentState = finalState
 		SW.RandomWeatherAddElement( finalState, length)
 	end
-	if false then
+	if true then
 		local s1, s2 = "", ""
+		local nameKeys = {
+			"Sommer",
+			"Regen",
+			"Winter",
+			"Sturm",
+			"Schneeregen",
+			"Verschneite Landschaft",
+			"Abenddaemmerung",
+			"Saurer Regen",
+			"Heisser Sommer"
+		}
 		for i = 1, numOfWeatherStates do
-			s1 = s1.." "..total[i]
-			s2 = s2.." "..total[i]/totalTimeSpent
+			--s1 = s1.." "..total[i]
+			--s2 = s2.." "..total[i]/totalTimeSpent
+			LuaDebugger.Log(string.format("%-23s %4d %4.1f%%", nameKeys[i]..":", total[i], total[i]/totalTimeSpent*100))
 		end
-		LuaDebugger.Log( s1)
-		LuaDebugger.Log( s2)
+		--LuaDebugger.Log( s1)
+		--LuaDebugger.Log( s2)
 	end
 end
 
