@@ -21,19 +21,29 @@ function GameCallback_OnGameStart()
 	end
 	
 	LocalMusic.UseSet = HIGHLANDMUSIC
+	SetupHighlandWeatherGfxSet()
+	-- start actual speedwar
+	SpeedWarOnGameStart()
+end
+
+function SpeedWarOnGameStart()
+
 	Camera.ZoomSetFactorMax(2);
 	
 	Script.LoadFolder("maps\\user\\speedwar\\config");
 	Script.LoadFolder("maps\\user\\speedwar\\tools");
-	-- calculate check some after loading scripts
+	-- calculate check sum after loading scripts
 	SW.RessCheck.StartVersionCheck()
 	
 	local ret = InstallS5Hook();
 	if (ret) then
 		SW.OnS5HookLoaded();
-	end;
+	else
+		GUI.AddStaticNote("Loading S5Hook failed! Speedwar not activated.")
+		return
+	end
+	SpeedWarRemoveVCAndHQ()
 	
-	SetupHighlandWeatherGfxSet()
 	-- how about some vision?
 	Display.GfxSetSetFogParams(3, 0.0, 1.0, 1, 152,172,182, 3000,19500)
 	Display.GfxSetSetFogParams(2, 0.0, 1.0, 1, 102,132,132, 0,19500)
@@ -109,6 +119,8 @@ function GameCallback_OnGameStart()
 		SW.Activate(CXNetwork.GameInformation_GetRandomseed())
 	else
 		SW.GUI.Init();
+		--S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml")
+		--SW.Activate(1)
 	end
 	
 	SW.IsActivated = false;
@@ -129,7 +141,7 @@ function GameCallback_OnGameStart()
 			StartSimpleJob("ActivateSpeedwar");
 		end
 	end]]
-	
+	-- Pause on desync
 	SW.MPGame_ApplicationCallback_SyncChanged = MPGame_ApplicationCallback_SyncChanged;
 	MPGame_ApplicationCallback_SyncChanged = function(_Message, _SyncMode)
 		if _SyncMode == 0 then
@@ -137,7 +149,14 @@ function GameCallback_OnGameStart()
 		end
 		SW.MPGame_ApplicationCallback_SyncChanged(_Message, _SyncMode);
 	end
-	
+end
+
+function SpeedWarRemoveVCAndHQ()
+	local pred = Predicate.OfAnyType( Entities.PB_Headquarters1, Entities.PB_Headquarters2, Entities.PB_Headquarters3, Entities.XD_VillageCenter, 
+	                                  Entities.PB_VillageCenter1, Entities.PB_VillageCenter2, Entities.PB_VillageCenter3)
+	for eId in S5Hook.EntityIterator(pred) do
+		DestroyEntity(eId)
+	end
 end
 
 function ActivateDebug()

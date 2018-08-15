@@ -58,15 +58,18 @@ function SW.GUI.Init()
 	XGUIEng.SetText("SWSMC1E3Button", "@center " .. SW.GUI.Text[SW.GUI.Anonym]);
 	SW.GUI.ButtonTooltips["HostOnly"] = "@color:255,0,0 Nur der Host kann das Menü bedienen. Host ist " .. UserTool_GetPlayerName(SW.Host);
 	
-	Sync.AddCall("SW.GUI.StartGame");
-	Sync.AddCall("SW.GUI.ToggleTeamSpawn");
-	Sync.AddCall("SW.GUI.ToggleAnonym");
-	Sync.AddCall("SW.GUI.SetFinal");
-	
+	if CNetwork then --is this on simi server?
+		SW.IsHost = (CNetwork.GameInformation_GetHost()==XNetwork.GameInformation_GetLogicPlayerUserName( GUI.GetPlayerID()))
+	else
+		Sync.AddCall("SW.GUI.StartGame");
+		Sync.AddCall("SW.GUI.ToggleTeamSpawn");
+		Sync.AddCall("SW.GUI.ToggleAnonym");
+		Sync.AddCall("SW.GUI.SetFinal");
+	end
 	SW.GUI.RemoveArrowCounter = 3;
 	StartSimpleJob("SW_GUI_RemoveArrowCounterJob");
 end
-
+-- show stuff and tutorial arrows
 function SW.GUI.OpenStartMenu()
 	if XGUIEng.IsWidgetShown("SWStartMenu") == 1 then
 		XGUIEng.ShowWidget("SWStartMenu",0);
@@ -100,16 +103,42 @@ function SW_GUI_RemoveArrowCounterJob2()
 	end
 end
 
+
+
 function SW.GUI.Button(_name)
 	if not SW.IsHost then
 		SW.GUI.StartShowHostOnly();
 		return;
 	end
 	if SW.GUI.ButtonCallbacks[_name] then
-		SW.GUI.ButtonCallbacks[_name]();
-		return;
+		if CNetwork then
+			if _name == "OpenStartMenu" or _name == "Suddendeath" then --local changes stay local.
+				SW.GUI.ButtonCallbacks[_name]()
+			else
+				CNetwork.send_command("SW_GUI_OnButtonPressedCNetwork", _name)
+			end
+			return
+		else
+			SW.GUI.ButtonCallbacks[_name]();
+			return;
+		end
 	end
 	log("Button "..tostring(_name).." has no function defined.");
+end
+
+function SW_GUI_OnButtonPressedCNetwork( _senderName, _buttonName)
+	-- wrong caller? Do nothing
+	if _senderName ~= CNetwork.GameInformation_GetHost() then return end
+	-- correct caller may change rules
+	if _buttonName == "Teamspawn" then
+		SW.GUI.ToggleTeamSpawn()
+	elseif _buttonName == "Anonym" then
+		Message("AnonFeature not implemented.")
+	elseif _buttonName == "Startgame" then
+		if SW.IsHost then
+			CNetwork.send_command("SW_GUI_StartGameCNetwork", SW.GUI.Suddendeath, SW.GUI.Teamspawn, SW.GUI.Anonym)
+		end
+	end
 end
 
 function SW.GUI.UpdateStartMenuTooltip(_name)
@@ -163,12 +192,16 @@ function SW_GUI_StartGameCounterJob()
 	SW.GUI.StartGameCounter = SW.GUI.StartGameCounter - 1;
 	XGUIEng.SetText("SWCounter", "@center " .. SW.GUI.StartGameCounter);
 	if SW.GUI.StartGameCounter <= 0 then
-		SW.Activate();
-		if SW.GUI.Anonym == 1 then
-			SW.GUI.AnonymizePlayers();
+		if CNetwork then
+			SW.Activate(CXNetwork.GameInformation_GetRandomseed())
+		else
+			SW.Activate();
+			if SW.GUI.Anonym == 1 then
+				SW.GUI.AnonymizePlayers();
+			end
+			XGUIEng.ShowWidget("SWCounter", 0);
+			return true;
 		end
-		XGUIEng.ShowWidget("SWCounter", 0);
-		return true;
 	end
 end
 
@@ -182,4 +215,13 @@ end
 
 function SW.GUI.AnonymizePlayers()
 	Message("TODO: anonymize players");
+end
+
+function SW_GUI_StartGameCNetwork( _senderName, _suddendeathMin, _teamSpawn, _anon)
+	if _senderName ~= CNetwork.GameInformation_GetHost() then return end
+	SW.GUI.Suddendeath = _suddendeathMin;
+	SW.GUI.Teamspawn = _teamSpawn;
+	SW.GUI.Anonym = _anon;
+	SW.WinCondition.Time = SW.GUI.Suddendeath * 60;
+	SW.GUI.StartGame()
 end

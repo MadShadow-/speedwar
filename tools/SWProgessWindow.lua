@@ -81,7 +81,7 @@ function SW_ProgressWindow_UpdateScore()
 	XGUIEng.SetText("SWGPRank", "Rang: " .. SW.RankSystem.RankColors[curRank] .. " " .. SW.BuildingTooltips.RankNames[curRank] ..
 		" @color:255,255,255 "..curPoints.."/"..threshold.." ("..percentage.."%)");
 		
-	local playerOverview = "Punkte # "..SW.ProgressWindow.EntitiesLeftColor.." Anzahl Entities @color:255,255,255,255 # Name @cr ";
+	local playerOverview = "Punkte # "..SW.ProgressWindow.EntitiesLeftColor.." Anz Ent @color:255,255,255,255 # Name @cr ";
 	local t = {};
 	-- t contains for each player a table
 	-- { pId, WinConditionPoints}
@@ -96,10 +96,13 @@ function SW_ProgressWindow_UpdateScore()
 		if entitiesleft > SW.ProgressWindow.EntitiesLeftDisplayMax then
 			entitiesleft = SW.ProgressWindow.EntitiesLeftDisplayMax.."+";
 		end
-		playerOverview = playerOverview.." "..t[i][2].." "
-		playerOverview = playerOverview..SW.ProgressWindow.EntitiesLeftColor.." "..entitiesleft.." "
-		--playerOverview = playerOverview .. t[i][2] .. " " .. SW.ProgressWindow.PlayerNames[t[i][1]] .. " @color:255,255,255 : "
-		--..SW.ProgressWindow.GetRankName(t[i][1])..SW.ProgressWindow.EntitiesLeftColor.." "..entitiesleft.." @cr @color:255,255,255 ";
+		-- add points for win condition
+		playerOverview = playerOverview.." "..SW.ProgressWindow.AdjustStringLength( tostring(t[i][2]), 10).." "
+		-- add num of remaining entities
+		playerOverview = playerOverview.." "..SW.ProgressWindow.AdjustStringLength( tostring(entitiesleft), 11, SW.ProgressWindow.EntitiesLeftColor).." "
+		-- some space
+		playerOverview = playerOverview.." @color:255,255,255,0 1 @color:255,255,255 "
+		-- player name
 		playerOverview = playerOverview..SW.RankSystem.RankColors[SW.RankSystem.Rank[t[i][1]]].." "..UserTool_GetPlayerName(t[i][1])
 		.." @color:255,255,255 @cr "
 	end
@@ -112,7 +115,20 @@ function SW_ProgressWindow_UpdateScore()
 		SW.WinCondition.ForcePointUpdate();
 	end
 end
-function SW.ProgressWindow.GetPointString( _score, _n)
+SW.ProgressWindow.StrLength1 = 10
+-- takes given string, cuts string to length _n or inserts additional invisible "1"
+function SW.ProgressWindow.AdjustStringLength( _str, _n, _col)
+	local n = string.len(_n)
+	if n > _n then
+		return string.sub( _str, 1, _n)
+	end
+	
+	if _col == nil then _col = "@color:255,255,255" end
+	-- string is not long enough?
+	local oneString = string.gsub( string.format("%"..(_n-n).."s", ""), " ", "1")
+	return " @color:255,255,255,0 "..oneString.." ".._col.." ".._str
+end
+function SW.ProgressWindow.GetPointString( _score, _n)		--not used?
 	local scoreString = "".._score
 	while string.len(scoreString) < _n do
 		scoreString = scoreString.." "
