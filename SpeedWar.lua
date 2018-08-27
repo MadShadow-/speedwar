@@ -65,6 +65,7 @@ function SpeedWarOnGameStart()
 		ErrorLogging = true,
 		TroopSpawnKeys = false,
 		ResearchAllUniversityTechnologies = true,
+		WeatherInfo = false		--outputs a lot of data about weather if true
 	};
 	
 	SW.MapSpecific.LoadConfig();
@@ -115,8 +116,16 @@ function SpeedWarOnGameStart()
 	SW.CustomNames = {};
 	S5Hook.SetCustomNames(SW.CustomNames);
 	if CNetwork then
-		S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml")
-		SW.Activate(CXNetwork.GameInformation_GetRandomseed())
+		SW.IsHost = (CNetwork.GameInformation_GetHost()==XNetwork.GameInformation_GetLogicPlayerUserName( GUI.GetPlayerID()))
+		CNetwork_SpeedwarStarter = function()
+			if Counter.Tick2("SWStarter",10) then
+				S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml")
+				--Sync.Call("SW.Activate", math.floor(XGUIEng.GetSystemTime()*1000))
+				SW.Activate(CXNetwork.GameInformation_GetRandomseed())
+				return true
+			end
+		end
+		StartSimpleJob("CNetwork_SpeedwarStarter")
 	else
 		SW.GUI.Init();
 		--S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml")
@@ -437,6 +446,17 @@ function SW.EnableRandomWeather()
 	end
 	local sumChance = 0
 	local rng, finalState, length
+	local nameKeys = {
+		"Sommer",
+		"Regen",
+		"Winter",
+		"Sturm",
+		"Schneeregen",
+		"Verschneite Landschaft",
+		"Abenddaemmerung",
+		"Saurer Regen",
+		"Heisser Sommer"
+	}
 	for i = 2, numOfPeriods do
 		-- IDEA: 
 		-- We can calculate for each state a representation factor RF[i] = totalTimeInThisState(i)/totalTimeSpent/baseChance
@@ -476,21 +496,13 @@ function SW.EnableRandomWeather()
 		total[finalState] = total[finalState] + length
 		totalTimeSpent = totalTimeSpent + length
 		currentState = finalState
+		if debugging.WeatherInfo then
+			LuaDebugger.Log(string.format("%-35s %d m %d s", "Adding "..nameKeys[finalState]..": ", length/60, length-math.floor(length/60)*60))
+		end
 		SW.RandomWeatherAddElement( finalState, length)
 	end
-	if true then
+	if debugging.WeatherInfo then
 		local s1, s2 = "", ""
-		local nameKeys = {
-			"Sommer",
-			"Regen",
-			"Winter",
-			"Sturm",
-			"Schneeregen",
-			"Verschneite Landschaft",
-			"Abenddaemmerung",
-			"Saurer Regen",
-			"Heisser Sommer"
-		}
 		for i = 1, numOfWeatherStates do
 			--s1 = s1.." "..total[i]
 			--s2 = s2.." "..total[i]/totalTimeSpent

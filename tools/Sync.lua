@@ -26,6 +26,7 @@ function Sync.Init()
 		["SW.WallGUI.PayCosts"] = true,
 		["SW.WallGUI.AddWallInConstructionToQueue"] = true,
 		["SW.ResumeGame"] = true,
+		["Message"] = true
 	};
 	
 	-- numOfTributes determines actions at the same time
@@ -53,6 +54,30 @@ function Sync.Init()
 		end
 		Sync.MPGame_ApplicationCallback_ReceivedChatMessage(_msg, _alliedOnly, _senderID);
 	end
+	-- change some stuff if CNetwork is present
+	if CNetwork then
+		-- change chars for reasons unknown
+		Sync.PrepareChar = "SyncPrep"
+		Sync.AcknowledgeChar = "SyncAck"
+		Sync.NoSyncChar = "SyncNSyn"
+		MPGame_ApplicationCallback_ReceivedChatMessage = function( _msg, _alliedOnly, _senderID )
+			local n1 = string.find(_msg, Sync.PrepareChar)
+			local n2 = string.find(_msg, Sync.AcknowledgeChar)
+			local n3 = string.find(_msg, Sync.NoSyncChar)
+			if n1 then
+				Sync.OnPrepareMessageArrived( Sync.RemoveColor( string.sub(_msg, n1+8)))
+				return
+			elseif n2 then
+				Sync.OnAcknowledgeMessageArrived( Sync.RemoveColor( string.sub(_msg, n2+7)), _senderID)
+				return
+			elseif n3 then
+				Sync.ExecuteFunctionByString( Sync.RemoveColor( string.sub(_msg,n3+8)))
+				return
+			end
+			Sync.MPGame_ApplicationCallback_ReceivedChatMessage(_msg, _alliedOnly, _senderID);
+		end
+	end
+	
 	
 	Sync.Call = function(_func, ...)
 		local player = GUI.GetPlayerID()
@@ -74,24 +99,12 @@ function Sync.Init()
 		Sync.Send(Sync.NoSyncChar .. Sync.CreateFunctionString(_func, unpack(arg)))
 	end
 end
-function Sync.Call(_func, ...)
-	local player = GUI.GetPlayerID()
-	local id = Sync.GetFreeTributeId(player)
-	if not id then
-		Message("Sync Failed: No Tribute Id's left")
-		return
+function Sync.RemoveColor( _str)
+	local n = string.find( _str, "@color")
+	if n then
+		return string.sub( _str, 1, n-1)
 	end
-	Sync.Tributes[id].Used = true
-	Sync.Tributes[id].AckData = {}
-	for i = 1, 8 do
-		Sync.Tributes[id].AckData[i] = ((XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i) ~= 1) or GUI.GetPlayerID() == i or (XNetwork.GameInformation_IsHumanPlayerThatLeftAttachedToPlayerID(i) == 1))
-	end
-	local fs = Sync.CreateFunctionString( _func, unpack(arg))
-	Sync.OverwriteTributeCallback(id, fs)
-	Sync.Send(Sync.PrepareChar..id..fs);
-end
-function Sync.CallNoSync(_func, ...)
-	Sync.Send(Sync.NoSyncChar .. Sync.CreateFunctionString(_func, unpack(arg)))
+	return _str
 end
 function Sync.AddCall(_f)
 	Sync.Whitelist[_f] = true;
@@ -122,7 +135,11 @@ function Sync.OnAcknowledgeMessageArrived(_msg, _pId)
 			return
 		end
 	end
-	GUI.PayTribute(8, tributeId)
+	if CNetwork then
+		GUI.PayTribute(Sync.Tributes[tributeId].Player, tributeId)
+	else
+		GUI.PayTribute(8, tributeId)
+	end
 end
 
 function Sync.Send(_str)
@@ -134,10 +151,14 @@ function Sync.Send(_str)
 end
 
 function Sync.CreateNewTribut(_playerId)
+	local tributePlayerId = 8
+	if CNetwork then
+		tributePlayerId = _playerId
+	end
 	local tributeData = {
 		text = "",
 		cost = {},
-		pId = 8,
+		pId = tributePlayerId,
 		Callback = function()	--TO BE OVERRIDEN ONCE FUNCTION IS READY TO CALL
 		end				
 	}

@@ -79,5 +79,9 @@ function SW.SetupMPLogic()
 	function VC_Deathmatch()
 	end
 
-	MultiplayerTools.RemoveAllPlayerEntities = function() end
+	MultiplayerTools.RemoveAllPlayerEntities = function( _pId)
+		if GUI.GetPlayerID() == _pId then
+			Message("Weichei. Geh da raus und MACH DIE KAPUTT!")
+		end
+	end
 end
