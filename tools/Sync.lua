@@ -10,8 +10,52 @@ Sync = {
 	AcknowledgeChar = string.char(3),
 	NoSyncChar = string.char(4)
 }
+Sync.CNetworkCalls = {
+	["SW.Bastille.TrackGroup"] = function( _sender, _bId, ...) 
+		local bPId = Logic.EntityGetPlayer( _bId)
+		if not CNetwork.isAllowedToManipulatePlayer( _sender, bPId) then
+			return
+		end
+		for i = 1, arg.n do
+			if Logic.EntityGetPlayer(arg[i]) ~= bPId then return end
+		end
+		-- all checks were successful? go!
+		arg.n = nil
+		SW.Bastille.TrackGroup( arg, _bId)
+	end,
+	["SW.Bastille.SyncedReleaseAllUnits"] = function( _sender, _bId)
+		if CNetwork.isAllowedToManipulatePlayer( _sender, Logic.EntityGetPlayer( _bId)) then
+			SW.Bastille.SyncedReleaseAllUnits( _bId)
+		end
+	end,
+	["SW.Bastille.ReleaseOneUnitSynced"] = function( _sender, _bId, _slotId)
+		if CNetwork.isAllowedToManipulatePlayer( _sender, Logic.EntityGetPlayer( _bId)) then
+			SW.Bastille.ReleaseOneUnitSynced( _bId, _slotId)
+		end
+	end,
+	["SW.Walls2.SellWall"] = function( _sender, _eId) 
+		if CNetwork.isAllowedToManipulatePlayer( _sender, Logic.EntityGetPlayer( _eId)) then
+			SW.Walls2.SellWall( _eId)
+		end
+	end,
+	["SW.Walls2.ToggleGate"] = function( _sender, _eId) 
+		if CNetwork.isAllowedToManipulatePlayer( _sender, Logic.EntityGetPlayer( _eId)) then
+			SW.Walls2.ToggleGate( _eId)
+		end
+	end,
+	["SW.WallGUI.AddWallInConstructionToQueue"] = function( _sender, _eId, _wall, _isNewWall)
+		if CNetwork.isAllowedToManipulatePlayer( _sender, Logic.EntityGetPlayer( _eId)) then
+			SW.WallGUI.AddWallInConstructionToQueue( _eId, _wall, _isNewWall)
+		end
+	end
+}
 
 function Sync.Init()
+	if CNetwork then
+		Sync.CNetworkInit()
+		return
+	end
+
 	-- allow use of tributes
 	GameCallback_FulfillTribute = function() return 1 end
 	
@@ -26,7 +70,7 @@ function Sync.Init()
 		["SW.WallGUI.PayCosts"] = true,
 		["SW.WallGUI.AddWallInConstructionToQueue"] = true,
 		["SW.ResumeGame"] = true,
-		["Message"] = true
+		--["Message"] = true
 	};
 	
 	-- numOfTributes determines actions at the same time
@@ -99,6 +143,24 @@ function Sync.Init()
 		Sync.Send(Sync.NoSyncChar .. Sync.CreateFunctionString(_func, unpack(arg)))
 	end
 end
+function Sync.CNetworkInit()
+	for k,v in pairs(Sync.CNetworkCalls) do
+		CNetwork.SetNetworkHandler( k, v)
+	end
+	Sync.Call = function( _s, ...)
+		if _s == "SW.Bastille.TrackGroup" then
+			CNetwork.send_command( _s, arg[2], unpack(arg[1]))
+			return
+		end
+		if Sync.CNetworkCalls[_s] then
+			arg.n = nil
+			CNetwork.send_command( _s, unpack(arg))
+		else
+			Message("Unknown command send to sync: ".._s)
+		end
+	end
+end
+
 function Sync.RemoveColor( _str)
 	local n = string.find( _str, "@color")
 	if n then

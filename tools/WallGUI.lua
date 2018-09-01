@@ -200,7 +200,8 @@ function SW.WallGUI.Init()
 			local wallInfo;
 			for i = 1, table.getn(SW.WallGUI.PlayerLocal_WallQueue) do
 				wallInfo = SW.WallGUI.PlayerLocal_WallQueue[i];
-				Sync.Call("SW.WallGUI.PayCosts", GUI.GetPlayerID(), wallInfo[2]);
+				--Sync.Call("SW.WallGUI.PayCosts", GUI.GetPlayerID(), wallInfo[2]);
+				-- call PayCosts in AddWallInConstructionToQueue
 				Sync.Call("SW.WallGUI.AddWallInConstructionToQueue", wallInfo[1], wallInfo[2], wallInfo[3]);
 			end
 			SW.PreciseLog.Log("Sending "..SW.WallGUI.LatestWallType.." with "..tostring(SW.WallGUI.LatestWallNewWall), "WallGUI")
@@ -380,6 +381,7 @@ function SW.WallGUI.AddWallInConstructionToQueue( _entityId, _wall, _isNewWall)
 	if not IsAlive(_entityId) then
 		return;
 	end
+	SW.WallGUI.PayCosts( Logic.EntityGetPlayer( _entityId), _wall)
 	local pos = GetPosition(_entityId);
 	SW.WallGUI.DummysInConstruction[tostring(pos.X)..tostring(pos.Y)] = {_entityId, _wall, _isNewWall};
 	Logic.SetModelAndAnimSet(_entityId, SW.WallGUI.Models[_wall]);
@@ -730,6 +732,7 @@ function SW.WallGUI.PostStartEntityCostAndBlockingChanges()
 	local s = Logic.WorldGetSize() / 100 - 1;
 	Logic.UpdateBlocking(0, 0, s, s);
 	-- update ressource costs
-	SW.WallGUI.EntityType_SetResourceCost(1, Entities.PB_Beautification12, 0);
-	SW.WallGUI.EntityType_SetResourceCost(5, Entities.PB_Beautification12, 0);
+	-- now done with config/SW_BuildingCosts.lua, resets if game is left
+	--SW.WallGUI.EntityType_SetResourceCost(1, Entities.PB_Beautification12, 0);
+	--SW.WallGUI.EntityType_SetResourceCost(5, Entities.PB_Beautification12, 0);
 end

@@ -20,6 +20,7 @@ SW.BuildingConstructionCosts = {
 	["PB_Tower1"] = { [ResourceType.Wood] = 250, [ResourceType.Stone] = 350  },
 	--["PB_Blacksmith1"] = { [ResourceType.Clay] = 200, [ResourceType.Stone] = 150  },
 	["PB_Blacksmith1"] = { },
+	["PB_Beautification12"] = {},
 	["PB_Market1"] = { [ResourceType.Wood] = 150, [ResourceType.Clay] = 150  },
 	["PB_Monastery1"] = { [ResourceType.Wood] = 700, [ResourceType.Clay] = 550  },
 	["PB_Alchemist1"] = { [ResourceType.Wood] = 200, [ResourceType.Stone] = 200  },

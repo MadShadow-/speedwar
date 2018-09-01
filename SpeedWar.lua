@@ -65,7 +65,7 @@ function SpeedWarOnGameStart()
 		ErrorLogging = true,
 		TroopSpawnKeys = false,
 		ResearchAllUniversityTechnologies = true,
-		WeatherInfo = false		--outputs a lot of data about weather if true
+		WeatherInfo = false		--outputs a lot of data about weather if true, independent of Debug
 	};
 	
 	SW.MapSpecific.LoadConfig();
@@ -118,7 +118,7 @@ function SpeedWarOnGameStart()
 	if CNetwork then
 		SW.IsHost = (CNetwork.GameInformation_GetHost()==XNetwork.GameInformation_GetLogicPlayerUserName( GUI.GetPlayerID()))
 		CNetwork_SpeedwarStarter = function()
-			if Counter.Tick2("SWStarter",10) then
+			if Counter.Tick2("SWStarter",3) then
 				S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml")
 				--Sync.Call("SW.Activate", math.floor(XGUIEng.GetSystemTime()*1000))
 				SW.Activate(CXNetwork.GameInformation_GetRandomseed())
@@ -394,26 +394,26 @@ function SW.EnableRandomWeather()
 	local numOfWeatherStates = 9		--How many states are there?
 	local baseChance = {}				--Doesnt need to add up to some number
 	baseChance[1] = 80					--Chance summer
-	baseChance[2] = 30					--Chance rain
+	baseChance[2] = 20					--Chance rain
 	baseChance[3] = 30					--Chance winter
 	baseChance[4] = 10					-- storm
-	baseChance[5] = 20					-- snowy rain
+	baseChance[5] = 15					-- snowy rain
 	baseChance[6] = 20					-- ice time
 	baseChance[7] = 20					-- evening
 	baseChance[8] = 10					-- sour rain
 	baseChance[9] = 10					-- hot summer
 	local range = {}
-	range[1] = {180, 300}				--Lower and upper limit for summer period
-	range[2] = {60, 180}					--Lower and upper limit for rain period
-	range[3] = {80, 240}					--Lower and upper limit for winter period
-	range[4] = {60, 120}				--Lower and upper limit for summer2 period
-	range[5] = {60, 180}					--Lower and upper limit for rain2 period
-	range[6] = {80, 180}					--Lower and upper limit for winter2 period
-	range[7] = {80, 120}					--Lower and upper limit for winter2 period
-	range[8] = {40, 60}
-	range[9] = {60, 120}
+	range[1] = {300, 480}				--Lower and upper limit for summer period
+	range[2] = {180, 360}					--Lower and upper limit for rain period
+	range[3] = {180, 360}					--Lower and upper limit for winter period
+	range[4] = {180, 360}				--Lower and upper limit for summer2 period
+	range[5] = {180, 360}					--Lower and upper limit for rain2 period
+	range[6] = {180, 360}					--Lower and upper limit for winter2 period
+	range[7] = {180, 360}					--Lower and upper limit for winter2 period
+	range[8] = {80, 240}
+	range[9] = {120, 240}
 	local startSummerLength = 240 		-- minutes of starting summer
-	local numOfPeriods = 50
+	local numOfPeriods = 30
 	-- END OF CONFIG, DO NOT CHANGE
 	
 	-- overwriting values by map specific script
