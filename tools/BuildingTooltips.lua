@@ -450,7 +450,13 @@ function SW.BuildingTooltips.ChangeGUI()
 			SW.BuildingTooltips.GUITooltip_ResearchTechnologies( _tech, _s1, _s2)
 			return
 		end
+		-- use orginal function for stuff
 		SW.BuildingTooltips.GUITooltip_ResearchTechnologies( _tech, _s1, _s2)
+		if Logic.GetTechnologyState(GUI.GetPlayerID(), _tech) == 0 then --forbidden, show costs anyways
+			Logic.FillTechnologyCostsTable( _tech, InterfaceGlobals.CostTable)	
+			local CostString = InterfaceTool_CreateCostString( InterfaceGlobals.CostTable )
+			XGUIEng.SetText( gvGUI_WidgetID.TooltipBottomCosts, CostString)
+		end	
 		XGUIEng.SetText( gvGUI_WidgetID.TooltipBottomText, SW.BuildingTooltips.ConstructTooltipR(_tech))
 	end
 	--GUITooltip_UpgradeBuilding( _eId, _s1, _s2, _tech)
@@ -663,8 +669,13 @@ function SW.BuildingTooltips.FixNeededBuilding()			--Used to give the currBuildi
 	SW.BuildingTooltips.GUIUpdate_TechnologyButtons = GUIUpdate_TechnologyButtons
 	GUIUpdate_TechnologyButtons = function( _button, _tech, _eType)
 		SW.BuildingTooltips.GUIUpdate_TechnologyButtons( _button, _tech, _eType) --call original
-		-- already researched techs & currently researching techs have no need to be changed
-		if Logic.GetTechnologyState( GUI.GetPlayerID(), _tech) == 4 or Logic.GetTechnologyState( GUI.GetPlayerID(), _tech) == 3 then
+		-- already researched techs have no need to be changed
+		if Logic.GetTechnologyState( GUI.GetPlayerID(), _tech) == 4 then
+			return
+		end
+		-- if currently in research disable button
+		if Logic.GetTechnologyState( GUI.GetPlayerID(), _tech) == 3 then
+			XGUIEng.DisableButton( _button, 1)
 			return
 		end
 		-- is technology modded? then enable buttons once requirements are met
@@ -678,7 +689,8 @@ function SW.BuildingTooltips.FixNeededBuilding()			--Used to give the currBuildi
 		if XGUIEng.IsButtonDisabled( _button) == 0 then
 			if SW.BuildingTooltips.RData[_tech] then
 				if SW.BuildingTooltips.RData[_tech].currBuilding then
-					if SW.BuildingTooltips.RData[_tech].currBuilding[1] ~= Logic.GetEntityType(GUI.GetSelectedEntity()) then --wrong building
+					if not SW.BuildingTooltips.DoesBuildingMatchTech( GUI.GetSelectedEntity(), SW.BuildingTooltips.RData[_tech].currBuilding) then
+					--if SW.BuildingTooltips.RData[_tech].currBuilding[1] ~= Logic.GetEntityType(GUI.GetSelectedEntity()) then --wrong building
 						XGUIEng.DisableButton( _button, 1)
 					end
 				end
@@ -691,13 +703,23 @@ function SW.BuildingTooltips.FixNeededBuilding()			--Used to give the currBuildi
 		if XGUIEng.IsButtonDisabled( _button) == 0 then
 			if SW.BuildingTooltips.RData[_tech] then
 				if SW.BuildingTooltips.RData[_tech].currBuilding then
-					if SW.BuildingTooltips.RData[_tech].currBuilding[1] ~= Logic.GetEntityType(GUI.GetSelectedEntity()) then --wrong building
+					if not SW.BuildingTooltips.DoesBuildingMatchTech( GUI.GetSelectedEntity(), SW.BuildingTooltips.RData[_tech].currBuilding) then
+					--if SW.BuildingTooltips.RData[_tech].currBuilding[1] ~= Logic.GetEntityType(GUI.GetSelectedEntity()) then --wrong building
 						XGUIEng.DisableButton( _button, 1)
 					end
 				end
 			end
 		end
 	end
+end
+function SW.BuildingTooltips.DoesBuildingMatchTech( _sel, _currBul)
+	local t = Logic.GetEntityType(_sel)
+	for i = 1, table.getn(_currBul) do
+		if t == _currBul[i] and i ~= 2 then
+			return true
+		end
+	end
+	return false
 end
 function SW.BuildingTooltips.FixBuyMilitary()
 	GUIUpdate_BuyMilitaryUnitButtons = function(_Button, _Technology, _UpgradeCategory)

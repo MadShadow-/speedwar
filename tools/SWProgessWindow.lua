@@ -5,7 +5,8 @@ SW.ProgressWindow.EntitiesLeftDisplayMax = 30;
 SW.ProgressWindow.EntitiesLeftColor = "@color:205,79,57";
 
 function SW.ProgressWindow.Init()
-
+	-- spectators dont need this
+	if GUI.GetPlayerID() == 17 then return end
 	SW.ProgressWindow.GameCallback_GUI_SelectionChanged = GameCallback_GUI_SelectionChanged;
 	GameCallback_GUI_SelectionChanged = function()
 		local sel = GUI.GetSelectedEntity();

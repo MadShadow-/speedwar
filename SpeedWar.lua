@@ -43,6 +43,8 @@ function SpeedWarOnGameStart()
 		return
 	end
 	SpeedWarRemoveVCAndHQ()
+	-- hide speedwar specific buttons
+	
 	
 	-- how about some vision?
 	Display.GfxSetSetFogParams(3, 0.0, 1.0, 1, 152,172,182, 3000,19500)
@@ -118,18 +120,29 @@ function SpeedWarOnGameStart()
 	if CNetwork then
 		SW.IsHost = (CNetwork.GameInformation_GetHost()==XNetwork.GameInformation_GetLogicPlayerUserName( GUI.GetPlayerID()))
 		CNetwork_SpeedwarStarter = function()
-			if Counter.Tick2("SWStarter",3) then
+			--if Counter.Tick2("SWStarter",3) then
+			if true then
 				S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml")
 				--Sync.Call("SW.Activate", math.floor(XGUIEng.GetSystemTime()*1000))
 				SW.Activate(CXNetwork.GameInformation_GetRandomseed())
 				return true
 			end
 		end
+		-- reinstall colors
+		for _,v in pairs(SW.Players) do
+			Display.SetPlayerColorMapping( v, XNetwork.GameInformation_GetLogicPlayerColor(v))
+		end
 		StartSimpleJob("CNetwork_SpeedwarStarter")
 	else
-		SW.GUI.Init();
-		--S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml")
-		--SW.Activate(1)
+		--SW.GUI.Init();
+		SpeedwarStarter = function()
+			if Counter.Tick2("test",2) then
+				S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml")
+				Sync.Call( "SW.Activate", math.floor(XGUIEng.GetSystemTime()*1000))
+				return true
+			end
+		end
+		StartSimpleJob("SpeedwarStarter")
 	end
 	
 	SW.IsActivated = false;
@@ -240,18 +253,17 @@ end;
 -- ################################################# --
 -------------------------------------------------------
 
-function SW.Activate()
+function SW.Activate( _seed)
 	if SW.IsActivated then
 		Message("@color:255,0,0 Warning: Tried to activate speedwar 2 times! - cancelled");
 		return;
 	end
 	SW.IsActivated = true;
-	
+	math.randomseed( _seed)
 	-- create all SV related functions
 	SW.SV.Init()
 	-- village centers shall be removed and replaced by outposts
 	SW.EnableOutpostVCs();
-	SW.RankSystem.ApplyGUIChanges();
 
 	SW.CallbackHacks();
 	-- leaders don't cost sold anymore
@@ -350,7 +362,13 @@ function SW.Activate()
 	-- Constant trade factors
 	SW.FixMarketPrices()
 	-- Check version
-	SW.RessCheck.ShoutVersion()
+	SW_RessCheck_VersionJob = function()
+		if Counter.Tick2("VersionStuff",2) then
+			SW.RessCheck.ShoutVersion()
+			return true
+		end
+	end
+	StartSimpleJob("SW_RessCheck_VersionJob")
 	-- Make outposts more resilient against thieves
 	SW.SetKegFactor( Entities.PB_Outpost1, 0.1)
 	-- and buff thieves against walls
@@ -845,6 +863,7 @@ function SW.CallbackHacks()
 		SW.GameCallback_GUI_SelectionChanged();
 		if entityType == Entities.PU_Serf then
 			XGUIEng.ShowWidget("Build_Village", 0);
+			XGUIEng.ShowWidget("SWBuildWindmill", 0)
 		end
 		if entityType == Entities.PB_Outpost1 then
 			if Logic.IsConstructionComplete( entityId) == 1 then
@@ -853,6 +872,7 @@ function SW.CallbackHacks()
 				XGUIEng.ShowWidget("Buy_Hero", 0);
 				XGUIEng.ShowWidget("Upgrade_Headquarter1", 0)
 				XGUIEng.ShowWidget("Upgrade_Headquarter2", 0)
+				XGUIEng.ShowWidget("Research_Tracking", 0)
 				-- Show tax menu if adjustable taxes are researched
 				if Logic.GetTechnologyState( GUI.GetPlayerID(), Technologies.GT_Literacy) == 4 then
 					XGUIEng.ShowWidget( "HQTaxes", 1)
@@ -1154,7 +1174,9 @@ function SW.DefeatConditionOnPlayerDefeated( _pId)	--Gets called once player des
 	end
 	--Destroy players HQ
 	for eId in S5Hook.EntityIterator(Predicate.OfPlayer(_pId), Predicate.OfType(Entities.PB_Headquarters3)) do
+		--if GetPlayer( eId) == _pId then
 		DestroyEntity( eId)
+		--end
 	end
 	--(Make player name red) NOT ANYMORE BLYAT
 	if XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID( _pId) == 1 then
@@ -1329,6 +1351,8 @@ function SW.CreateHQsAndRedirectKeyBindung()
 	for i = 1, table.getn(SW.Players) do
 		player = SW.Players[i];
 		hqId = Logic.CreateEntity(Entities.PB_Headquarters3, 1000, 1000, 0, player);
+		--LuaDebugger.Log("hqId:"..hqId.." for "..player)
+		myHqID = hqId
 		Logic.SetEntitySelectableFlag( hqId, 0)
 		Logic.SetEntityScriptingValue( hqId, -30, 257)
 	end;

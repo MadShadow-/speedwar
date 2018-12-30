@@ -14,6 +14,7 @@ function SW.Bugfixes.Init()
 	local SellBuildingUpvalue = GUI.SellBuilding
 	local ListOfSoldBuildingsUpvalue = {}
 	GUI.SellBuilding = function( _eId)
+		if _eId == nil then return end
 		if ListOfSoldBuildingsUpvalue[_eId] == nil then
 			ListOfSoldBuildingsUpvalue[_eId] = Logic.GetTime()
 			SellBuildingUpvalue( _eId)

@@ -204,7 +204,7 @@ SW.BuildingTooltips.RData = { --Data for research tooltips
 	[Technologies.T_PaddedArcherArmor] = {
 		Tier = 2, 
 		Techs = {Technologies.T_SoftArcherArmor},
-		currBuilding = { Entities.PB_Blacksmith2, Technologies.UP1_Blacksmith}
+		currBuilding = { Entities.PB_Blacksmith2, Technologies.UP1_Blacksmith, Entities.PB_Blacksmith3}
 	},
 	[Technologies.T_LeatherArcherArmor] = {
 		Tier = 4, 
@@ -217,7 +217,7 @@ SW.BuildingTooltips.RData = { --Data for research tooltips
 	[Technologies.T_ChainMailArmor] = {
 		Tier = 2, 
 		Techs = {Technologies.T_LeatherMailArmor},
-		currBuilding = { Entities.PB_Blacksmith2, Technologies.UP1_Blacksmith}
+		currBuilding = { Entities.PB_Blacksmith2, Technologies.UP1_Blacksmith, Entities.PB_Blacksmith3}
 	},
 	[Technologies.T_PlateMailArmor] = {
 		Tier = 4, 
@@ -226,11 +226,11 @@ SW.BuildingTooltips.RData = { --Data for research tooltips
 	},
 	[Technologies.T_MasterOfSmithery] = {
 		Tier = 2,
-		currBuilding = { Entities.PB_Blacksmith2, Technologies.UP1_Blacksmith}
+		currBuilding = { Entities.PB_Blacksmith2, Technologies.UP1_Blacksmith, Entities.PB_Blacksmith3}
 	},
 	[Technologies.T_IronCasting] = {
 		Tier = 4,
-		Techs = {Technologies.MasterOfSmithery},
+		Techs = {Technologies.T_MasterOfSmithery},
 		currBuilding = { Entities.PB_Blacksmith3, Technologies.UP2_Blacksmith}
 	},
 	-- make weather change possible on tier 2
@@ -239,6 +239,7 @@ SW.BuildingTooltips.RData = { --Data for research tooltips
 	},
 	[Technologies.T_ChangeWeather] = {
 		Tier = 2,
+		Techs = {Technologies.T_WeatherForecast}
 	},
 	-- bombs need tier 3 and tier 2 tavern
 	[Technologies.T_ThiefSabotage] = {

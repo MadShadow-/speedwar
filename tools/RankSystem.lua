@@ -40,6 +40,7 @@ function SW.RankSystem.Init()
 	end
 	SW.RankSystem.InitKillCount()
 	SW.BuildingTooltips.GetRank = SW.RankSystem.GetRank		--Give BuildingTooltips a better rank system
+	-- Create GUI with NaposUeberlegeneBalken
 	SW.RankSystem.InitGUI()
 	StartSimpleJob("SW_RankSystem_CalcAvgRankJob")
 end
@@ -78,9 +79,9 @@ function SW.RankSystem.GetRank( _pId)
 	return SW.RankSystem.Rank[_pId]
 end
 function SW.RankSystem.InitGUI()
-	GUIUpdate_VCTechRaceColor = function() end
-	GUIUpdate_VCTechRaceProgress = function() end --use this function wisely!
-	GUIUpdate_GetTeamPoints = function() end
+	-- GUIUpdate_VCTechRaceColor = function() end
+	-- GUIUpdate_VCTechRaceProgress = function() end --use this function wisely!
+	-- GUIUpdate_GetTeamPoints = function() end
 	local numPlayer = SW.NrOfPlayers
 	local listPlayer = SW.Players
 	for i = 1, 8 do
@@ -92,71 +93,46 @@ function SW.RankSystem.InitGUI()
 	end
 	--DEBUG
 	if not SW.IsMultiplayer() then
+	--if false then
 		listPlayer = {1,3,5,8}
 		local r,g,b = GUI.GetPlayerColor(1)
-		SW.RankSystem.PlayerNames[1] = "@color:"..r..","..g..","..b..": "..UserTool_GetPlayerName(1).." @color:255,255,255: "
-		SW.RankSystem.PlayerNames[3] = "Dieter"
-		SW.RankSystem.PlayerNames[5] = "Fritzl"
-		r,g,b = GUI.GetPlayerColor(8)
-		SW.RankSystem.PlayerNames[8] = "@color:"..r..","..g..","..b..": Peter Enis @color:255,255,255 "
-		numPlayer = 4
-		SetFriendly(1,8)
+		SW.RankSystem.PlayerNames[1] = "@color:"..r..","..g..","..b..": "..UserTool_GetPlayerName(1).." @color:255,255,255 "
+		for i = 2, 8 do
+			r,g,b = GUI.GetPlayerColor(i)
+			SW.RankSystem.PlayerNames[i] = "@color:"..r..","..g..","..b..": Peter Enis @color:255,255,255 "
+			numPlayer = 8
+			SetFriendly(1,i)
+			SW.NrOfPlayers = SW.NrOfPlayers+1
+			table.insert( SW.Players, i)
+			SW.RankSystem.Points[i] = (i-1)*71
+		end
 		--StartSimpleJob("SW_RankSystem_DEBUGHandOutPoints")
 	end
 	--DEBUG END
 	SW.RankSystem.PlayerIds = listPlayer
 	SW.RankSystem.NumPlayers = numPlayer
 	SW.RankSystem.ApplyGUIChanges()
-	--[[
-	   VCMP_Window
-         VCMP_Team1
-           VCMP_Team1Name
-           VCMP_Team1Player1
-            Calls: GUIUpdate_VCTechRaceColor(1)
-           VCMP_Team1Player2
-            Calls: GUIUpdate_VCTechRaceColor(2)
-           VCMP_Team1Player3
-            Calls: GUIUpdate_VCTechRaceColor(3)
-           VCMP_Team1Player4
-            Calls: GUIUpdate_VCTechRaceColor(4)
-           VCMP_Team1Player5
-            Calls: GUIUpdate_VCTechRaceColor(5)
-           VCMP_Team1Player6
-            Calls: GUIUpdate_VCTechRaceColor(6)
-           VCMP_Team1Player7
-            Calls: GUIUpdate_VCTechRaceColor(7)
-           VCMP_Team1Player8
-            Calls: GUIUpdate_VCTechRaceColor(8)
-           VCMP_Team1TechRace
-             VCMP_Team1Progress
-              Calls: GUIUpdate_VCTechRaceProgress()
-             VCMP_Team1ProgressBG
-           VCMP_Team1PointGame
-             VCMP_Team1Points
-              Calls: GUIUpdate_GetTeamPoints()
-             VCMP_Team1PointBG
-         VCMP_Team1_Shade
-	]]
 end
 function SW.RankSystem.ApplyGUIChanges()
 	local numPlayer = SW.NrOfPlayers
 	local listPlayer = SW.Players
-	XGUIEng.ShowWidget("VCMP_Window", 1)
-	XGUIEng.ShowAllSubWidgets("VCMP_Window", 1)
-	for i = 1, numPlayer do			--Prep everything
-		for j = 1, 8 do
-			XGUIEng.ShowWidget("VCMP_Team"..i.."Player"..j, 0)
-		end
-		XGUIEng.SetText("VCMP_Team"..i.."Name", "Team "..i)
-		XGUIEng.ShowWidget("VCMP_Team"..i.."TechRace", 1)
-		XGUIEng.ShowWidget("VCMP_Team"..i.."Progress", 1)
-		XGUIEng.ShowWidget("VCMP_Team"..i.."_Shade", 0)
-		XGUIEng.SetProgressBarValues("VCMP_Team"..i.."Progress", 0, 8)
-	end
-	for i = 1, 8 do
-		XGUIEng.ShowWidget("VCMP_Team"..i, 0)
-		XGUIEng.ShowWidget("VCMP_Team"..i.."_Shade", 0)
-	end
+	-- Now uses NaposUeberlegeneBalken
+	-- XGUIEng.ShowWidget("VCMP_Window", 1)
+	-- XGUIEng.ShowAllSubWidgets("VCMP_Window", 1)
+	-- for i = 1, numPlayer do			--Prep everything
+		-- for j = 1, 8 do
+			-- XGUIEng.ShowWidget("VCMP_Team"..i.."Player"..j, 0)
+		-- end
+		-- XGUIEng.SetText("VCMP_Team"..i.."Name", "Team "..i)
+		-- XGUIEng.ShowWidget("VCMP_Team"..i.."TechRace", 1)
+		-- XGUIEng.ShowWidget("VCMP_Team"..i.."Progress", 1)
+		-- XGUIEng.ShowWidget("VCMP_Team"..i.."_Shade", 0)
+		-- XGUIEng.SetProgressBarValues("VCMP_Team"..i.."Progress", 0, 8)
+	-- end
+	-- for i = 1, 8 do
+		-- XGUIEng.ShowWidget("VCMP_Team"..i, 0)
+		-- XGUIEng.ShowWidget("VCMP_Team"..i.."_Shade", 0)
+	-- end
 	-- Basics done, now start refining
 	-- Only show progress of allies
 	local currPlayer = GUI.GetPlayerID()
@@ -167,12 +143,29 @@ function SW.RankSystem.ApplyGUIChanges()
 			table.insert( SW.RankSystem.ListOfAllyIds, listPlayer[i])
 		end
 	end
+	SW.RankSystem.CountFuncs = {}
+	SW.RankSystem.GeneralCountFunc = function( j)
+		if SW.RankSystem.Rank[j] < 4 then
+			return math.floor(100*SW.RankSystem.Points[j]/SW.RankSystem.RankThresholds[SW.RankSystem.Rank[j]]);
+		else
+			return 100
+		end
+	end
+	for i = 1, 8 do
+		local j = i
+		SW.RankSystem.CountFuncs[j] = function()
+			return SW.RankSystem.GeneralCountFunc(j)
+		end
+	end
+	QuestController.Init()
 	for i = 1, table.getn(SW.RankSystem.ListOfAllyIds) do
-		XGUIEng.ShowWidget("VCMP_Team"..i, 1)
-		XGUIEng.ShowWidget("VCMP_Team"..i.."_Shade", 0)
-		local ColorR, ColorG, ColorB = GUI.GetPlayerColor( SW.RankSystem.ListOfAllyIds[i] )
-		XGUIEng.SetMaterialColor("VCMP_Team"..i.."Progress",0,ColorR, ColorG, ColorB,200)
-		XGUIEng.SetText("VCMP_Team"..i.."Name", SW.RankSystem.PlayerNames[SW.RankSystem.ListOfAllyIds[i]])
+		QuestController.Add( "percent", SW.RankSystem.CountFuncs[SW.RankSystem.ListOfAllyIds[i]], 
+			SW.RankSystem.PlayerNames[SW.RankSystem.ListOfAllyIds[i]].." @color:255,255,255", 100)
+		--XGUIEng.ShowWidget("VCMP_Team"..i, 1)
+		--XGUIEng.ShowWidget("VCMP_Team"..i.."_Shade", 0)
+		--local ColorR, ColorG, ColorB = GUI.GetPlayerColor( SW.RankSystem.ListOfAllyIds[i] )
+		--XGUIEng.SetMaterialColor("VCMP_Team"..i.."Progress",0,ColorR, ColorG, ColorB,200)
+		--XGUIEng.SetText("VCMP_Team"..i.."Name", SW.RankSystem.PlayerNames[SW.RankSystem.ListOfAllyIds[i]])
 	end
 end
 function SW.RankSystem.OnRankUp( _pId)	--Gets called every time a player reaches a new rank; Currently empty

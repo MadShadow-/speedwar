@@ -133,7 +133,7 @@ function SW.Walls2.InitGUIHooks() --Sell building and toggle gate
 			if Logic.GetEntityType(GUI.GetSelectedEntity()) == Entities.XD_WallStraightGate then
 				XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomText, "Eure Vasallen werden das Tor unverzüglich schließen.")
 			else
-				XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomText, "Machs Loch uf!")
+				XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomText, "Eure Vasallen werden das Tor unverzüglich öffnen.")
 			end
 			XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomShortCut, "")
 		end

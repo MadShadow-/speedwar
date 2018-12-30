@@ -20,12 +20,14 @@ SW = SW or {}
 SW.QoL = {}
 SW.QoL.LeaderTypes = {}
 function SW.QoL.Init()
-	Input.KeyBindDown(Keys.Space, "SW.QoL.RemoveWorkingSerfsInSelection()", 2);
 	for k,v in pairs(Entities) do
 		if string.find(k,"Leader") then
 			SW.QoL.LeaderTypes[v] = true
 		end
 	end
+	-- dont do QoL stuff if simis server is detected
+	if CNetwork then return end
+	Input.KeyBindDown(Keys.Space, "SW.QoL.RemoveWorkingSerfsInSelection()", 2);
 	SW.QoL.GameCallback_GUI_SelectionChanged = GameCallback_GUI_SelectionChanged
 	GameCallback_GUI_SelectionChanged = function()
 		SW.QoL.GameCallback_GUI_SelectionChanged()
@@ -50,8 +52,9 @@ function SW.QoL.Init()
 			SW.QoL.GUIAction_ExpelSettler()
 		end
 	end
-	SW.QoL.ShowHostOnPlayerDC()
 	SW.QoL.InitSelectingIdleSerfs()
+	
+	SW.QoL.ShowHostOnPlayerDC()
 	SW.QoL.MarketFixes()
 end
 -- Calls the  given func for all entities in selection

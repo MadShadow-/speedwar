@@ -160,7 +160,9 @@ function SW.RessCheck.GetTableCheckSum( _t)
 end
 SW.RessCheck.VersionKey = "VSKeyDONOTUSE"
 function SW.RessCheck.StartVersionCheck()
+	local t1 = XGUIEng.GetSystemTime()
 	local myVersion = SW.RessCheck.GetTableCheckSum(SW) + SW.RessCheck.GetTableCheckSum(Sync)
+	SW.TimeForCheckSum = XGUIEng.GetSystemTime()-t1
 	SW.Version = myVersion
 	--LuaDebugger.Log("Version: "..myVersion)
 	SW.RessCheck.MPGame_ApplicationCallback_ReceivedChatMessageVersion = MPGame_ApplicationCallback_ReceivedChatMessage
@@ -174,6 +176,46 @@ function SW.RessCheck.StartVersionCheck()
 			SW.RessCheck.MPGame_ApplicationCallback_ReceivedChatMessageVersion(_msg, _teamChat, _sender)
 		end
 	end
+	-- resend version if player joins
+	if CNetwork == nil then return end
+	SW.RessCheck.IngamePlayerList = {}
+	for k,v in pairs(GetIngamePlayers()) do
+		SW.RessCheck.IngamePlayerList[v] = true
+	end
+	SW_RessCheck_WatchIngamePlayers = function()
+		local newPlayer = false
+		for k,v in pairs(GetIngamePlayers()) do
+			if SW.RessCheck.IngamePlayerList[v] == false then
+				newPlayer = true
+			end
+		end
+		if newPlayer then
+			SW.RessCheck.SendMsg(SW.RessCheck.VersionKey..SW.Version)
+		end
+		SW.RessCheck.IngamePlayerList = {}
+		for k,v in pairs(GetIngamePlayers()) do
+			SW.RessCheck.IngamePlayerList[v] = true
+		end
+	end
+	StartSimpleJob("SW_RessCheck_WatchIngamePlayers")
+	--[[
+	
+    local spectators = GetSpectators();
+    local activePlayers = GetIngamePlayers();
+    local t2 = {};
+    
+    for i = 1,table.getn(activePlayers) do
+        local name = activePlayers[i];
+        t2[name] = true;
+    end;
+    
+    for name, v in pairs(t2) do
+        if not CGameState.activePlayers[name] then
+            Message("Player '" .. name .. "' joined.");
+            CGameState.activePlayers[name] = true;
+        end;
+    end;
+	]]
 end
 function SW.RessCheck.ReceivedVersionMsg( _msg, _sender, _teamChat)
 	--LuaDebugger.Log( _msg)
