@@ -33,7 +33,7 @@ function SpeedWarOnGameStart()
 	Script.LoadFolder("maps\\user\\speedwar\\config");
 	Script.LoadFolder("maps\\user\\speedwar\\tools");
 	-- calculate check sum after loading scripts
-	SW.RessCheck.StartVersionCheck()
+	SW.VersionCheck.CalculateVersion()
 	
 	local ret = InstallS5Hook();
 	if (ret) then
@@ -120,13 +120,9 @@ function SpeedWarOnGameStart()
 	if CNetwork then
 		SW.IsHost = (CNetwork.GameInformation_GetHost()==XNetwork.GameInformation_GetLogicPlayerUserName( GUI.GetPlayerID()))
 		CNetwork_SpeedwarStarter = function()
-			--if Counter.Tick2("SWStarter",3) then
-			if true then
-				S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml")
-				--Sync.Call("SW.Activate", math.floor(XGUIEng.GetSystemTime()*1000))
-				SW.Activate(CXNetwork.GameInformation_GetRandomseed())
-				return true
-			end
+			S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml")
+			SW.Activate(CXNetwork.GameInformation_GetRandomseed())
+			return true
 		end
 		-- reinstall colors
 		for _,v in pairs(SW.Players) do
@@ -138,7 +134,9 @@ function SpeedWarOnGameStart()
 		SpeedwarStarter = function()
 			if Counter.Tick2("test",2) then
 				S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml")
-				Sync.Call( "SW.Activate", math.floor(XGUIEng.GetSystemTime()*1000))
+				if SW.IsHost then
+					Sync.Call( "SW.Activate", math.floor(XGUIEng.GetSystemTime()*1000))
+				end
 				return true
 			end
 		end
@@ -345,8 +343,6 @@ function SW.Activate( _seed)
 	if debugging.Debug then
 		ActivateDebug()
 	end
-	-- Allow ress checking
-	SW.RessCheck.Init()
 	-- Makes YOUR life easier with CTRL
 	SW.QoL.Init()
 	-- Block weather change for some time after manual change
@@ -364,7 +360,8 @@ function SW.Activate( _seed)
 	-- Check version
 	SW_RessCheck_VersionJob = function()
 		if Counter.Tick2("VersionStuff",2) then
-			SW.RessCheck.ShoutVersion()
+			SW.VersionCheck.StartHeartbeatCheck()
+			SW.VersionCheck.ShoutVersion()
 			return true
 		end
 	end

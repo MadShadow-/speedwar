@@ -5,6 +5,8 @@ SW.ScriptingValueBackup = SW.ScriptingValueBackup or {};
 SW.ScriptingValueBackup.ConstructionCosts = SW.ScriptingValueBackup.ConstructionCosts or {};
 SW.ScriptingValueBackup.RecruitingCosts = SW.ScriptingValueBackup.RecruitingCosts or {};
 SW.ScriptingValueBackup.UpgradeCosts = SW.ScriptingValueBackup.UpgradeCosts or {};
+SW.ScriptingValueBackup.TechCosts = SW.ScriptingValueBackup.TechCosts or {};
+SW.ScriptingValueBackup.TechBuildReq = SW.ScriptingValueBackup.TechBuildReq or {}
 function SW.ResetScriptingValueChanges()
 	for k,v in pairs(SW.ScriptingValueBackup.ConstructionCosts) do
 		SW.SetConstructionCosts(k, v);
@@ -16,6 +18,12 @@ function SW.ResetScriptingValueChanges()
 	
 	for k, v in pairs(SW.ScriptingValueBackup.UpgradeCosts) do
 		SW.SetUpgradeCosts(k,v);
+	end;
+	for k, v in pairs(SW.ScriptingValueBackup.TechCosts) do
+		SW.SetTechnologyCosts(k,v);
+	end;
+	for k, v in pairs(SW.ScriptingValueBackup.TechBuildReq) do
+		SW.TechnologyRestoreBuildingReqs(k,v);
 	end;
 	SW.SV.GreatReset()
 end;
@@ -218,6 +226,102 @@ function SW.SetUpgradeCosts( _eType, _costTable)
 	end
 end
 
+--Technology stuff
+function SW.GetTechnologyCosts( _tId)
+	local resourceTypes = {
+		[ResourceType.Gold] = 4,
+		[ResourceType.Clay] = 14,
+		[ResourceType.Wood] = 16,
+		[ResourceType.Stone] = 8,
+		[ResourceType.Iron] = 10,
+		[ResourceType.Sulfur] = 12,
+	};
+	local _costTable = {
+		[ResourceType.Gold] = 0,
+		[ResourceType.Clay] = 0,
+		[ResourceType.Wood] = 0,
+		[ResourceType.Stone] = 0,
+		[ResourceType.Iron] = 0,
+		[ResourceType.Sulfur] = 0
+	}
+	for k,v in pairs( _costTable) do
+		_costTable[k] = S5Hook.GetRawMem(8758176)[0][13][1][ _tId-1][resourceTypes[k]]:GetFloat();
+	end
+	_costTable[ResourceType.Silver] = 0
+	return _costTable
+end
+function SW.SetTechnologyCosts( _tId, _costTable)
+	SW.ScriptingValueBackup.TechCosts[_tId] = SW.ScriptingValueBackup.TechCosts[_tId] or SW.GetTechnologyCosts( _tId);
+	local blankCostTable = {
+		[ResourceType.Gold] = 0,
+		[ResourceType.Clay] = 0,
+		[ResourceType.Wood] = 0,
+		[ResourceType.Stone] = 0,
+		[ResourceType.Iron] = 0,
+		[ResourceType.Sulfur] = 0
+	}
+	local resourceTypes = {
+		[ResourceType.Gold] = 4,
+		[ResourceType.Clay] = 14,
+		[ResourceType.Wood] = 16,
+		[ResourceType.Stone] = 8,
+		[ResourceType.Iron] = 10,
+		[ResourceType.Sulfur] = 12,
+	};
+	for k,v in pairs( blankCostTable) do --Allows incomplete cost tables
+		_costTable[k] = _costTable[k] or blankCostTable[k]
+	end
+	for k,v in pairs( _costTable) do
+		S5Hook.GetRawMem(8758176)[0][13][1][ _tId-1][resourceTypes[k]]:SetFloat( v);
+	end
+end
+
+function SW.TechnologyVoidBuidingReqs( _tId)
+	local memObj = SW.SV.GetTechData( _tId)
+	if SW.ScriptingValueBackup.TechBuildReq[_tId] == nil then	-- first change of buildReqs for this tech?
+		SW.ScriptingValueBackup.TechBuildReq[_tId] = {
+			count = memObj[26]:GetInt(),
+			reqStart = memObj[28]:GetInt(),
+			reqEnd = memObj[29]:GetInt()
+		}
+	end
+	memObj[26]:SetInt(0)	--set # of req to meet to 0
+	memObj[28]:SetInt(0)	--destroy pointer
+	memObj[29]:SetInt(0)
+	memObj[30]:SetInt(0)
+end
+-- _count is # of requirements that have to be fulfilled, requirements are encoded as 
+-- _data = {{1, Entities.PB_Tower3}, {4, Entities.PB_Tower2}}
+-- so 1 Tower3 and 4 Tower2 are needed if _count == 2 or one of the conditions if _count == 1
+function SW.TechnologyAlterBuildingReqs( _tId, _count, _data)
+	local memObj = SW.SV.GetTechData( _tId)
+	if SW.ScriptingValueBackup.TechBuildReq[_tId] == nil then	-- first change of buildReqs for this tech?
+		SW.ScriptingValueBackup.TechBuildReq[_tId] = {
+			count = memObj[26]:GetInt(),
+			reqStart = memObj[28]:GetInt(),
+			reqEnd = memObj[29]:GetInt()
+		}
+	end
+	local n = table.getn(_data)
+	--if n == _count then _count = 0 end
+	memObj[26]:SetInt( _count)
+	local ptr = S5Hook.ReAllocMem( 0, n*8)
+	memObj[28]:SetInt( ptr)
+	memObj[29]:SetInt( ptr+n*8)
+	memObj[30]:SetInt( ptr+n*8)
+	ptr = S5Hook.GetRawMem( ptr)
+	for i = 1, n do
+		ptr[2*i-2]:SetInt(_data[i][2])
+		ptr[2*i-1]:SetInt(_data[i][1])
+	end
+end
+function SW.TechnologyRestoreBuildingReqs( _tId, _data)
+	local memObj = SW.SV.GetTechData( _tId)
+	memObj[26]:SetInt(_data.count)
+	memObj[28]:SetInt(_data.reqStart)
+	memObj[29]:SetInt(_data.reqEnd)
+	memObj[30]:SetInt(_data.reqEnd)
+end
 
 SW.SV = {}
 -- Entries { type, vtable, index, float/int}
@@ -358,6 +462,9 @@ function SW.SV.UnpackIndex( _p, _t)
 	return _p
 end
 
+function SW.SV.GetTechData( _tId)
+	return S5Hook.GetRawMem(8758176)[0][13][1][ _tId-1]
+end
 SVTests = {}
 SVTests.VTable = 7836116 --GGL::CAffectMotivationBehaviorProps
 function SVTests.Print( _eType, _lim)

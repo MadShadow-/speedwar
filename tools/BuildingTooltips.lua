@@ -299,6 +299,9 @@ function SW.BuildingTooltipsInit()			--Has to be called via Debugger! Not starte
 	for i = 1, 10 do
 		SW_BuildingTooltips_WatchJob()
 	end
+	-- fix weather techs
+	SW.TechnologyVoidBuidingReqs(117)
+	SW.TechnologyVoidBuidingReqs(118)
 end
 function SW.BuildingTooltips.GenerateTechNames()
 	local rawString

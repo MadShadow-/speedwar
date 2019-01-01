@@ -15,11 +15,13 @@ function SW.Bugfixes.Init()
 	local ListOfSoldBuildingsUpvalue = {}
 	GUI.SellBuilding = function( _eId)
 		if _eId == nil then return end
-		if ListOfSoldBuildingsUpvalue[_eId] == nil then
-			ListOfSoldBuildingsUpvalue[_eId] = Logic.GetTime()
+		eId = math.mod( _eId, 65536)
+		LuaDebugger.Log(eId)
+		if ListOfSoldBuildingsUpvalue[eId] == nil then
+			ListOfSoldBuildingsUpvalue[eId] = Logic.GetTime()
 			SellBuildingUpvalue( _eId)
-		elseif  ListOfSoldBuildingsUpvalue[_eId] + 60 < Logic.GetTime() then
-			ListOfSoldBuildingsUpvalue[_eId] = Logic.GetTime()
+		elseif  ListOfSoldBuildingsUpvalue[eId] + 60 < Logic.GetTime() then
+			ListOfSoldBuildingsUpvalue[eId] = Logic.GetTime()
 			SellBuildingUpvalue( _eId)
 		else
 			Message("Dieses Gebäude wird schon abgerissen!")
