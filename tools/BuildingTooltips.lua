@@ -426,6 +426,9 @@ function SW.BuildingTooltips.ChangeGUI()
 		--Use original func first to set things like hotkey
 		SW.BuildingTooltips.GUITooltip_ConstructBuilding( _uc, _tooltipStringNormal, _tooltipStringDisabled, _tech, _keyBindingString)
 		--Now build custom tooltip
+		Logic.FillBuildingCostsTable( Logic.GetBuildingTypeByUpgradeCategory( _uc, GUI.GetPlayerID()), InterfaceGlobals.CostTable )
+		local CostString = InterfaceTool_CreateCostString( InterfaceGlobals.CostTable )
+		XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomCosts, CostString)
 		XGUIEng.SetText( gvGUI_WidgetID.TooltipBottomText, SW.BuildingTooltips.ConstructTooltipB(_tech))
 	end
 	--GUITooltip_BuyMilitaryUnit( _uc, _s1, _s2, _tech, _s3)
