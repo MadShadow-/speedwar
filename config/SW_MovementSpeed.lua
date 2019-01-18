@@ -131,7 +131,7 @@ SW.BaseMovementspeed = { --Sets BaseMS by EntityCategory; Highest Value wins
 	["CavalryHeavy"] = 470,
 	["CavalryLight"] = 530,
 	["Hero"] = 400,		-- is this category necessary?
-	["Rifle"] = 350,
+	["Rifle"] = 300,
 	["Scout"] = 370,
 	["Serf"]  = 370,
 	["Spear"] = 370,
@@ -206,13 +206,13 @@ SW.MovementspeedTechInfluence = { --Balancechanges here!
 	},
 	["T_FleeceArmor"]= {
 		Influenced = {"Rifle"},
-		SumPreFactor = 0,
+		SumPreFactor = 10,
 		Factor = 1,
 		SumPostFactor = 0
 	},
 	["T_FleeceLinedLeatherArmor"]= {
 		Influenced = {"Rifle"},
-		SumPreFactor = 0,
+		SumPreFactor = 10,
 		Factor = 1,
 		SumPostFactor = 0
 	},
