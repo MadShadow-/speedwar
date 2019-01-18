@@ -7,6 +7,9 @@ SW.ScriptingValueBackup.RecruitingCosts = SW.ScriptingValueBackup.RecruitingCost
 SW.ScriptingValueBackup.UpgradeCosts = SW.ScriptingValueBackup.UpgradeCosts or {};
 SW.ScriptingValueBackup.TechCosts = SW.ScriptingValueBackup.TechCosts or {};
 SW.ScriptingValueBackup.TechBuildReq = SW.ScriptingValueBackup.TechBuildReq or {}
+SW.ScriptingValueBackup.SerfExtrAmount = SW.ScriptingValueBackup.SerfExtrAmount or {}
+SW.ScriptingValueBackup.SerfExtrDelay = SW.ScriptingValueBackup.SerfExtrDelay or {}
+
 function SW.ResetScriptingValueChanges()
 	for k,v in pairs(SW.ScriptingValueBackup.ConstructionCosts) do
 		SW.SetConstructionCosts(k, v);
@@ -25,7 +28,15 @@ function SW.ResetScriptingValueChanges()
 	for k, v in pairs(SW.ScriptingValueBackup.TechBuildReq) do
 		SW.TechnologyRestoreBuildingReqs(k,v);
 	end;
+	
+	for k,v in pairs(SW.ScriptingValueBackup.SerfExtrAmount) do
+		SW.SetSerfExtractionAmount( k, v)
+	end
+	for k,v in pairs(SW.ScriptingValueBackup.SerfExtrDelay) do
+		SW.SetSerfExtractionDelay( k, v)
+	end
 	SW.SV.GreatReset()
+	LuaDebugger.Break()
 end;
 
 --HelperFunc: Set Movement speed of given entity
@@ -226,6 +237,71 @@ function SW.SetUpgradeCosts( _eType, _costTable)
 	end
 end
 
+
+--SerfExtractionStuff
+-- allowed _ressSource:
+--	Entities.XD_Iron1
+--	Entities.XD_Clay1
+--	Entities.XD_Stone1
+--	Entities.XD_Stone_BlockPath
+--	Entities.XD_Sulfur1
+--	Entities.XD_ClayPit1
+--	Entities.XD_IronPit1
+--	Entities.XD_StonePit1
+--	Entities.XD_SulfurPit1
+--	Entities.XD_ResourceTree
+function SW.GetSerfExtractionAmount( _ressSource)
+	local p = S5Hook.GetRawMem(9002416)[0][16][Entities.PU_Serf*8+5][6]
+	--local num = ( p[9]:GetInt() - p[8]:GetInt())/12
+	local num = 10
+	local extractionDataP = p[8]
+	for i = 0, num-1 do
+		if extractionDataP[3*i]:GetInt() == _ressSource then
+			return extractionDataP[3*i+2]:GetInt()
+		end
+	end
+end
+function SW.SetSerfExtractionAmount( _ressSource, _amount)
+	local p = S5Hook.GetRawMem(9002416)[0][16][Entities.PU_Serf*8+5][6]
+	--local num = ( p[9]:GetInt() - p[8]:GetInt())/12
+	local num = 10
+	local extractionDataP = p[8]
+	for i = 0, num-1 do
+		if extractionDataP[3*i]:GetInt() == _ressSource then
+			if SW.ScriptingValueBackup.SerfExtrAmount[_ressSource] == nil then
+				SW.ScriptingValueBackup.SerfExtrAmount[_ressSource] = SW.GetSerfExtractionAmount( _ressSource)
+			end
+			extractionDataP[3*i+2]:SetInt(_amount)
+			return
+		end
+	end
+end
+function SW.GetSerfExtractionDelay( _ressSource)
+	local p = S5Hook.GetRawMem(9002416)[0][16][Entities.PU_Serf*8+5][6]
+	--local num = ( p[9]:GetInt() - p[8]:GetInt())/12
+	local num = 10
+	local extractionDataP = p[8]
+	for i = 0, num-1 do
+		if extractionDataP[3*i]:GetInt() == _ressSource then
+			return extractionDataP[3*i+1]:GetFloat()
+		end
+	end
+end
+function SW.SetSerfExtractionDelay( _ressSource, _amount)
+	local p = S5Hook.GetRawMem(9002416)[0][16][Entities.PU_Serf*8+5][6]
+	--local num = ( p[9]:GetInt() - p[8]:GetInt())/12
+	local num = 10
+	local extractionDataP = p[8]
+	for i = 0, num-1 do
+		if extractionDataP[3*i]:GetInt() == _ressSource then
+			if SW.ScriptingValueBackup.SerfExtrDelay[_ressSource] == nil then
+				SW.ScriptingValueBackup.SerfExtrDelay[_ressSource] = SW.GetSerfExtractionDelay( _ressSource)
+			end
+			extractionDataP[3*i+1]:SetFloat(_amount)
+			return
+		end
+	end
+end
 --Technology stuff
 function SW.GetTechnologyCosts( _tId)
 	local resourceTypes = {
@@ -365,7 +441,20 @@ SW.SV.Data = {
     -- data for stealing goods
     ["ThiefTimeToSteal"] = {2, 7813600, 4, true}, --default 5
     ["ThiefMinimumAmountToSteal"] = {2, 7813600, 5, true}, --default 100
-    ["ThiefMaximumAmountToSteal"] = {2, 7813600, 6, true} --default 200
+    ["ThiefMaximumAmountToSteal"] = {2, 7813600, 6, true}, --default 200
+	-- data for leader stats; CLeaderBehaviorProps
+	["LeaderDamage"] = {2, 7823268, 14, true},
+	["LeaderRandomDamageBonus"] = {2, 7823268, 15, true},
+	["LeaderDamageClass"] = {2, 7823268, 13, true},
+	["LeaderMaxRange"] = {2, 7823268, 23, false},
+	["LeaderAutoRange"] = {2, 7823268, 30, false},
+	-- data for soldier stats; CSoldierBehaviorProps
+	["SoldierDamage"] = {2, 7814416, 14, true},
+	["SoldierRandomDamageBonus"] = {2, 7814416, 15, true},
+	["SoldierDamageClass"] = {2, 7814416, 13, true},
+	["SoldierMaxRange"] = {2, 7814416, 23, false},
+	-- CLimitedAttachmentBehaviorProperties
+	["LeaderMaxSoldiers"] = {2, 7823028, {5, 7}, true}
 }
 
 SW.SV.BackUps = {}
@@ -466,6 +555,23 @@ function SW.SV.GetTechData( _tId)
 	return S5Hook.GetRawMem(8758176)[0][13][1][ _tId-1]
 end
 SVTests = {}
+function SVTests.GetBehP()
+	local p = S5Hook.GetRawMem(9002416)[0][16][Entities.PU_Serf*8+5][6][8]
+	for i = 0, 19 do 
+		LuaDebugger.Log(i.." "..p[i]:GetInt())
+	end
+	return p
+end
+function SVTests.ScanPInt( _p, _m)
+	for i = 0, _m do
+		LuaDebugger.Log(i.." ".._p[i]:GetInt())
+	end
+end
+function SVTests.ScanPFloat( _p, _m)
+	for i = 0, _m do
+		LuaDebugger.Log(i.." ".._p[i]:GetFloat())
+	end
+end
 SVTests.VTable = 7836116 --GGL::CAffectMotivationBehaviorProps
 function SVTests.Print( _eType, _lim)
 	local pointer = SW.SV.SearchForBehTable( _eType, SVTests.VTable)
@@ -511,3 +617,37 @@ end
 -- Log: "10 1116320131 68.846702575684"
 -- Log: "11 -2013223150 -3.8714989096279e-034"
 --]]
+-- Data CLeaderBehaviorProps
+--[[
+> for i = 0, 30 do LuaDebugger.Log(i.." "..S5Hook.GetRawMem(9002416)[0][16][223*8+5][6][i]:GetInt()) end
+Log: "0 7823268"
+Log: "1 7823256"
+Log: "13 2"					--DamageClass
+Log: "14 8"					--Damage
+Log: "17 14"				--EffektId Projektil
+Log: "21 2500"				--BattleWaitUntil
+Log: "22 12"				--MissChance
+Log: "25 227"				--SOLDIER TYPE
+Log: "26 25"				--BarrackUpgradeCategory
+Log: "28 5"					--HealingPoints
+Log: "29 3"					--HealingSecs
+> for i = 0, 30 do LuaDebugger.Log(i.." "..S5Hook.GetRawMem(9002416)[0][16][223*8+5][6][i]:GetFloat()) end
+Log: "23 2300"				--MaxRange
+Log: "24 500"				--MinRange
+Log: "27 2000"				--HomeRadius
+Log: "30 2300"				--AARange ]]
+-- Data CSoldierBehaviorProps
+--[[
+> for i = 0, 40 do LuaDebugger.Log(i.." "..p[4][i]:GetFloat()) end
+Log: "23 2500"				--MaxRange
+> for i = 0, 40 do LuaDebugger.Log(i.." "..p[4][i]:GetInt()) end
+Log: "0 7814416"
+Log: "1 7814404"
+Log: "2 2"
+Log: "13 2"					--DamageClass
+Log: "14 8"					--Damage
+Log: "15 2"					--MaxRdnDamageBonus
+Log: "17 14"				--EffectId Projektil
+Log: "21 2500"				--BattleWaitUntil
+Log: "22 12"				--MissChance]]
+

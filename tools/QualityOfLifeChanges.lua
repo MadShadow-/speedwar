@@ -26,7 +26,7 @@ function SW.QoL.Init()
 		end
 	end
 	-- dont do QoL stuff if simis server is detected
-	if CNetwork then return end
+	--if CNetwork then return end
 	Input.KeyBindDown(Keys.Space, "SW.QoL.RemoveWorkingSerfsInSelection()", 2);
 	SW.QoL.GameCallback_GUI_SelectionChanged = GameCallback_GUI_SelectionChanged
 	GameCallback_GUI_SelectionChanged = function()
