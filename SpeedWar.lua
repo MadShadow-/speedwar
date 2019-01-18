@@ -281,24 +281,12 @@ function SW.Activate( _seed)
 	SW.EnableRandomWeather();
 	-- outpostcosts increase with number of outposts
 	SW.EnableIncreasingOutpostCosts();
-	-- Increase exploration range of all player towers
-	SW.TowerIncreaseExploration();
 	-- Entities move faster
 	SW.ApplyMovementspeedBuff();
-	-- Use SW_BuildingCosts.lua for reduced buildings costs
-	SW.EnableReducedConstructionCosts();
-	-- same as for construction costs
-	SW.EnableReducedUpgradeCosts();
-	-- Change building max health
-	SW.InitBuildingMaxHealth()
 	-- Genetische Dispositionen für alle! :D
 	SW.EnableGeneticDisposition()
 	-- Dying entities leaves remains
 	SW.EnableMortalRemains()
-	-- Recruiting costs for one weapon stay the same for all levels
-	SW.UnifyRecruitingCosts()
-	-- Recruiting time is unified among all military buildings
-	SW.UnifyRecruitingTime()
 	-- Jeder mag Plünderer :D
 	SW.EnablePillage()
 	
@@ -315,16 +303,12 @@ function SW.Activate( _seed)
 	
 	-- Defeatcondition - all entities of player destroyed
 	SW.DefeatCondition_Create()
-	-- Faster construction and upgrade for buildings
-	SW.EnableFasterBuild()
 	-- Activate Fire
 	--SW.FireMod.Init()
 	-- Enable tech tree
 	SW.BuildingTooltipsInit()
 	-- Fix blue byte exploits
 	SW.Bugfixes.Init()
-	-- Enable increased ressource gain
-	SW.RefineryPush.Init()
 	-- Activate the GUI for walls
 	SW.WallGUI.Init()
 	-- Activate Bastille Mod
@@ -353,8 +337,6 @@ function SW.Activate( _seed)
 	SW.VCChange.Init()
 	-- We need HQ's! They are helpful
 	SW.CreateHQsAndRedirectKeyBindung();
-	-- More secure SoldierGetLeader
-	-- SW.SoldierGetLeaderInit()
 	-- Constant trade factors
 	SW.FixMarketPrices()
 	-- Check version
@@ -366,14 +348,13 @@ function SW.Activate( _seed)
 		end
 	end
 	StartSimpleJob("SW_RessCheck_VersionJob")
-	-- Make dem leibis quicker
-	SW.SetSerfExtractionAmount(Entities.XD_ResourceTree, 3);
-	-- Make outposts more resilient against thieves
-	SW.SetKegFactor( Entities.PB_Outpost1, 0.1)
+	SW.XMLChanges.DoChanges()
 	-- and buff thieves against walls
 	SW.ThiefBuff.Init()
+	-- Dont show hq upgrade msg
+	ForbidTechnology(Technologies.UP2_Headquarter)
 	-- Chat commands!
-	SW.ChatCommands.Init()
+	--SW.ChatCommands.Init()
 	-- Enable map specific changes
 	if SpeedwarConfig.OnGameStartCallback ~= nil then
 		SpeedwarConfig.OnGameStartCallback();
@@ -569,13 +550,6 @@ function SW.EnableOutpostVCs()
 		XGUIEng.DoManualButtonUpdate(gvGUI_WidgetID.InGame);
 
 	]]
-end
-
---			TOWER EXPLORATION RANGE
-function SW.TowerIncreaseExploration()
-	for k,v in pairs( SW.AfflictedTowerTypes) do
-		SW.SetExploration( v, SW.NewTowerRange)
-	end
 end
 
 --			MOVEMENTSPEED
@@ -840,19 +814,6 @@ function SW_CreateEntitySafe( _eType, _x, _y, _rot, _player, _callback)
 	end
 end
 
--- REDUCE BUILDING CONSTRUCTION COSTS
-function SW.EnableReducedConstructionCosts()
-	for buildingType, costTable in pairs(SW.BuildingConstructionCosts) do
-		SW.SetConstructionCosts( Entities[buildingType], costTable);
-	end
-end
-
--- REDUCE BUILDING UPGRADE COSTS
-function SW.EnableReducedUpgradeCosts()
-	for buildingType, costTable in pairs(SW.BuildingUpgradeCosts) do
-		SW.SetUpgradeCosts( Entities[buildingType], costTable);
-	end
-end
 
 function SW.CallbackHacks()
 	SW.GameCallback_GUI_SelectionChanged = GameCallback_GUI_SelectionChanged;
@@ -1027,57 +988,6 @@ function SW_OnEntityHurtMR()
 	SW.MortalRemainsRecentlyHurt[opfer] = Logic.GetTimeMs()
 end
 
---SW SoldierGetLeader
-SW.SoldierGetLeaderData = {}
-SW.SoldierGetLeaderSoldierTypes = {}
-function SW.SoldierGetLeaderInit()
-	for k,v in pairs(Entities) do
-		local start = string.find( k, "Soldier")
-		if start ~= nil then
-			SW.SoldierGetLeaderSoldierTypes[v] = true
-		end
-	end
-	Trigger.RequestTrigger(Events.LOGIC_EVENT_ENTITY_DESTROYED, "SW_IsSoldier", "SW_OnEntityCreatedSoldierGetLeader", 1);
-end
-function SW_IsSoldier()
-	if SW.SoldierGetLeaderSoldierTypes[Logic.GetEntityType(Event.GetEntityID())] then
-		return true
-	end
-	return false
-end
-function SW_OnEntityCreatedSoldierGetLeader()
-	local eId = Event.GetEntityID()
-	SW.SoldierGetLeaderData[eId] = Logic.GetEntityScriptingValue( eId, 69)
-end
-function SW.SoldierGetLeader( _eId)	
-	return SW.SoldierGetLeaderData[_eId] or 0
-end
-
-function SW.UnifyRecruitingCosts()
-	for entityType, costTable in pairs(SW.RecruitingCosts.Extra) do
-		SW.SetRecruitingCosts( Entities[entityType], costTable);
-	end
-	local techTreeSize = {}
-	for k1,v1 in pairs(SW.RecruitingCosts.Level1And2) do
-		local techTreeNum = 0
-		for k2,v2 in pairs(Entities) do
-			local start = string.find( k2, k1)
-			if start ~= nil then
-				techTreeNum = techTreeNum+1
-			end
-		end
-		techTreeSize[k1] = techTreeNum
-	end
-	for k1,v1 in pairs(techTreeSize) do
-		--SW.SetRecruitingCosts( _eType, _costTable)
-		for i = 1, v1/2 do
-			SW.SetRecruitingCosts( Entities[k1..i], SW.RecruitingCosts.Level1And2[k1])
-		end
-		for i = math.floor(v1/2+1), v1 do
-			SW.SetRecruitingCosts( Entities[k1..i], SW.RecruitingCosts.Level3And4[k1])
-		end
-	end
-end
 
 function SW.EnablePillage()
 	SW.PillageLastAttacker = {}
@@ -1299,45 +1209,7 @@ function SW.ResumeGame()
 	end
 	SW.VisionEntities = {}
 end
---			FASTER BUILDING
-function SW.EnableFasterBuild()
-	--if true then return end
-	-- First change construction time
-	for k,v in Entities do
-		if SW.FasterBuildConstructionTimeChange[v] then		--construction speed of eType should be changed
-			local time = SW.FasterBuildConstruction[v]
-			if time == nil then
-				time = SW.FasterBuildFactor * SW.GetConstructionTime( v)
-			end
-			SW.SetConstructionTime( v, time)
-		end
-	end
-	-- Now change upgrade time
-	for k,v in Entities do
-		if SW.FasterBuildUpgradeTimeChange[v] then		--construction speed of eType should be changed
-			local time = SW.FasterBuildUpgrade[v]
-			if time == nil then
-				time = SW.FasterBuildFactor * SW.GetUpgradeTime( v)
-			end
-			SW.SetUpgradeTime( v, time)
-		end
-	end
-end
 
---			UNIFIED RECRUTING
-function SW.UnifyRecruitingTime()
-	local types = {
-		Entities.PB_Barracks1,
-		Entities.PB_Barracks2,
-		Entities.PB_Archery1,
-		Entities.PB_Archery2,
-		Entities.PB_Stable1,
-		Entities.PB_Stable2
-	}
-	for k,v in pairs(types) do
-		SW.SetRecruitingTime( v, 20)
-	end
-end
 
 function SW.IsMultiplayer()
 	return XNetworkUbiCom.Manager_DoesExist() == 1 or XNetwork.Manager_DoesExist() == 1;
@@ -1364,6 +1236,7 @@ function SW.CreateHQsAndRedirectKeyBindung()
 		end
 	end
 end
+
 
 xXPussySlayer69Xx = LuaDebugger;
 
@@ -1409,8 +1282,6 @@ end
 	Framework.CloseGame_Orig = Framework.CloseGame;
 	Framework.CloseGame = function()
 		SW.ResetScriptingValueChanges();
-		SW.RefineryPush.Reset();
-		-- SW.ResetBuildingMaxHealth(); --	 no more need for this function
 		S5Hook.AddArchive("extra2/shr/maps/user/speedwar/backtotheroots.bba");
 		S5Hook.ReloadEntities();
 		S5Hook.RemoveArchive();

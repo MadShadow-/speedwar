@@ -120,6 +120,8 @@ function SW.XMLChanges.DoChanges()
 	SW.SetSoldierRandomDamageBonus( Entities.PU_SoldierCavalry2, lvl2Bonus)
 	SW.SetSoldierMaxRange( Entities.PU_SoldierCavalry2, lvl2Range + 200)
 	SW.SetSettlerExploration( Entities.PU_SoldierCavalry2, lvl2Range/100 + 2)
+	-- Make dem leibis quicker
+	SW.SetSerfExtractionAmount(Entities.XD_ResourceTree, 3);
 end
 --Refinery Push
 --[[
