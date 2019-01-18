@@ -126,18 +126,18 @@ end
 	-- ["Worker"] = 320
 -- }
 SW.BaseMovementspeed = { --Sets BaseMS by EntityCategory; Highest Value wins
-	["Bow"] = 400,
-	["Cannon"] = 300,
-	["CavalryHeavy"] = 700,
-	["CavalryLight"] = 900,
+	["Bow"] = 300,
+	["Cannon"] = 200,
+	["CavalryHeavy"] = 470,
+	["CavalryLight"] = 530,
 	["Hero"] = 400,		-- is this category necessary?
-	["Rifle"] = 400,
-	["Scout"] = 550,
-	["Serf"]  = 550,
-	["Spear"] = 480,
-	["Sword"] = 400,
-	["Thief"] = 550,
-	["Worker"] = 550
+	["Rifle"] = 350,
+	["Scout"] = 370,
+	["Serf"]  = 370,
+	["Spear"] = 370,
+	["Sword"] = 370,
+	["Thief"] = 400,
+	["Worker"] = 400
 }
 --	Doubled movement speed might be too much
 -- for k,v in pairs(SW.BaseMovementspeed) do
@@ -152,67 +152,67 @@ SW.MovementspeedTechInfluence = { --Balancechanges here!
 	},
 	["T_BetterTrainingArchery"]= {
 		Influenced = {"Bow", "Rifle"},
-		SumPreFactor = 0,
-		Factor = 1.25,
+		SumPreFactor = 50,
+		Factor = 1,
 		SumPostFactor = 0
 	},
 	["T_BetterTrainingBarracks"]= {
 		Influenced = {"Sword", "Spear"},
-		SumPreFactor = 0,
-		Factor = 1.25,
+		SumPreFactor = 50,
+		Factor = 1,
 		SumPostFactor = 0
 	},
 	["T_Shoeing"]= {
 		Influenced = {"CavalryHeavy", "CavalryLight"},
 		SumPreFactor = 100,
-		Factor = 1.25,
+		Factor = 1,
 		SumPostFactor = 0
 	},
 	["T_SoftArcherArmor"]= {
 		Influenced = {"Bow"},
-		SumPreFactor = 50,
+		SumPreFactor = 20,
 		Factor = 1,
 		SumPostFactor = 0
 	},
 	["T_PaddedArcherArmor"]= {
 		Influenced = {"Bow"},
-		SumPreFactor = 50,
+		SumPreFactor = 20,
 		Factor = 1,
 		SumPostFactor = 0
 	},
 	["T_LeatherArcherArmor"]= {
 		Influenced = {"Bow"},
-		SumPreFactor = 100,
+		SumPreFactor = 20,
 		Factor = 1,
 		SumPostFactor = 0
 	},
 	["T_LeatherMailArmor"]= {
 		Influenced = {"Sword", "Spear"},
-		SumPreFactor = 50,
+		SumPreFactor = 10,
 		Factor = 1,
 		SumPostFactor = 0
 	},
 	["T_ChainMailArmor"]= {
 		Influenced = {"Sword", "Spear"},
-		SumPreFactor = 50,
+		SumPreFactor = 10,
 		Factor = 1,
 		SumPostFactor = 0
 	},
 	["T_PlateMailArmor"]= {
 		Influenced = {"Sword", "Spear"},
-		SumPreFactor = 100,
+		SumPreFactor = 10,
 		Factor = 1,
 		SumPostFactor = 0
 	},
 	["T_FleeceArmor"]= {
 		Influenced = {"Rifle"},
-		SumPreFactor = 100,
+		SumPreFactor = 0,
 		Factor = 1,
 		SumPostFactor = 0
 	},
 	["T_FleeceLinedLeatherArmor"]= {
 		Influenced = {"Rifle"},
-		SumPreFactor = 100,
+		SumPreFactor = 0,
 		Factor = 1,
 		SumPostFactor = 0
 	},
