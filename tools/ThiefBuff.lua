@@ -7,10 +7,6 @@ SW.ThiefBuff.IsJobRunning = false
 function SW.ThiefBuff.Init()
 	-- try to catch all explosions
 	Trigger.RequestTrigger(Events.LOGIC_EVENT_ENTITY_DESTROYED, "SW_Thief_IsKeg", "SW_Thief_OnKegDestroyed", 1)
-	-- make walls die after one bomb; KegFactor = 1 equals 70% MaxHP damage
-	SW.SetKegFactor( Entities.XD_WallStraight, 2)
-	SW.SetKegFactor( Entities.XD_WallStraightGate, 2)
-	SW.SetKegFactor( Entities.XD_WallStraightGate_Closed, 2)
 	-- command to make thief bomb need more time to explode:
 	-- SW.SetThiefKegDelay( Entities.XD_Keg1, _time); time in seconds
 end

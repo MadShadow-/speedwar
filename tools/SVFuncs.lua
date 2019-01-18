@@ -7,8 +7,10 @@ SW.ScriptingValueBackup.RecruitingCosts = SW.ScriptingValueBackup.RecruitingCost
 SW.ScriptingValueBackup.UpgradeCosts = SW.ScriptingValueBackup.UpgradeCosts or {};
 SW.ScriptingValueBackup.TechCosts = SW.ScriptingValueBackup.TechCosts or {};
 SW.ScriptingValueBackup.TechBuildReq = SW.ScriptingValueBackup.TechBuildReq or {}
+SW.ScriptingValueBackup.TechTime = SW.ScriptingValueBackup.TechTime or {}
 SW.ScriptingValueBackup.SerfExtrAmount = SW.ScriptingValueBackup.SerfExtrAmount or {}
 SW.ScriptingValueBackup.SerfExtrDelay = SW.ScriptingValueBackup.SerfExtrDelay or {}
+SW.ScriptingValueBackup.DamageClass = SW.ScriptingValueBackup.DamageClass or {}
 
 function SW.ResetScriptingValueChanges()
 	for k,v in pairs(SW.ScriptingValueBackup.ConstructionCosts) do
@@ -35,8 +37,12 @@ function SW.ResetScriptingValueChanges()
 	for k,v in pairs(SW.ScriptingValueBackup.SerfExtrDelay) do
 		SW.SetSerfExtractionDelay( k, v)
 	end
+	for dmgClass,dmgTable in pairs(SW.ScriptingValueBackup.DamageClass) do
+		for armClass, val in pairs(dmgTable) do
+			SW.SetDamageArmorCoeff( dmgClass, armClass, val)
+		end
+	end
 	SW.SV.GreatReset()
-	LuaDebugger.Break()
 end;
 
 --HelperFunc: Set Movement speed of given entity
@@ -237,7 +243,18 @@ function SW.SetUpgradeCosts( _eType, _costTable)
 	end
 end
 
-
+function SW.GetDamageArmorCoeff( _dmgClass, _armorClass)
+	local p = SVTests.GetDamageClassPointer()
+	return p[_dmgClass][_armorClass]:GetFloat()
+end
+function SW.SetDamageArmorCoeff( _dmgClass, _armorClass, _val)
+	local p = SVTests.GetDamageClassPointer()
+	if SW.ScriptingValueBackup.DamageClass[_dmgClass] == nil then
+		SW.ScriptingValueBackup.DamageClass[_dmgClass] = {}
+	end
+	SW.ScriptingValueBackup.DamageClass[_dmgClass][_armorClass] = SW.ScriptingValueBackup.DamageClass[_dmgClass][_armorClass] or SW.GetDamageArmorCoeff( _dmgClass, _armorClass)
+	return p[_dmgClass][_armorClass]:SetFloat(_val)
+end
 --SerfExtractionStuff
 -- allowed _ressSource:
 --	Entities.XD_Iron1
@@ -399,6 +416,15 @@ function SW.TechnologyRestoreBuildingReqs( _tId, _data)
 	memObj[30]:SetInt(_data.reqEnd)
 end
 
+function SW.SetTechnologyTimeToResearch( _tId, _time)
+	local p = SW.SV.GetTechData( _tId)
+	SW.ScriptingValueBackup.TechTime[_tId] = SW.ScriptingValueBackup.TechTime[_tId] or SW.GetTechnologyTimeToResearch( _tId)
+	p[1]:SetFloat( _time)
+end
+function SW.GetTechnologyTimeToResearch( _tId)
+	return SW.SV.GetTechData( _tId)[1]:GetFloat()
+end
+
 SW.SV = {}
 -- Entries { type, vtable, index, float/int}
 --	false == float, true == int for float/int
@@ -425,6 +451,8 @@ SW.SV.Data = {
 	["BuildingMaxHealth"] = {1, 7793784, 13, true},
 	-- Logic for entities, GGL::CGLSettlerProps == 7791768
 	["AttractionPlaceNeeded"] = {1, 7791768, 136, true},
+	["SettlerExploration"] = {1, 7791768, 19, false},
+	["SettlerArmorClass"] = {1, 7791768, 60, true},
 	-- BehTable for motivation, 7836116 == GGL::CAffectMotivationBehaviorProps
 	["MotivationProvided"] = {2, 7836116, 4, false},
 	-- BehTable for residences / farms, 7823028 == GGL::CLimitedAttachmentBehaviorProperties
@@ -551,8 +579,20 @@ function SW.SV.UnpackIndex( _p, _t)
 	return _p
 end
 
+SW.SV.ArmorClasses = {
+	None = 1,
+	Jerkin = 2,
+	Leather = 3,
+	Iron = 4,
+	Fortification = 5,
+	Hero = 6,
+	Fur = 7
+}
 function SW.SV.GetTechData( _tId)
 	return S5Hook.GetRawMem(8758176)[0][13][1][ _tId-1]
+end
+function SW.SV.GetDamageXMLPointer()
+	return S5Hook.GetRawMem(8758236)[0][2]
 end
 SVTests = {}
 function SVTests.GetBehP()
@@ -561,6 +601,16 @@ function SVTests.GetBehP()
 		LuaDebugger.Log(i.." "..p[i]:GetInt())
 	end
 	return p
+end
+function SVTests.GetDamageClassPointer()
+	--[[
+	SIMI:
+	(0x85A3DC)[0][2][0]
+	(0x85A3DC)[0][2][1]
+	...
+	(0x85A3DC)[0][2][8]
+	]]
+	return S5Hook.GetRawMem(8758236)[0][2]
 end
 function SVTests.ScanPInt( _p, _m)
 	for i = 0, _m do

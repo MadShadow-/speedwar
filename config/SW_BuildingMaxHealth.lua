@@ -5,16 +5,3 @@ SW.BuildingMaxHealth =
 	["PB_Tower3"] = 2000, -- orig: 1400
 };
 
-function SW.InitBuildingMaxHealth()
-	for buildingType, maxHealth in pairs(SW.BuildingMaxHealth) do
-		SW.SetBuildingMaxHealth( Entities[buildingType], maxHealth)
-		--SW.BuildingMaxHealthOrig[buildingType] = S5Hook.GetRawMem(9002416)[0][16][Entities[buildingType] * 8 + 2][13]:GetInt();
-		--S5Hook.GetRawMem(9002416)[0][16][ * 8 + 2][13]:SetInt(maxHealth);
-	end
-end
-
-function SW.ResetBuildingMaxHealth()
-	--for buildingType, maxHealth in pairs(SW.BuildingMaxHealthOrig) do
-		--S5Hook.GetRawMem(9002416)[0][16][Entities[buildingType] * 8 + 2][13]:SetInt(maxHealth);
-	--end
-end

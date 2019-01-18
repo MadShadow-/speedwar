@@ -120,6 +120,7 @@ function SW.LKavBuff.ApplyDamage( _eId, _dmg)
 	Logic.HurtEntity( _eId, _dmg)
 end
 function SW.LKavBuff.ApplyDamageToLeader( _eId, _dmg)
+	if true then return end
 	if IsDead( _eId) then return end
 	--SW.PreciseLog.Log("LKav: Hurting ".._eId.." of type "..Logic.GetEntityTypeName(Logic.GetEntityType(_eId)).." like leader.")
 	local typee = S5Hook.GetEntityMem( _eId)[31][3][0]:GetInt()
