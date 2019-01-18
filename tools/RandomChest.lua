@@ -584,7 +584,6 @@ function SW_RandomChest_CollectMary()
     local p = SW.RandomChest.Marys.LookAt;
     Camera.ScrollSetLookAt(p.X,p.Y);
     for i = 1, table.getn(SW.RandomChest.Marys) do
-        LuaDebugger.Log("Deleting "..SW.RandomChest.Marys[i].." at "..Logic.GetTimeMs())
         DestroyEntity(SW.RandomChest.Marys[i]);
     end
     SW.RandomChest.Marys = {LookAt={}};

@@ -239,7 +239,7 @@ function SW.Walls2.PlaceNormalWall( _pos, _pId, _angle)
 		end
 		-- Found some good offset?
 		if key == nil then
-			Message("Mauerbau: Fuck that shit.")
+			--Message("Mauerbau: Fuck that shit.")
 			return
 		end
 		-- Good offset found? Get position!
@@ -277,7 +277,7 @@ function SW.Walls2.PlaceGate( _pos, _pId, _angle)
 		end
 		-- Found some good offset?
 		if key == nil then
-			Message("Mauerbau: Fuck that shit.")
+			--Message("Mauerbau: Fuck that shit.")
 			return
 		end
 		-- Good offset found? Get position!
@@ -357,7 +357,7 @@ function SW.Walls2.PlaceSimiClosingWall( _pos, _pId, _angle)
 		end
 	end
 	if key == nil then
-		Message("FUCK THIS SHUIT")
+		--Message("FUCK THIS SHUIT")
 		return
 	end
 	local cornerData = self.ListOfCorners[_pId][key] 	-- {X, Y, eId, numNeighbours}
@@ -415,7 +415,7 @@ function SW.Walls2.PlaceClosingWall( _pos, _pId)
 		local v = self.ListOfCorners[_pId][k]
 		if v.numNeighbours == 1 then	-- thats a nice wall!
 			local _, wallId = SW.Walls2.GetNeighbourCount( v, _pId)
-			if wallId == 0 then Message("Mauerbau: Smth went utterly wrong, abort.") return end
+			if wallId == 0 then return end
 			local pos = GetPosition(wallId)
 			local myAngle = self.GetAngle( - pos.X + v.X, - pos.Y + v.Y)
 			local key
@@ -426,14 +426,14 @@ function SW.Walls2.PlaceClosingWall( _pos, _pId)
 					angle = self.GetAngleDiff( myAngle, v[5])
 				end
 			end
-			if key == nil then Message("Mauerbau: WTF?") return end
+			if key == nil then --Message("Mauerbau: WTF?") return end
 			-- so found some nice wall, get angle from wall to corner and a nice offset to continue
 			local wData = self.WallOffsets[key]
 			SW.Walls2.CreateWall( _pId, {X = v.X + wData[1], Y = v.Y + wData[2]}, wData[5], {X = v.X + wData[3], Y = v.Y + wData[4]})
 			return
 		end
 	end
-	SW.Walls2.MsgForPlayer( _pId, "Abschlussmauer: Kein guter Bauplatz gefunden. Leite Selbstzerstörung ein.")
+	--SW.Walls2.MsgForPlayer( _pId, "Abschlussmauer: Kein guter Bauplatz gefunden. Leite Selbstzerstörung ein.")
 end
 -- list is like list of offsets in init
 -- returns postion table if good, nil if not
@@ -473,12 +473,11 @@ function SW.Walls2.CreateWall( _pId, _pos, _angle, ...)
 	for i = 1, arg.n do
 		if SW.Walls2.IsPosValid(arg[i]) then
 			local eId = Logic.CreateEntity( Entities.XD_WallCorner, arg[i].X, arg[i].Y, 0, _pId)
-			if eId == 0 then Message("Mauerbau: Failed to create corner at X="..arg[i].X.." Y="..arg[i].Y) end
 			MakeInvulnerable( eId)
 			Logic.SetEntitySelectableFlag( eId, 0)
 			table.insert(SW.Walls2.ListOfCorners[_pId], { X = arg[i].X, Y = arg[i].Y, eId = eId, numNeighbours = SW.Walls2.GetNeighbourCount(arg[i], _pId)})
 		else
-			Message("Mauerbau: Failed to create corner at X="..arg[i].X.." Y="..arg[i].Y..": Pos invalid or used")
+			--Message("Mauerbau: Failed to create corner at X="..arg[i].X.." Y="..arg[i].Y..": Pos invalid or used")
 		end
 	end
 	SW.Walls2.UpdateCornerList( _pId)
@@ -487,7 +486,6 @@ function SW.Walls2.CreateGate( _pId, _pos, _angle, ...)
 	for i = 1, arg.n do
 		if SW.Walls2.IsPosValid(arg[i]) then
 			local eId = Logic.CreateEntity( Entities.XD_WallCorner, arg[i].X, arg[i].Y, 0, _pId)
-			if eId == 0 then Message("Mauerbau: Failed to create corner at X="..arg[i].X.." Y="..arg[i].Y) end
 			MakeInvulnerable( eId)
 			Logic.SetEntitySelectableFlag( eId, 0)
 			table.insert(SW.Walls2.ListOfCorners[_pId], { X = arg[i].X, Y = arg[i].Y, eId = eId, numNeighbours = SW.Walls2.GetNeighbourCount(arg[i], _pId)})
@@ -502,7 +500,6 @@ function SW.Walls2.CreateGateOpen( _pId, _pos, _angle, ...)
 	for i = 1, arg.n do
 		if SW.Walls2.IsPosValid(arg[i]) then
 			local eId = Logic.CreateEntity( Entities.XD_WallCorner, arg[i].X, arg[i].Y, 0, _pId)
-			if eId == 0 then Message("Mauerbau: Failed to create corner at X="..arg[i].X.." Y="..arg[i].Y) end
 			MakeInvulnerable( eId)
 			Logic.SetEntitySelectableFlag( eId, 0)
 			table.insert(SW.Walls2.ListOfCorners[_pId], { X = arg[i].X, Y = arg[i].Y, eId = eId, numNeighbours = SW.Walls2.GetNeighbourCount(arg[i], _pId)})

@@ -16,15 +16,12 @@ function SW.Bugfixes.Init()
 	GUI.SellBuilding = function( _eId)
 		if _eId == nil then return end
 		eId = math.mod( _eId, 65536)
-		LuaDebugger.Log(eId)
 		if ListOfSoldBuildingsUpvalue[eId] == nil then
 			ListOfSoldBuildingsUpvalue[eId] = Logic.GetTime()
 			SellBuildingUpvalue( _eId)
 		elseif  ListOfSoldBuildingsUpvalue[eId] + 60 < Logic.GetTime() then
 			ListOfSoldBuildingsUpvalue[eId] = Logic.GetTime()
 			SellBuildingUpvalue( _eId)
-		else
-			Message("Dieses Gebäude wird schon abgerissen!")
 		end
 	end
 	for i = 1, 8 do
@@ -105,7 +102,6 @@ function SW_BugfixesOnOutpostDestroyed()
 	local hqId = Event.GetEntityID()
 	local pos = GetPosition( hqId)
 	for eId in S5Hook.EntityIterator(Predicate.OfType(Entities.PU_Serf), Predicate.InCircle( pos.X, pos.Y, 500)) do
-		LuaDebugger.Log(eId)
 		table.insert( SW.Bugfixes.ToWipe, eId)
 	end
 	StartSimpleJob("SW_BugfixesDestroyJob")
