@@ -36,7 +36,6 @@ function SW.ResetScriptingValueChanges()
 		SW.SetSerfExtractionDelay( k, v)
 	end
 	SW.SV.GreatReset()
-	LuaDebugger.Break()
 end;
 
 --HelperFunc: Set Movement speed of given entity

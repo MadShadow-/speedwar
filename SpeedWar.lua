@@ -366,6 +366,8 @@ function SW.Activate( _seed)
 		end
 	end
 	StartSimpleJob("SW_RessCheck_VersionJob")
+	-- Make dem leibis quicker
+	SW.SetSerfExtractionAmount(Entities.XD_ResourceTree, 3);
 	-- Make outposts more resilient against thieves
 	SW.SetKegFactor( Entities.PB_Outpost1, 0.1)
 	-- and buff thieves against walls

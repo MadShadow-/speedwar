@@ -426,7 +426,7 @@ function SW.Walls2.PlaceClosingWall( _pos, _pId)
 					angle = self.GetAngleDiff( myAngle, v[5])
 				end
 			end
-			if key == nil then --Message("Mauerbau: WTF?") return end
+			if key == nil then return end
 			-- so found some nice wall, get angle from wall to corner and a nice offset to continue
 			local wData = self.WallOffsets[key]
 			SW.Walls2.CreateWall( _pId, {X = v.X + wData[1], Y = v.Y + wData[2]}, wData[5], {X = v.X + wData[3], Y = v.Y + wData[4]})
