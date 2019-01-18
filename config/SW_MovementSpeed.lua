@@ -133,11 +133,11 @@ SW.BaseMovementspeed = { --Sets BaseMS by EntityCategory; Highest Value wins
 	["Hero"] = 400,		-- is this category necessary?
 	["Rifle"] = 300,
 	["Scout"] = 370,
-	["Serf"]  = 370,
+	["Serf"]  = 400,
 	["Spear"] = 370,
 	["Sword"] = 370,
 	["Thief"] = 400,
-	["Worker"] = 400
+	["Worker"] = 420
 }
 --	Doubled movement speed might be too much
 -- for k,v in pairs(SW.BaseMovementspeed) do
