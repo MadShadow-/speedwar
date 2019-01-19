@@ -5,148 +5,230 @@ SW.RecruitingCosts.Extra = {
 		[ResourceType.Wood] = 15
 	}
 };
-SW.RecruitingCosts.Level1And2 = { --New costs for first half of tech tree
-	["PU_LeaderBow"] = {
+SW.RecruitingCosts.Military = { --New costs for first half of tech tree
+	-- LEADER BOW
+	[Entities.PU_LeaderBow1] = {
 		[ResourceType.Gold] = 60,
 		[ResourceType.Wood] = 30,
 		[ResourceType.Iron] = 20,
 		[ResourceType.Sulfur] = 0
 	},
-	["PU_LeaderCavalry"] = {
-		[ResourceType.Gold] = 100,
-		[ResourceType.Wood] = 80,
+	[Entities.PU_LeaderBow2] = {
+		[ResourceType.Gold] = 60,
+		[ResourceType.Wood] = 30,
 		[ResourceType.Iron] = 20,
 		[ResourceType.Sulfur] = 0
 	},
-	["PU_LeaderHeavyCavalry"] = {
-		[ResourceType.Gold] = 160,
-		[ResourceType.Wood] = 0,
-		[ResourceType.Iron] = 80,
-		[ResourceType.Sulfur] = 0
-	},
-	["PU_LeaderPoleArm"] = {
-		[ResourceType.Gold] = 40,
-		[ResourceType.Wood] = 30,
-		[ResourceType.Iron] = 0,
-		[ResourceType.Sulfur] = 0
-	},
-	["PU_LeaderRifle"] = {
-		[ResourceType.Gold] = 100,
-		[ResourceType.Wood] = 0,
-		[ResourceType.Iron] = 0,
-		[ResourceType.Sulfur] = 60
-	},
-	["PU_LeaderSword"] = {
-		[ResourceType.Gold] = 40,
-		[ResourceType.Wood] = 0,
-		[ResourceType.Iron] = 30,
-		[ResourceType.Sulfur] = 0
-	},
-	["PU_SoldierBow"] = {
-		[ResourceType.Gold] = 30,
-		[ResourceType.Wood] = 15,
-		[ResourceType.Iron] = 10,
-		[ResourceType.Sulfur] = 0
-	},
-	["PU_SoldierCavalry"] = {
-		[ResourceType.Gold] = 50,
-		[ResourceType.Wood] = 40,
-		[ResourceType.Iron] = 10,
-		[ResourceType.Sulfur] = 0
-	},
-	["PU_SoldierHeavyCavalry"] = {
-		[ResourceType.Gold] = 80,
-		[ResourceType.Wood] = 0,
-		[ResourceType.Iron] = 40,
-		[ResourceType.Sulfur] = 0
-	},
-	["PU_SoldierPoleArm"] = {
-		[ResourceType.Gold] = 20,
-		[ResourceType.Wood] = 15,
-		[ResourceType.Iron] = 0,
-		[ResourceType.Sulfur] = 0
-	},
-	["PU_SoldierRifle"] = {
-		[ResourceType.Gold] = 50,
-		[ResourceType.Wood] = 0,
-		[ResourceType.Iron] = 0,
-		[ResourceType.Sulfur] = 30
-	},
-	["PU_SoldierSword"] = {
-		[ResourceType.Gold] = 20,
-		[ResourceType.Wood] = 0,
-		[ResourceType.Iron] = 15,
-		[ResourceType.Sulfur] = 0
-	}
-};
-SW.RecruitingCosts.Level3And4 = { --New costs for second half of tech tree
-	["PU_LeaderBow"] = {
+	[Entities.PU_LeaderBow3] = {
 		[ResourceType.Gold] = 80,
 		[ResourceType.Wood] = 60,
 		[ResourceType.Iron] = 40,
 		[ResourceType.Sulfur] = 0
 	},
-	["PU_LeaderCavalry"] = {
-		[ResourceType.Gold] = 120,
-		[ResourceType.Wood] = 80,
-		[ResourceType.Iron] = 80,
+	[Entities.PU_LeaderBow4] = {
+		[ResourceType.Gold] = 80,
+		[ResourceType.Wood] = 60,
+		[ResourceType.Iron] = 40,
 		[ResourceType.Sulfur] = 0
 	},
-	["PU_LeaderHeavyCavalry"] = {
-		[ResourceType.Gold] = 200,
-		[ResourceType.Wood] = 0,
-		[ResourceType.Iron] = 100,
+	-- SOLDIER BOW
+	[Entities.PU_SoldierBow1] = {
+		[ResourceType.Gold] = 30,
+		[ResourceType.Wood] = 15,
+		[ResourceType.Iron] = 10,
 		[ResourceType.Sulfur] = 0
 	},
-	["PU_LeaderPoleArm"] = {
-		[ResourceType.Gold] = 50,
-		[ResourceType.Wood] = 40,
-		[ResourceType.Iron] = 0,
+	[Entities.PU_SoldierBow2] = {
+		[ResourceType.Gold] = 30,
+		[ResourceType.Wood] = 15,
+		[ResourceType.Iron] = 10,
 		[ResourceType.Sulfur] = 0
 	},
-	["PU_LeaderRifle"] = {
-		[ResourceType.Gold] = 100,
-		[ResourceType.Wood] = 0,
-		[ResourceType.Iron] = 0,
-		[ResourceType.Sulfur] = 60
-	},
-	["PU_LeaderSword"] = {
-		[ResourceType.Gold] = 60,
-		[ResourceType.Wood] = 0,
-		[ResourceType.Iron] = 60,
-		[ResourceType.Sulfur] = 0
-	},
-	["PU_SoldierBow"] = {
+	[Entities.PU_SoldierBow3] = {
 		[ResourceType.Gold] = 40,
 		[ResourceType.Wood] = 30,
 		[ResourceType.Iron] = 20,
 		[ResourceType.Sulfur] = 0
 	},
-	["PU_SoldierCavalry"] = {
+	[Entities.PU_SoldierBow4] = {
+		[ResourceType.Gold] = 40,
+		[ResourceType.Wood] = 30,
+		[ResourceType.Iron] = 20,
+		[ResourceType.Sulfur] = 0
+	},
+	-- LEADER CAVALRY
+	[Entities.PU_LeaderCavalry1] = {
+		[ResourceType.Gold] = 100,
+		[ResourceType.Wood] = 80,
+		[ResourceType.Iron] = 20,
+		[ResourceType.Sulfur] = 0
+	},
+	[Entities.PU_LeaderCavalry2] = {
+		[ResourceType.Gold] = 120,
+		[ResourceType.Wood] = 80,
+		[ResourceType.Iron] = 80,
+		[ResourceType.Sulfur] = 0
+	},
+	-- SOLDIER CAVALRY
+	[Entities.PU_SoldierCavalry1] = {
+		[ResourceType.Gold] = 50,
+		[ResourceType.Wood] = 40,
+		[ResourceType.Iron] = 10,
+		[ResourceType.Sulfur] = 0
+	},
+	[Entities.PU_SoldierCavalry2] = {
 		[ResourceType.Gold] = 60,
 		[ResourceType.Wood] = 40,
 		[ResourceType.Iron] = 40,
 		[ResourceType.Sulfur] = 0
 	},
-	["PU_SoldierHeavyCavalry"] = {
+	-- LEADER HEAVY CAVALRY
+	[Entities.PU_LeaderHeavyCavalry1] = {
+		[ResourceType.Gold] = 160,
+		[ResourceType.Wood] = 0,
+		[ResourceType.Iron] = 80,
+		[ResourceType.Sulfur] = 0
+	},
+	[Entities.PU_LeaderHeavyCavalry2] = {
+		[ResourceType.Gold] = 200,
+		[ResourceType.Wood] = 0,
+		[ResourceType.Iron] = 100,
+		[ResourceType.Sulfur] = 0
+	},
+	-- SOLDIER HEAVY CAVALRY
+	[Entities.PU_SoldierHeavyCavalry1] = {
+		[ResourceType.Gold] = 80,
+		[ResourceType.Wood] = 0,
+		[ResourceType.Iron] = 40,
+		[ResourceType.Sulfur] = 0
+	},
+	[Entities.PU_SoldierHeavyCavalry2] = {
 		[ResourceType.Gold] = 100,
 		[ResourceType.Wood] = 0,
 		[ResourceType.Iron] = 50,
 		[ResourceType.Sulfur] = 0
 	},
-	["PU_SoldierPoleArm"] = {
-		[ResourceType.Gold] = 25,
-		[ResourceType.Wood] = 20,
+	-- LEADER RIFLE
+	[Entities.PU_LeaderRifle1] = {
+		[ResourceType.Gold] = 100,
+		[ResourceType.Wood] = 0,
 		[ResourceType.Iron] = 0,
-		[ResourceType.Sulfur] = 0
+		[ResourceType.Sulfur] = 60
 	},
-	["PU_SoldierRifle"] = {
+	[Entities.PU_LeaderRifle2] = {
+		[ResourceType.Gold] = 100,
+		[ResourceType.Wood] = 0,
+		[ResourceType.Iron] = 0,
+		[ResourceType.Sulfur] = 60
+	},
+	-- SOLDIER RIFLE
+	[Entities.PU_SoldierRifle1] = {
 		[ResourceType.Gold] = 50,
 		[ResourceType.Wood] = 0,
 		[ResourceType.Iron] = 0,
 		[ResourceType.Sulfur] = 30
 	},
-	["PU_SoldierSword"] = {
+	[Entities.PU_SoldierRifle2] = {
+		[ResourceType.Gold] = 50,
+		[ResourceType.Wood] = 0,
+		[ResourceType.Iron] = 0,
+		[ResourceType.Sulfur] = 30
+	},
+	-- LEADER POLEARM
+	[Entities.PU_LeaderPoleArm1] = {
+		[ResourceType.Gold] = 40,
+		[ResourceType.Wood] = 30,
+		[ResourceType.Iron] = 0,
+		[ResourceType.Sulfur] = 0
+	},
+	[Entities.PU_LeaderPoleArm2] = {
+		[ResourceType.Gold] = 40,
+		[ResourceType.Wood] = 30,
+		[ResourceType.Iron] = 0,
+		[ResourceType.Sulfur] = 0
+	},
+	[Entities.PU_LeaderPoleArm3] = {
+		[ResourceType.Gold] = 50,
+		[ResourceType.Wood] = 40,
+		[ResourceType.Iron] = 0,
+		[ResourceType.Sulfur] = 0
+	},
+	[Entities.PU_LeaderPoleArm4] = {
+		[ResourceType.Gold] = 50,
+		[ResourceType.Wood] = 40,
+		[ResourceType.Iron] = 0,
+		[ResourceType.Sulfur] = 0
+	},
+	-- SOLDIER POLEARM
+	[Entities.PU_SoldierPoleArm1] = {
+		[ResourceType.Gold] = 20,
+		[ResourceType.Wood] = 15,
+		[ResourceType.Iron] = 0,
+		[ResourceType.Sulfur] = 0
+	},
+	[Entities.PU_SoldierPoleArm2] = {
+		[ResourceType.Gold] = 20,
+		[ResourceType.Wood] = 15,
+		[ResourceType.Iron] = 0,
+		[ResourceType.Sulfur] = 0
+	},
+	[Entities.PU_SoldierPoleArm3] = {
+		[ResourceType.Gold] = 25,
+		[ResourceType.Wood] = 20,
+		[ResourceType.Iron] = 0,
+		[ResourceType.Sulfur] = 0
+	},
+	[Entities.PU_SoldierPoleArm4] = {
+		[ResourceType.Gold] = 25,
+		[ResourceType.Wood] = 20,
+		[ResourceType.Iron] = 0,
+		[ResourceType.Sulfur] = 0
+	},
+	-- LEADER SWORD
+	[Entities.PU_LeaderSword1] = {
+		[ResourceType.Gold] = 40,
+		[ResourceType.Wood] = 0,
+		[ResourceType.Iron] = 30,
+		[ResourceType.Sulfur] = 0
+	},
+	[Entities.PU_LeaderSword2] = {
+		[ResourceType.Gold] = 40,
+		[ResourceType.Wood] = 0,
+		[ResourceType.Iron] = 30,
+		[ResourceType.Sulfur] = 0
+	},
+	[Entities.PU_LeaderSword3] = {
+		[ResourceType.Gold] = 60,
+		[ResourceType.Wood] = 0,
+		[ResourceType.Iron] = 60,
+		[ResourceType.Sulfur] = 0
+	},
+	[Entities.PU_LeaderSword4] = {
+		[ResourceType.Gold] = 60,
+		[ResourceType.Wood] = 0,
+		[ResourceType.Iron] = 60,
+		[ResourceType.Sulfur] = 0
+	},
+	-- SOLDIER SWORD
+	[Entities.PU_SoldierSword1] = {
+		[ResourceType.Gold] = 20,
+		[ResourceType.Wood] = 0,
+		[ResourceType.Iron] = 15,
+		[ResourceType.Sulfur] = 0
+	},
+	[Entities.PU_SoldierSword2] = {
+		[ResourceType.Gold] = 20,
+		[ResourceType.Wood] = 0,
+		[ResourceType.Iron] = 15,
+		[ResourceType.Sulfur] = 0
+	},
+	[Entities.PU_SoldierSword3] = {
+		[ResourceType.Gold] = 30,
+		[ResourceType.Wood] = 0,
+		[ResourceType.Iron] = 30,
+		[ResourceType.Sulfur] = 0
+	},
+	[Entities.PU_SoldierSword4] = {
 		[ResourceType.Gold] = 30,
 		[ResourceType.Wood] = 0,
 		[ResourceType.Iron] = 30,

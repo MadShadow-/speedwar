@@ -11,7 +11,7 @@ SW.Walls2 = {}
 SW.Walls2.Walllength = 400		--Length of wall, used for assessing good position offsets
 SW.Walls2.CornerSize = 50		--Radius of corner, used for assessing good position offsets
 SW.Walls2.Gatelength = 600		--Length of gates, some thing
-SW.Walls2.SnapDistance = 2500
+SW.Walls2.SnapDistance = 1700
 SW.Walls2.WallType = Entities.XD_WallStraight
 SW.Walls2.WorldSize = Logic.WorldGetSize()	--Used for checking if position is good
 SW.Walls2.ListOfCorners = {}	--Values: [pId] = list of {X, Y, eId, numNeighbours}

@@ -34,25 +34,8 @@ function SW.XMLChanges.DoChanges()
 	for entityType, costTable in pairs(SW.RecruitingCosts.Extra) do
 		SW.SetRecruitingCosts( Entities[entityType], costTable);
 	end
-	local techTreeSize = {}
-	for k1,v1 in pairs(SW.RecruitingCosts.Level1And2) do
-		local techTreeNum = 0
-		for k2,v2 in pairs(Entities) do
-			local start = string.find( k2, k1)
-			if start ~= nil then
-				techTreeNum = techTreeNum+1
-			end
-		end
-		techTreeSize[k1] = techTreeNum
-	end
-	for k1,v1 in pairs(techTreeSize) do
-		--SW.SetRecruitingCosts( _eType, _costTable)
-		for i = 1, v1/2 do
-			SW.SetRecruitingCosts( Entities[k1..i], SW.RecruitingCosts.Level1And2[k1])
-		end
-		for i = math.floor(v1/2+1), v1 do
-			SW.SetRecruitingCosts( Entities[k1..i], SW.RecruitingCosts.Level3And4[k1])
-		end
+	for eType, costTable in pairs(SW.RecruitingCosts.Military) do
+		SW.SetRecruitingCosts( eType, costTable)
 	end
 	--			FASTER BUILDING
 	-- First change construction time
@@ -92,7 +75,7 @@ function SW.XMLChanges.DoChanges()
 	SW.SetKegFactor( Entities.XD_WallStraightGate, 2)
 	SW.SetKegFactor( Entities.XD_WallStraightGate_Closed, 2)
 	-- LKAV BUFFS
-	local lvl1Dmg = 9
+	local lvl1Dmg = 10
 	local lvl1Bonus = 4
 	local lvl1Range = 2800
 	local lvl2Dmg = 18
