@@ -11,6 +11,7 @@ SW.ScriptingValueBackup.TechTime = SW.ScriptingValueBackup.TechTime or {}
 SW.ScriptingValueBackup.SerfExtrAmount = SW.ScriptingValueBackup.SerfExtrAmount or {}
 SW.ScriptingValueBackup.SerfExtrDelay = SW.ScriptingValueBackup.SerfExtrDelay or {}
 SW.ScriptingValueBackup.DamageClass = SW.ScriptingValueBackup.DamageClass or {}
+SW.ScriptingValueBackup.MarketData = SW.ScriptingValueBackup.MarketData or {}
 
 function SW.ResetScriptingValueChanges()
 	for k,v in pairs(SW.ScriptingValueBackup.ConstructionCosts) do
@@ -40,6 +41,20 @@ function SW.ResetScriptingValueChanges()
 	for dmgClass,dmgTable in pairs(SW.ScriptingValueBackup.DamageClass) do
 		for armClass, val in pairs(dmgTable) do
 			SW.SetDamageArmorCoeff( dmgClass, armClass, val)
+		end
+	end
+	if SW.ScriptingValueBackup.MarketSpeed then
+		SW.SetGlobalMarketSpeed( SW.ScriptingValueBackup.MarketSpeed)
+	end
+	for k,v in pairs(SW.ScriptingValueBackup.MarketData) do
+		if v.MaxPrice then
+			SW.SetMarketMaxPrice( k, v.MaxPrice)
+		end
+		if v.MinPrice then
+			SW.SetMarketMinPrice( k, v.MinPrice)
+		end
+		if v.WorkAmount then
+			SW.SetMarketWorkAmount( k, v.WorkAmount)
 		end
 	end
 	SW.SV.GreatReset()
@@ -77,6 +92,32 @@ function SW.GetKegTimer( _eId)
 		return
 	end
 	return S5Hook.GetEntityMem( _eId)[31][0][5]:GetInt() 
+end
+
+--some stuff regarding markets
+-- returns type and amount of ressource to buy
+function SW.GetMarketTransaction( _eId)
+	local p = S5Hook.GetEntityMem( _eId)[31][1]
+	return p[6]:GetInt(), p[7]:GetFloat()
+end
+function SW.SetMarketTransaction( _eId, _toBuyType, _toBuyAmount)
+	local p = S5Hook.GetEntityMem( _eId)[31][1]
+	local maxProgress = (p[8]:GetFloat() + p[7]:GetFloat())/10;
+	p[6]:SetInt( _toBuyType)
+	p[7]:SetFloat( _toBuyAmount)
+	p[9]:SetFloat( math.min(p[9]:GetFloat(), maxProgress-1))
+end
+-- number ranging from 0 to 1
+function SW.SetMarketProgress( _eId, _progress)
+	local p = S5Hook.GetEntityMem( _eId)[31][1]
+	local maxProgress = (p[8]:GetFloat() + p[7]:GetFloat())/10;
+	p[9]:SetFloat(math.floor(maxProgress*_progress))
+end
+-- _speed is some factor; Vanilla: 4.5
+function SW.SetGlobalMarketSpeed( _speed)
+	local p = S5Hook.GetRawMem(9002416)[0][16][Entities.PB_Market2*8+5][2][4]
+	SW.ScriptingValueBackup.MarketSpeed = SW.ScriptingValueBackup.MarketSpeed or p:GetFloat()
+	p:SetFloat(_speed)
 end
 
 --HelperFunc: Set construction cost of given entity type, developed by mcb
@@ -425,6 +466,43 @@ function SW.GetTechnologyTimeToResearch( _tId)
 	return SW.SV.GetTechData( _tId)[1]:GetFloat()
 end
 
+function SW.SetMarketMaxPrice( _ressType, _price)
+	SW.ScriptingValueBackup.MarketData[_ressType] = SW.ScriptingValueBackup.MarketData[_ressType] or {}
+	SW.ScriptingValueBackup.MarketData[_ressType].MaxPrice = SW.ScriptingValueBackup.MarketData[_ressType].MaxPrice or SW.GetMarketMaxPrice( _ressType)
+	local mp = SW.SV.GetLogicXMLPointer()[15]
+	local i = SW.SV.GetMarketIndex( mp, _ressType)
+	mp[8*i+4]:SetFloat( _price)
+end
+function SW.GetMarketMaxPrice( _ressType)
+	local mp = SW.SV.GetLogicXMLPointer()[15]
+	local i = SW.SV.GetMarketIndex( mp, _ressType)
+	return mp[8*i+4]:GetFloat()
+end
+function SW.SetMarketMinPrice( _ressType, _price)
+	SW.ScriptingValueBackup.MarketData[_ressType] = SW.ScriptingValueBackup.MarketData[_ressType] or {}
+	SW.ScriptingValueBackup.MarketData[_ressType].MinPrice = SW.ScriptingValueBackup.MarketData[_ressType].MinPrice or SW.GetMarketMinPrice( _ressType)
+	local mp = SW.SV.GetLogicXMLPointer()[15]
+	local i = SW.SV.GetMarketIndex( mp, _ressType)
+	mp[8*i+3]:SetFloat( _price)
+end
+function SW.GetMarketMinPrice( _ressType)
+	local mp = SW.SV.GetLogicXMLPointer()[15]
+	local i = SW.SV.GetMarketIndex( mp, _ressType)
+	return mp[8*i+3]:GetFloat()
+end
+function SW.SetMarketWorkAmount( _ressType, _workAmount)
+	SW.ScriptingValueBackup.MarketData[_ressType] = SW.ScriptingValueBackup.MarketData[_ressType] or {}
+	SW.ScriptingValueBackup.MarketData[_ressType].WorkAmount = SW.ScriptingValueBackup.MarketData[_ressType].WorkAmount or SW.GetMarketWorkAmount( _ressType)
+	local mp = SW.SV.GetLogicXMLPointer()[15]
+	local i = SW.SV.GetMarketIndex( mp, _ressType)
+	mp[8*i+7]:SetFloat( _workAmount)
+end
+function SW.GetMarketWorkAmount( _ressType)
+	local mp = SW.SV.GetLogicXMLPointer()[15]
+	local i = SW.SV.GetMarketIndex( mp, _ressType)
+	return mp[8*i+7]:GetFloat()
+end
+
 SW.SV = {}
 -- Entries { type, vtable, index, float/int}
 --	false == float, true == int for float/int
@@ -437,10 +515,18 @@ SW.SV = {}
 --	SV["Set"..key]( _eType, val), sets key for the entity type
 --	SV["Get"..key]( _eType), gets key for the entity
 SW.SV.Data = {
+	-- some worker logic
 	["WorkTimeChangeWork"] = {2, 7809936, 17, true},
+	["WorkTimeChangeFarm"] = {2, 7809936, 18, false},
+	["WorkTimeChangeResidence"] = {2, 7809936, 19, false},
+	["WorkTimeChangeCamp"] = {2, 7809936, 20, false},
+	["WorkTimeMaxChangeFarm"] = {2, 7809936, 21, true},
+	["WorkTimeMaxChangeResidence"] = {2, 7809936, 22, true},
+	["ExhaustedWorkMotivationMalus"] = {2, 7809936, 23, false},
+	["WorkerTransportAmount"] = {2, 7809936, 24, true},
+	-- some other stuff
 	["RecruitingTime"] = {2, 7834420, 9, false},
 	["RefinedPerTick"] = {2, 7818276, 5, false},
-	["WorkerTransportAmount"] = {2, 7809936, 24, true},
 	["AmountToMine"] = {2, 7821340, 4, true},
 	-- Logic for buildings, GGL::CGLBuildingProps == 7793784
 	["KegFactor"] = {1, 7793784, 124, false},
@@ -594,13 +680,147 @@ end
 function SW.SV.GetDamageXMLPointer()
 	return S5Hook.GetRawMem(8758236)[0][2]
 end
+function SW.SV.GetLogicXMLPointer()
+	return S5Hook.GetRawMem(8758240)[0]
+end
+function SW.SV.GetMarketIndex( _p, _ressType)
+	for i = 0, 5 do
+		if _p[i*8+1]:GetInt() == _ressType then
+			return i
+		end
+	end
+end
+SW.SV.MarketData = {
+	{
+		RessType = ResourceType.Gold,
+		BasePrice = 1,
+		MinPrice = 1,
+		MaxPrice = 1,
+		Inflation = 0.00015000000712462,
+		Deflation = 0.00015000000712462,
+		WorkAmount = 0.1
+	},
+	{
+		RessType = ResourceType.Clay,
+		BasePrice = 1,
+		MinPrice = 0.20000000298023,
+		MaxPrice = 2.7999999523163,
+		Inflation = 9.9999997473788e-005,
+		Deflation = 9.9999997473788e-005,
+		WorkAmount = 0.1
+	},
+	{
+		RessType = ResourceType.Wood,
+		BasePrice = 1.3999999761581,
+		MinPrice = 0.20000000298023,
+		MaxPrice = 2.7999999523163,
+		Inflation = 0.00019999999494758,
+		Deflation = 0.00019999999494758,
+		WorkAmount = 0.1
+	},
+	{
+		RessType = ResourceType.Iron,
+		BasePrice = 1,
+		MinPrice = 0.20000000298023,
+		MaxPrice = 2.7999999523163,
+		Inflation = 9.9999997473788e-005,
+		Deflation = 9.9999997473788e-005,
+		WorkAmount = 0.1
+	},
+	{
+		RessType = ResourceType.Stone,
+		BasePrice = 1,
+		MinPrice = 0.20000000298023,
+		MaxPrice = 2.7999999523163,
+		Inflation = 9.9999997473788e-005,
+		Deflation = 9.9999997473788e-005,
+		WorkAmount = 0.1
+	},
+	{
+		RessType = ResourceType.Sulfur,
+		BasePrice = 0.60000002384186,
+		MinPrice = 0.20000000298023,
+		MaxPrice = 2.7999999523163,
+		Inflation = 9.9999997473788e-005,
+		Deflation = 9.9999997473788e-005,
+		WorkAmount = 0.1
+	},
+	{
+		RessType = ResourceType.SulfurRaw,
+		BasePrice = 10,
+		MinPrice = 6,
+		MaxPrice = 15,
+		Inflation = 9.9999997473788e-005,
+		Deflation = 9.9999997473788e-005,
+		WorkAmount = 0.1
+	}
+}
+function SW.SV.TransformTableToMarketData( _t)
+	local n = table.getn(_t)
+	LuaDebugger.Log(n)
+	local p = S5Hook.GetRawMem(S5Hook.ReAllocMem( 0, n*8*4))
+	LuaDebugger.Log(p:GetInt())
+	for i = 0, n-1 do
+		local t = _t[i+1]
+		p[8*i]:SetInt(7794472) --set vTable
+		p[8*i+1]:SetInt(t.RessType)
+		p[8*i+2]:SetFloat(t.BasePrice)
+		p[8*i+3]:SetFloat(t.MinPrice)
+		p[8*i+4]:SetFloat(t.MaxPrice)
+		p[8*i+5]:SetFloat(t.Inflation)
+		p[8*i+6]:SetFloat(t.Deflation)
+		p[8*i+7]:SetFloat(t.WorkAmount)
+	end
+	return p
+end
+function SW.SV.ReplaceMarketData( _newData)
+	local n = table.getn( _newData)
+	local p1 = SW.SV.TransformTableToMarketData( _newData)
+	local p2 = SW.SV.GetLogicXMLPointer()
+	LuaDebugger.Log("Old vals: "..p2[15]:GetInt().." "..p2[16]:GetInt())
+	p2[15]:SetInt(p1:GetInt())
+	p2[16]:SetInt(p1:Offset(8*n):GetInt())
+	p2[17]:SetInt(p1:Offset(8*n):GetInt())
+end
 SVTests = {}
+function SVTests.StartWatch()
+	SVTests.eId = GUI.GetSelectedEntity()
+	SVTests.p = S5Hook.GetEntityMem(SVTests.eId)[31][2][4]
+	SVTests.Val = SVTests.p:GetInt()
+	LuaDebugger.Log("Start watching with val = "..SVTests.Val)
+	SVTests_WatchJob = function()
+		if SVTests.p:GetInt() ~= SVTests.Val then
+			local newVal = SVTests.p:GetInt()
+			LuaDebugger.Log("Regsitered change from "..SVTests.Val.." to "..newVal.."; Diff "..(newVal-SVTests.Val))
+			SVTests.Val = newVal
+		end
+	end
+	StartSimpleJob("SVTests_WatchJob")
+	Game.GameTimeSetFactor(10)
+end
 function SVTests.GetBehP()
 	local p = S5Hook.GetRawMem(9002416)[0][16][Entities.PU_Serf*8+5][6][8]
 	for i = 0, 19 do 
 		LuaDebugger.Log(i.." "..p[i]:GetInt())
 	end
 	return p
+end
+function SVTests.PrintMarketData( _offset)
+	local p = SW.SV.GetLogicXMLPointer()[15]
+	LuaDebugger.Log("RessType = "..SVTests.GetRessTypeName( p[_offset*8+1]:GetInt())..",")
+	LuaDebugger.Log("BasePrice = "..p[_offset*8+2]:GetFloat()..",")
+	LuaDebugger.Log("MinPrice = "..p[_offset*8+3]:GetFloat()..",")
+	LuaDebugger.Log("MaxPrice = "..p[_offset*8+4]:GetFloat()..",")
+	LuaDebugger.Log("Inflation = "..p[_offset*8+5]:GetFloat()..",")
+	LuaDebugger.Log("Deflation = "..p[_offset*8+6]:GetFloat()..",")
+end
+function SVTests.GetRessTypeName( _index)
+	for k,v in pairs(ResourceType) do
+		if _index == v then
+			return "ResourceType."..k
+		end
+	end
+	return _index
 end
 function SVTests.GetDamageClassPointer()
 	--[[
@@ -700,4 +920,31 @@ Log: "15 2"					--MaxRdnDamageBonus
 Log: "17 14"				--EffectId Projektil
 Log: "21 2500"				--BattleWaitUntil
 Log: "22 12"				--MissChance]]
-
+-- Data GGL::CServiceBuildingBehaviorProperties per Entity(Märkte + Hochschulen?)
+--[[
+Relevant für Markt:
+EntityMem[31][1]
+7(Float): Das, was ausbezahlt wird, auch relevant für Auszahlung
+8(Float): Das, was man bezahlt hat
+9(Float): Progress, zwischen 0 und ([7]+[8])/10
+5(Int): RessType von dem, was verkauft
+6(Int): RessType von dem, was angekauft wird
+2(Int): EntityId Markt
+0(Int): VTable; 7822540
+3(Int): Zeigt auf typweiten Kram?
+4(Int): PlayerID, die Trade bekommt
+]]
+-- Data GGL::CServiceBuildingBehaviorProperties for all entities
+--[[
+-- Index Int Float
+Log: "0 7817264 1.0954320038422e-038"
+Log: "1 7817252 1.095430322284e-038"
+Log: "2 1 1.4012984643248e-045"
+Log: "3 -1868218729 -6.5177459604168e-029"
+Log: "4 1148846080 1000"
+]]
+-- Data for markets
+-- LogicXMLPointers:
+-- Log: "15 333070544"
+-- Log: "16 333070736"
+-- Log: "17 333070736"

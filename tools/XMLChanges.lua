@@ -105,6 +105,22 @@ function SW.XMLChanges.DoChanges()
 	SW.SetSettlerExploration( Entities.PU_SoldierCavalry2, lvl2Range/100 + 2)
 	-- Make dem leibis quicker
 	SW.SetSerfExtractionAmount(Entities.XD_ResourceTree, 3);
+	-- Change residences and farms
+	SW.SetPlacesProvided( Entities.PB_Farm1, 5)
+	SW.SetPlacesProvided( Entities.PB_Farm2, 10)
+	SW.SetPlacesProvided( Entities.PB_Farm3, 15)
+	SW.SetPlacesProvided( Entities.PB_Residence1, 4)
+	SW.SetPlacesProvided( Entities.PB_Residence2, 8)
+	SW.SetPlacesProvided( Entities.PB_Residence3, 12)
+	-- Make traders faster, 100 Ress dealt with per tick( default: 45)
+	SW.SetGlobalMarketSpeed( 10)
+	-- Make cannons worse against units and better against buildings
+	local cannonUnitFactor = 0.05 -- default 0.2
+	SW.SetDamageArmorCoeff( DamageClasses.DC_Siege, SW.SV.ArmorClasses.None, cannonUnitFactor)
+	SW.SetDamageArmorCoeff( DamageClasses.DC_Siege, SW.SV.ArmorClasses.Jerkin, cannonUnitFactor)
+	SW.SetDamageArmorCoeff( DamageClasses.DC_Siege, SW.SV.ArmorClasses.Leather, cannonUnitFactor)
+	SW.SetDamageArmorCoeff( DamageClasses.DC_Siege, SW.SV.ArmorClasses.Iron, cannonUnitFactor)
+	SW.SetDamageArmorCoeff( DamageClasses.DC_Siege, SW.SV.ArmorClasses.Fortification, 3)
 end
 --Refinery Push
 --[[

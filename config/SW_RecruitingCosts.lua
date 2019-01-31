@@ -21,14 +21,14 @@ SW.RecruitingCosts.Military = { --New costs for first half of tech tree
 	},
 	[Entities.PU_LeaderBow3] = {
 		[ResourceType.Gold] = 80,
-		[ResourceType.Wood] = 60,
-		[ResourceType.Iron] = 40,
+		[ResourceType.Wood] = 30,
+		[ResourceType.Iron] = 60,
 		[ResourceType.Sulfur] = 0
 	},
 	[Entities.PU_LeaderBow4] = {
 		[ResourceType.Gold] = 80,
-		[ResourceType.Wood] = 60,
-		[ResourceType.Iron] = 40,
+		[ResourceType.Wood] = 30,
+		[ResourceType.Iron] = 60,
 		[ResourceType.Sulfur] = 0
 	},
 	-- SOLDIER BOW
@@ -46,14 +46,14 @@ SW.RecruitingCosts.Military = { --New costs for first half of tech tree
 	},
 	[Entities.PU_SoldierBow3] = {
 		[ResourceType.Gold] = 40,
-		[ResourceType.Wood] = 30,
-		[ResourceType.Iron] = 20,
+		[ResourceType.Wood] = 15,
+		[ResourceType.Iron] = 30,
 		[ResourceType.Sulfur] = 0
 	},
 	[Entities.PU_SoldierBow4] = {
 		[ResourceType.Gold] = 40,
-		[ResourceType.Wood] = 30,
-		[ResourceType.Iron] = 20,
+		[ResourceType.Wood] = 15,
+		[ResourceType.Iron] = 30,
 		[ResourceType.Sulfur] = 0
 	},
 	-- LEADER CAVALRY
