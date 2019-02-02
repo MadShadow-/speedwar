@@ -138,8 +138,14 @@ function SW.RankSystem.ApplyGUIChanges()
 	local currPlayer = GUI.GetPlayerID()
 	--Find all allies
 	SW.RankSystem.ListOfAllyIds = {}
-	for i = 1, numPlayer do
-		if listPlayer[i] == currPlayer or Logic.GetDiplomacyState( currPlayer, listPlayer[i]) == Diplomacy.Friendly then
+	if GUI.GetPlayerID() ~= 17 then
+		for i = 1, numPlayer do
+			if listPlayer[i] == currPlayer or Logic.GetDiplomacyState( currPlayer, listPlayer[i]) == Diplomacy.Friendly then
+				table.insert( SW.RankSystem.ListOfAllyIds, listPlayer[i])
+			end
+		end
+	else
+		for i = 1, numPlayer do
 			table.insert( SW.RankSystem.ListOfAllyIds, listPlayer[i])
 		end
 	end
@@ -178,6 +184,19 @@ function SW.RankSystem.OnRankUp( _pId)	--Gets called every time a player reaches
 		XGUIEng.SetProgressBarValues("VCMP_Team"..SW.RankSystem.GetGUIIdByPlayerId(_pId).."Progress", 1, 1)
 	else
 		XGUIEng.SetProgressBarValues("VCMP_Team"..SW.RankSystem.GetGUIIdByPlayerId(_pId).."Progress", 0, 1)
+	end
+	if GUI.GetPlayerID() == 17 then
+		local key = 0
+		for i = 1, table.getn(SW.RankSystem.ListOfAllyIds) do
+			if SW.RankSystem.ListOfAllyIds[i] == _pId then
+				key = i
+				break
+			end
+		end
+		if key ~= 0 then
+			local rank = SW.RankSystem.Rank[_pId]
+			QuestController.Data[key].desc = SW.RankSystem.RankNames[rank].." "..SW.RankSystem.PlayerNames[_pId].." @color:255,255,255"
+		end
 	end
 end
 function SW.RankSystem.GetGUIIdByPlayerId(_pId)

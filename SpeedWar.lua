@@ -21,9 +21,9 @@ function GameCallback_OnGameStart()
 	end
 	
 	LocalMusic.UseSet = HIGHLANDMUSIC
-	SetupHighlandWeatherGfxSet()
 	-- start actual speedwar
 	SpeedWarOnGameStart()
+	SetupHighlandWeatherGfxSet()
 end
 
 function SpeedWarOnGameStart()
@@ -813,6 +813,7 @@ function SW_CreateEntitySafe( _eType, _x, _y, _rot, _player, _callback)
 		StartSimpleHiResJob("SW_CreateJob");
 	end
 end
+
 
 
 function SW.CallbackHacks()
