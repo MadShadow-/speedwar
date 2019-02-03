@@ -67,7 +67,7 @@ function SpeedWarOnGameStart()
 		ErrorLogging = true,
 		TroopSpawnKeys = false,
 		ResearchAllUniversityTechnologies = true,
-		WeatherInfo = false		--outputs a lot of data about weather if true, independent of Debug
+		WeatherInfo = true		--outputs a lot of data about weather if true, independent of Debug
 	};
 	
 	SW.MapSpecific.LoadConfig();
@@ -391,15 +391,18 @@ function SW.EnableRandomWeather()
 	-- CONFIG PART
 	local numOfWeatherStates = 9		--How many states are there?
 	local baseChance = {}				--Doesnt need to add up to some number
-	baseChance[1] = 80					--Chance summer
-	baseChance[2] = 20					--Chance rain
-	baseChance[3] = 30					--Chance winter
-	baseChance[4] = 10					-- storm
-	baseChance[5] = 15					-- snowy rain
-	baseChance[6] = 20					-- ice time
-	baseChance[7] = 20					-- evening
-	baseChance[8] = 10					-- sour rain
-	baseChance[9] = 10					-- hot summer
+	baseChance[1] = 90					--Chance summer
+	baseChance[2] = 5					--Chance rain
+	baseChance[3] = 15					--Chance winter
+	baseChance[4] = 5					-- storm
+	baseChance[5] = 5					-- snowy rain
+	baseChance[6] = 15					-- ice time
+	baseChance[7] = 30					-- evening
+	baseChance[8] = 5					-- sour rain
+	baseChance[9] = 30					-- hot summer
+	-- Gewicht Regen: 20		10 % chance
+	-- Gewicht Winter: 30		15 % chance
+	-- Gewicht Sommer: 150		75 % chance
 	local range = {}
 	range[1] = {300, 480}				--Lower and upper limit for summer period
 	range[2] = {180, 360}					--Lower and upper limit for rain period
