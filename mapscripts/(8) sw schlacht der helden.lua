@@ -45,7 +45,7 @@ SpeedwarConfig = {
 	end,
 	
 	PlayerStartSectors = {
-		--{ X = 32323, Y = 30976 },
+		{ X = 26000, Y = 5800 }
 		--{ X = 19461, Y = 21278 },
 		-- ...
 	},

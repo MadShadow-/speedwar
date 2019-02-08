@@ -18,12 +18,6 @@ SW.RandomStartEntropyPos = {}
 SW.RandomStartUseNewAlgorithm = false
 SW.RandomStartTeamSpawns = {}; -- i use this to let teams spawn together
 function SW.EnableRandomStart()
-	for k,v in pairs(SW.RandomStartWeights) do
-		for eId in S5Hook.EntityIterator(Predicate.OfType(k)) do
-			local pos = GetPosition( eId)
-			table.insert( SW.RandomStartRessources, {X = pos.X, Y = pos.Y, value = v})
-		end
-	end
 	SW.RandomStartPositions = {};
 	SW.RandomStartValidSectors = {}
 	local sector
@@ -31,22 +25,39 @@ function SW.EnableRandomStart()
 		_, _, sector = S5Hook.GetTerrainInfo(SW.MapSpecific.PlayerStartSectors[i].X, SW.MapSpecific.PlayerStartSectors[i].Y);
 		table.insert(SW.RandomStartValidSectors, sector)
 	end;
-	for i = 1, 8 do
-		table.insert( SW.RandomStartEntropyPos, SW.RandomStartGeneratePos())
-	end
 	if SW.IsMultiplayer() then
 		local isHuman;
-		for i = 1, 8 do
-			isHuman = XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i);
-			if isHuman == 1 then
-				-- TODO remove spectators.
-				SW.RandomPosForPlayer(i);
+		if SW.GUI.Rules.SharedSpawn == 0 then
+			for i = 1, 8 do
+				isHuman = XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i);
+				if isHuman == 1 then
+					-- TODO remove spectators.
+					SW.RandomPosForPlayer(i);
+				end;
 			end;
-		end;
+		else --team spawn
+			local team = XNetwork.GameInformation_GetLogicPlayerTeam
+			local teamData = {}
+			local teamCount = 0
+			for i = 1, 8 do
+				if XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i) == 1 then
+					local teamId = team(i)
+					if teamData[team(i)] == nil then
+						teamData[team(i)] = true
+						teamCount = teamCount + 1
+					end
+				end
+			end
+			local positions = SW.GetRandomPositions( teamCount)
+			local posIndex = 1
+			for k,v in pairs(teamData) do
+				SW.SpawnTeamAt( k, positions[posIndex])
+				posIndex = posIndex + 1
+			end
+		end
 	else
 		SW.RandomPosForPlayer(1);
 	end;
-	SW.RandomStartNapo()
 end
 
 function SW.RandomPosForPlayer(_player)
@@ -80,6 +91,7 @@ function SW.RandomPosForPlayer(_player)
 		sectorValid = false --invalid until proven otherwise
 		for j = 1, table.getn(sectors) do
 			if sectors[j] == sectorID then
+				LuaDebugger.Log("sector valid")
 				sectorValid = true
 				break;
 			end
@@ -114,65 +126,115 @@ function SW.RandomPosForPlayer(_player)
 		end 
 	end
 end
-
-function SW.RandomStartNapo()
-	if true then return end
-	SW.RandomStartPositions = {}
-	for i = 1, 8 do
-		local sPos = SW.RandomStartGenerateStartForPlayer( i)
-		GUI.CreateMinimapMarker( sPos.X, sPos.Y, 1)
-		table.insert(SW.RandomStartPositions, sPos)
-	end
-end
-
-function SW.RandomStartGenerateStartForPlayer( _pId)
-	local highScore = nil
-	local startPos = nil
-	for i = 1, 20 do
-		local pos = SW.RandomStartGeneratePos()
-		local score = SW.RandomStartEvaluatePos( pos.X, pos.Y, _pId)
-		LuaDebugger.Log( score.." "..pos.X.." "..pos.Y)
-		highScore = highScore or score-1
-		if highScore < score then
-			highScore = score
-			startPos = pos
-		end
-	end
-	return startPos
-end
-function SW.RandomStartGeneratePos()
+function SW.GetRandomPositions(_numOfSpawns)
+	local div = math.min(_numOfSpawns, 4);
+	div = math.max(2,div); -- be > 1
+	local minDistanceToNextPlayer = (Logic.WorldGetSize() / div)^2;
+	local success = false
+	local sectors = {}
+	for i = 1,table.getn(SW.MapSpecific.PlayerStartSectors) do
+		_, _, sector = S5Hook.GetTerrainInfo(SW.MapSpecific.PlayerStartSectors[i].X, SW.MapSpecific.PlayerStartSectors[i].Y);
+		table.insert(sectors, sector)
+	end;
 	local worldSize = Logic.WorldGetSize()
 	local ranX, ranY, sectorID
-	while true do
-		ranX = math.random()*worldSize
-		ranY = math.random()*worldSize
-		_, _, sectorID = S5Hook.GetTerrainInfo( ranX, ranY)
-		for j = 1, table.getn(SW.RandomStartValidSectors) do
-			if SW.RandomStartValidSectors[j] == sectorID then
-				sectorValid = true
-				return {X = ranX, Y = ranY}
+	local sectorValid, minDistanceValid;
+	local spawnAttempts = 0;
+	local retTable = {}
+	for i = 1, _numOfSpawns do
+		spawnAttempts = 0;
+		--LuaDebugger.Log(i)
+		while not success do
+			-- infinite loop protection
+			spawnAttempts = spawnAttempts + 1;
+			ranX = math.random()*worldSize
+			ranY = math.random()*worldSize
+			--LuaDebugger.Log("X: "..ranX.." Y: "..ranY)
+			--LuaDebugger.Log(spawnAttempts)
+			-- falls die neue zufalls pos zu nahe an einer bestehenden start pos liegt muss neu gewürfelt werden
+			minDistanceValid = true;
+			for j = 1,table.getn(retTable) do
+				if ((retTable[j].X-ranX)^2 + (retTable[j].Y-ranY)^2) < minDistanceToNextPlayer*(1000-spawnAttempts)/1000 then
+					minDistanceValid = false;
+					--LuaDebugger.Log("minDistance hurt "..spawnAttempts)
+					break;
+				end
+			end
+			_, _, sectorID = S5Hook.GetTerrainInfo( ranX, ranY);
+			--LuaDebugger.Log("Sektor: "..sectorID)
+			sectorValid = false --invalid until proven otherwise
+			for j = 1, table.getn(sectors) do
+				if sectors[j] == sectorID then
+					sectorValid = true
+					--LuaDebugger.Log("sector valid")
+					break;
+				end
+			end
+			if sectorValid and minDistanceValid then
+				--LuaDebugger.Log("found "..ranX.." "..ranY)
+				table.insert( retTable, {X = ranX, Y = ranY})
+				break
+			end 
+		end
+	end
+	return retTable
+end
+function SW.SpawnTeamAt( _teamId, _p)
+	local team = XNetwork.GameInformation_GetLogicPlayerTeam
+	if team(GUI.GetPlayerID()) == _team then
+		GUI.CreateMinimapMarker( _p.X, _p.Y, 0);
+	else
+		GUI.CreateMinimapMarker( _p.X, _p.Y,3);
+	end
+	local _,_,sectorID = S5Hook.GetTerrainInfo( _p.X, _p.Y)
+	for k = 1, table.getn(SW.Players) do
+		local pId = SW.Players[k]
+		if team(pId) == _teamId then
+			local newRanX, newRanY;
+			local rndSector = -1;
+			for i = 1, 8 do
+				oldEnt = newEnt;
+				while(rndSector ~= sectorID) do
+					newRanX = _p.X+math.random(-500,500);
+					newRanY = _p.X+math.random(-500,500);
+					_, _, rndSector = S5Hook.GetTerrainInfo(newRanX, newRanY);
+				end
+				AI.Entity_CreateFormation( pId, Entities.PU_Serf, 0, 0, newRanX, newRanY, 0, _p.X, _p.Y, 0)
+			end
+			if GUI.GetPlayerID() == _player then
+				Camera.ScrollSetLookAt( _p.X, _p.Y);
 			end
 		end
 	end
 end
-function SW.RandomStartEvaluatePos( _x, _y, _pId)
-	local score = 0
-	for k,v in pairs(SW.RandomStartRessources) do
-		score = score + SW.RandomStartCalcRealWeight( v.value, SW.RandomStartGetDistance( {X = _x, Y = _y}, v))
+
+-- TODO
+function SW.RandomStartPlacePlayer()
+	if GUI.GetPlayerID() == _player then
+		GUI.CreateMinimapMarker(ranX,ranY,0);
+	else
+		if Logic.GetDiplomacyState(GUI.GetPlayerID(),_player) == Diplomacy.Hostile then
+			GUI.CreateMinimapMarker(ranX,ranY,3);
+		else
+			GUI.CreateMinimapMarker(ranX,ranY,0);
+		end
 	end
-	for k,v in pairs(SW.RandomStartEntropyPos) do
-		score = score - SW.RandomStartCalcRealWeight( SW.RandomStartEntropyWeight, SW.RandomStartGetDistance( {X = _x, Y = _y}, v))
+	table.insert(SW.RandomStartPositions,{X=ranX,Y=ranY});
+	local newEnt, oldEnt, newRanX, newRanY;
+	local rndSector = -1;
+	for i = 1, 8 do
+		oldEnt = newEnt;
+		while(rndSector ~= sectorID) do
+			newRanX = ranX+math.random(-200,200);
+			newRanY = ranY+math.random(-200,200);
+			_, _, rndSector = S5Hook.GetTerrainInfo(ranX, ranY);
+		end
+		newEnt = AI.Entity_CreateFormation(_player, Entities.PU_Serf, 0, 0, newRanX, newRanY, 0, ranX, ranY, 0)
+		Logic.EntityLookAt(newEnt, oldEnt);
+		if GUI.GetPlayerID() == _player then
+			Camera.ScrollSetLookAt(ranX,ranY);
+		end
 	end
-	for k,v in pairs(SW.RandomStartPositions) do
-		score = score - SW.RandomStartCalcRealWeight( SW.RandomStartPlayerWeight, SW.RandomStartGetDistance( {X = _x, Y = _y}, v))
-	end
-	return score
-end
-function SW.RandomStartCalcRealWeight( _weight, _dis)
-	return math.max(0, _weight - _dis)
-end
-function SW.RandomStartGetDistance( _pos1, _pos2)
-	return math.sqrt( (_pos1.X-_pos2.X)^2 + (_pos1.Y - _pos2.Y)^2)
 end
 
 --Fixed starts

@@ -190,11 +190,21 @@ function SW.RankSystem.ApplyGUIChanges()
 		end
 	end
 	SW.RankSystem.CountFuncs = {}
+	local team = XNetwork.GameInformation_GetLogicPlayerTeam
 	SW.RankSystem.GeneralCountFunc = function( j)
 		if SW.RankSystem.Rank[j] < 4 then
 			return math.floor(100*SW.RankSystem.Points[j]/SW.RankSystem.GetNextRankThreshold( j));
 		else
 			return 100
+		end
+	end
+	if SW.GUI.Rules.SharedRank == 1 then
+	SW.RankSystem.GeneralCountFunc = function( j)
+			if SW.RankSystem.Rank[j] < 4 then
+				return math.floor(100*SW.RankSystem.Points[team(j)]/SW.RankSystem.GetNextRankThreshold( j));
+			else
+				return 100
+			end
 		end
 	end
 	for i = 1, 8 do
@@ -247,11 +257,9 @@ function SW.RankSystem.GetGUIIdByPlayerId(_pId)
 	end
 	return 8
 end
-function SW_RankSystem_DEBUGHandOutPoints( _sender, _amount)
-	Message(_sender.." is giving away rank points for free: ".._amount)
-	for i = 1, 8 do
-		SW.RankSystem.GivePointsToPlayer( i, _amount)
-	end
+function SW_RankSystem_DEBUGHandOutPoints( _sender, _receiver, _amount)
+	Message(_sender.." is giving away rank points for free to id ".._receiver..": ".._amount)
+	SW.RankSystem.GivePointsToPlayer( _receiver, _amount)
 end
 function SW.RankSystem.GetRankWithProgress( _pId)
 	local r1 = SW.RankSystem.Rank[_pId]

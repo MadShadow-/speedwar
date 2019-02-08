@@ -279,7 +279,9 @@ function SW.Activate( _seed)
 	end
 	
 	SW.RankSystem.Init();
-	CNetwork.SetNetworkHandler( "GivePoints", SW_RankSystem_DEBUGHandOutPoints)
+	if CNetwork then
+		CNetwork.SetNetworkHandler( "GivePoints", SW_RankSystem_DEBUGHandOutPoints)
+	end
 	SW.TankyHQ.Init()
 	SW.EnableStartingTechnologies();
 	SW.EnableRandomWeather();

@@ -38,7 +38,7 @@ SW.GUI = {
 			XGUIEng.SetText("SWSMC1E1Button", "@center "..SW.GUI.Suddendeath)
 		end,
 		["TimeMinus"] = function()
-			SW.GUI.Suddendeath = SW.GUI.Suddendeath - 5
+			SW.GUI.Suddendeath = math.max(SW.GUI.Suddendeath - 5, 5)
 			XGUIEng.SetText("SWSMC1E1Button", "@center "..SW.GUI.Suddendeath)
 		end
 	},
