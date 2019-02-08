@@ -32,7 +32,8 @@ function SW.WinCondition.Init()
 end
 function SW.WinCondition.StartCountdown()
 	StartSimpleJob("SW_WinConditionJob")
-	SW.WinCondition.TimeVar = SW.WinCondition.Time
+	SW.WinCondition.TimeVar = SW.GUI.Rules.Time*60
+	GUIQuestTools.ToggleStopWatch(SW.WinCondition.TimeVar, 1)
 end
 function SW_WinConditionJob()
 	if SW.WinCondition.TimeVar < 0 then

@@ -104,7 +104,9 @@ function SpeedWarOnGameStart()
 		end
 	end
 	SW.IsHost = (SW.Host == SW.PlayerId);
-
+	if CNetwork then
+		SW.IsHost = (CNetwork.GameInformation_GetHost()==XNetwork.GameInformation_GetLogicPlayerUserName( GUI.GetPlayerID()))
+	end
 	SW.SetupMPLogic();
 	Sync.Init();
 	SW.Logging.Init();
@@ -117,8 +119,9 @@ function SpeedWarOnGameStart()
 	-- für alle custom names die wir brauchen - wird von WallGUI verwendet
 	SW.CustomNames = {};
 	S5Hook.SetCustomNames(SW.CustomNames);
+	SW.GUI.Init()
+	if true then return true end
 	if CNetwork then
-		SW.IsHost = (CNetwork.GameInformation_GetHost()==XNetwork.GameInformation_GetLogicPlayerUserName( GUI.GetPlayerID()))
 		CNetwork_SpeedwarStarter = function()
 			S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml")
 			SW.Activate(CXNetwork.GameInformation_GetRandomseed())
@@ -276,6 +279,7 @@ function SW.Activate( _seed)
 	end
 	
 	SW.RankSystem.Init();
+	CNetwork.SetNetworkHandler( "GivePoints", SW_RankSystem_DEBUGHandOutPoints)
 	SW.TankyHQ.Init()
 	SW.EnableStartingTechnologies();
 	SW.EnableRandomWeather();

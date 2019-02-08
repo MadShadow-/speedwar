@@ -12,6 +12,7 @@ SW = SW or {}
 SW.RankSystem = SW.RankSystem or {}
 
 SW.RankSystem.Points = {} --Key: PlayerId, Value: Current amount of points
+				-- if shared rank is active: Key: TeamId, Value: Current amount of points
 SW.RankSystem.Rank = {} --Key: PlayerId, Value: Current rank, 1 to 4
 SW.RankSystem.PlayerIds = {}
 SW.RankSystem.PlayerNames = {}
@@ -37,6 +38,16 @@ function SW.RankSystem.Init()
 	for i = 1, 8 do
 		SW.RankSystem.Points[i] = 0
 		SW.RankSystem.Rank[i] = 1
+	end
+	if SW.GUI.Rules.SharedRank == 1 then
+		SW.RankSystem.TeamSizes = {}
+		local team = XNetwork.GameInformation_GetLogicPlayerTeam
+		for i = 1, 8 do
+			SW.RankSystem.TeamSizes[i] = 0
+		end
+		for i = 1, 8 do
+			SW.RankSystem.TeamSizes[team(i)] = SW.RankSystem.TeamSizes[team(i)]+1
+		end
 	end
 	SW.RankSystem.InitKillCount()
 	SW.BuildingTooltips.GetRank = SW.RankSystem.GetRank		--Give BuildingTooltips a better rank system
@@ -65,15 +76,44 @@ function SW.RankSystem.InitKillCount()
 end
 function SW.RankSystem.UpdatePlayer( _pId)	--Gets called every time the score of a player changes
 	if SW.RankSystem.Rank[_pId] == 4 then	--Max rank reached, set bar to full
-		XGUIEng.SetProgressBarValues("VCMP_Team"..SW.RankSystem.GetGUIIdByPlayerId(_pId).."Progress", 1, 1)
+		--XGUIEng.SetProgressBarValues("VCMP_Team"..SW.RankSystem.GetGUIIdByPlayerId(_pId).."Progress", 1, 1)
 		return
 	end
-	XGUIEng.SetProgressBarValues("VCMP_Team"..SW.RankSystem.GetGUIIdByPlayerId(_pId).."Progress", SW.RankSystem.Points[_pId], SW.RankSystem.RankThresholds[SW.RankSystem.Rank[_pId]])
-	if SW.RankSystem.Points[_pId] >= SW.RankSystem.RankThresholds[SW.RankSystem.Rank[_pId]] then	--Player got enough points for next rank
-		SW.RankSystem.Points[_pId] = SW.RankSystem.Points[_pId] - SW.RankSystem.RankThresholds[SW.RankSystem.Rank[_pId]]
+	
+	--XGUIEng.SetProgressBarValues("VCMP_Team"..SW.RankSystem.GetGUIIdByPlayerId(_pId).."Progress", SW.RankSystem.Points[_pId], SW.RankSystem.RankThresholds[SW.RankSystem.Rank[_pId]])
+	local threshold = SW.RankSystem.GetNextRankThreshold( _pId)
+	if SW.RankSystem.Points[_pId] >= threshold then	--Player got enough points for next rank
+		SW.RankSystem.Points[_pId] = SW.RankSystem.Points[_pId] - threshold
 		SW.RankSystem.Rank[_pId] = SW.RankSystem.Rank[_pId] + 1
 		SW.RankSystem.OnRankUp( _pId)
 	end
+end
+function SW.RankSystem.UpdateTeam( _team)
+	local team = XNetwork.GameInformation_GetLogicPlayerTeam
+	local repr = 0
+	for i = 1, 8 do
+		if team(i) == _team then
+			repr = i
+			break
+		end
+	end
+	if SW.RankSystem.Rank[repr] == 4 then return end
+	if SW.RankSystem.Points[_team] >= SW.RankSystem.GetNextRankThreshold( _team) then
+		SW.RankSystem.Points[_team] = SW.RankSystem.Points[_team] - SW.RankSystem.GetNextRankThreshold( _team)
+		for i = 1, 8 do
+			if team(i) == _team then
+				SW.RankSystem.Rank[i] = SW.RankSystem.Rank[i] + 1
+				SW.RankSystem.OnRankUp( i)
+			end
+		end
+	end
+end 
+function SW.RankSystem.GetNextRankThreshold( _pId)
+	if SW.GUI.Rules.SharedRank == 0 then
+		return SW.RankSystem.RankThresholds[SW.RankSystem.Rank[_pId]]
+	end
+	local team = XNetwork.GameInformation_GetLogicPlayerTeam
+	return SW.RankSystem.RankThresholds[SW.RankSystem.Rank[_pId]]*SW.RankSystem.TeamSizes[team(_pId)]
 end
 function SW.RankSystem.GetRank( _pId)
 	return SW.RankSystem.Rank[_pId]
@@ -152,7 +192,7 @@ function SW.RankSystem.ApplyGUIChanges()
 	SW.RankSystem.CountFuncs = {}
 	SW.RankSystem.GeneralCountFunc = function( j)
 		if SW.RankSystem.Rank[j] < 4 then
-			return math.floor(100*SW.RankSystem.Points[j]/SW.RankSystem.RankThresholds[SW.RankSystem.Rank[j]]);
+			return math.floor(100*SW.RankSystem.Points[j]/SW.RankSystem.GetNextRankThreshold( j));
 		else
 			return 100
 		end
@@ -207,10 +247,10 @@ function SW.RankSystem.GetGUIIdByPlayerId(_pId)
 	end
 	return 8
 end
-function SW_RankSystem_DEBUGHandOutPoints()
+function SW_RankSystem_DEBUGHandOutPoints( _sender, _amount)
+	Message(_sender.." is giving away rank points for free: ".._amount)
 	for i = 1, 8 do
-		SW.RankSystem.Points[i] = SW.RankSystem.Points[i] + i
-		SW.RankSystem.UpdatePlayer( i)
+		SW.RankSystem.GivePointsToPlayer( i, _amount)
 	end
 end
 function SW.RankSystem.GetRankWithProgress( _pId)
@@ -235,8 +275,14 @@ function SW.RankSystem.CalculateAvgRank()
 	return val
 end
 function SW.RankSystem.GivePointsToPlayer( _pId, _amount)
-	SW.RankSystem.Points[_pId] = SW.RankSystem.Points[_pId] + math.floor(_amount*SW.RankSystem.Modifier( _pId))
-	SW.RankSystem.UpdatePlayer( _pId)
+	if SW.GUI.Rules.SharedRank == 1 then
+		local team = XNetwork.GameInformation_GetLogicPlayerTeam( _pId)
+		SW.RankSystem.Points[team] = SW.RankSystem.Points[team] + _amount
+		SW.RankSystem.UpdateTeam(team)
+	else
+		SW.RankSystem.Points[_pId] = SW.RankSystem.Points[_pId] + math.floor(_amount*SW.RankSystem.Modifier( _pId))
+		SW.RankSystem.UpdatePlayer( _pId)
+	end
 end
 function SW_RankSystem_CalcAvgRankJob()
 	SW.RankSystem.AvgRank = SW.RankSystem.CalculateAvgRank()
