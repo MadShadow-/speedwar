@@ -56,6 +56,7 @@ function SW.QoL.Init()
 	
 	SW.QoL.ShowHostOnPlayerDC()
 	SW.QoL.MarketFixes()
+	SW.QoL.ShowArea()
 end
 -- Calls the  given func for all entities in selection
 -- During each call, only one entity is selected
@@ -200,5 +201,38 @@ function SW.QoL.MarketFixes()
 		end
 		--Return new amount of resource to buy
 		return _resource
+	end
+end
+function SW.QoL.ShowArea()
+	local playerT = {}
+	local pId
+	for eId in S5Hook.EntityIterator(Predicate.OfType(Entities.PU_Serf)) do
+		pId = GetPlayer(eId)
+		playerT[pId] = playerT[pId] or GetPosition(eId)
+	end
+	local distance = {}
+	SW.QoL.VisionEntities = {}
+	local maxRange = 150
+	for player1, pos1 in pairs(playerT) do
+		distance[player1] = maxRange*maxRange*10000
+		for player2, pos2 in pairs(playerT) do
+			if player2 ~= player1 and Logic.GetDiplomacyState(player1, player2) ~= Diplomacy.Friendly then
+				dis = (pos1.X-pos2.X)*(pos1.X-pos2.X)+(pos1.Y-pos2.Y)*(pos1.Y-pos2.Y)
+				distance[player1] = math.min(distance[player1], dis)
+			end
+		end
+		--LuaDebugger.Log(math.floor(math.sqrt(distance[player1])/100))
+		local eId = Logic.CreateEntity( Entities.XD_ScriptEntity, pos1.X, pos1.Y, 0, player1)
+		Logic.SetEntityExplorationRange( eId, math.floor(math.sqrt(distance[player1])/100))
+		table.insert( SW.QoL.VisionEntities, eId)
+	end
+	StartSimpleJob("SW_QoL_RemoveVision")
+end
+function SW_QoL_RemoveVision()
+	if Counter.Tick2("SW_QoL_RemoveVision",60) then
+		for k,v in pairs(SW.QoL.VisionEntities) do
+			DestroyEntity(v)
+		end
+		return
 	end
 end

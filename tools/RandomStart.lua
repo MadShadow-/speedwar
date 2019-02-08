@@ -181,7 +181,7 @@ function SW.GetRandomPositions(_numOfSpawns)
 end
 function SW.SpawnTeamAt( _teamId, _p)
 	local team = XNetwork.GameInformation_GetLogicPlayerTeam
-	if team(GUI.GetPlayerID()) == _team then
+	if team(GUI.GetPlayerID()) == _teamId then
 		GUI.CreateMinimapMarker( _p.X, _p.Y, 0);
 	else
 		GUI.CreateMinimapMarker( _p.X, _p.Y,3);
@@ -196,12 +196,12 @@ function SW.SpawnTeamAt( _teamId, _p)
 				oldEnt = newEnt;
 				while(rndSector ~= sectorID) do
 					newRanX = _p.X+math.random(-500,500);
-					newRanY = _p.X+math.random(-500,500);
+					newRanY = _p.Y+math.random(-500,500);
 					_, _, rndSector = S5Hook.GetTerrainInfo(newRanX, newRanY);
 				end
 				AI.Entity_CreateFormation( pId, Entities.PU_Serf, 0, 0, newRanX, newRanY, 0, _p.X, _p.Y, 0)
 			end
-			if GUI.GetPlayerID() == _player then
+			if GUI.GetPlayerID() == pId then
 				Camera.ScrollSetLookAt( _p.X, _p.Y);
 			end
 		end

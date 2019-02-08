@@ -153,9 +153,9 @@ function SW.GUI.StartGameCNetwork( _sender, _time, _sharedSpawn, _sharedRank)
 	-- reinstall colors
 	for _,v in pairs(SW.Players) do
 		Display.SetPlayerColorMapping( v, XNetwork.GameInformation_GetLogicPlayerColor(v))
+		local r,g,b = GUI.GetPlayerColor( v)
+		Logic.PlayerSetPlayerColor( v, r, g, b)
 	end
-	-- fix statistic names
-	
 	SW.Activate(CXNetwork.GameInformation_GetRandomseed())
 end
 function SW.GUI.StartGame( _time, _sharedSpawn, _sharedRank)
