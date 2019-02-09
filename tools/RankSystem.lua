@@ -46,7 +46,9 @@ function SW.RankSystem.Init()
 			SW.RankSystem.TeamSizes[i] = 0
 		end
 		for i = 1, 8 do
-			SW.RankSystem.TeamSizes[team(i)] = SW.RankSystem.TeamSizes[team(i)]+1
+			if XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i) == 1 then
+				SW.RankSystem.TeamSizes[team(i)] = SW.RankSystem.TeamSizes[team(i)]+1
+			end
 		end
 	end
 	SW.RankSystem.InitKillCount()

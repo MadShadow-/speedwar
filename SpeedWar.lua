@@ -369,6 +369,7 @@ function SW.Activate( _seed)
 		SW_MapSpecificJob = function() SpeedwarConfig.EverySecond() end
 		StartSimpleJob("SW_MapSpecificJob")
 	end
+	SW.DesyncDetector.Init()
 end
 
 function SW.EnableStartingTechnologies()
