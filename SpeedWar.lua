@@ -67,7 +67,7 @@ function SpeedWarOnGameStart()
 		ErrorLogging = true,
 		TroopSpawnKeys = false,
 		ResearchAllUniversityTechnologies = true,
-		WeatherInfo = true		--outputs a lot of data about weather if true, independent of Debug
+		WeatherInfo = false		--outputs a lot of data about weather if true, independent of Debug
 	};
 	
 	SW.MapSpecific.LoadConfig();

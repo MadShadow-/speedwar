@@ -115,12 +115,8 @@ function SW.XMLChanges.DoChanges()
 	-- Make traders faster, 100 Ress dealt with per tick( default: 45)
 	SW.SetGlobalMarketSpeed( 10)
 	-- Make cannons worse against units and better against buildings
-	local cannonUnitFactor = 0.05 -- default 0.2
-	SW.SetDamageArmorCoeff( DamageClasses.DC_Siege, SW.SV.ArmorClasses.None, cannonUnitFactor)
-	SW.SetDamageArmorCoeff( DamageClasses.DC_Siege, SW.SV.ArmorClasses.Jerkin, cannonUnitFactor)
-	SW.SetDamageArmorCoeff( DamageClasses.DC_Siege, SW.SV.ArmorClasses.Leather, cannonUnitFactor)
-	SW.SetDamageArmorCoeff( DamageClasses.DC_Siege, SW.SV.ArmorClasses.Iron, cannonUnitFactor)
-	SW.SetDamageArmorCoeff( DamageClasses.DC_Siege, SW.SV.ArmorClasses.Fortification, 3)
+	SW.SetLeaderAoERange(Entities.PV_Cannon3, 150)
+	SW.SetLeaderAoERange(Entities.PV_Cannon3, 200)
 end
 --Refinery Push
 --[[

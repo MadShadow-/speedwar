@@ -560,6 +560,7 @@ SW.SV.Data = {
 	["LeaderDamage"] = {2, 7823268, 14, true},
 	["LeaderRandomDamageBonus"] = {2, 7823268, 15, true},
 	["LeaderDamageClass"] = {2, 7823268, 13, true},
+	["LeaderAoERange"] = {2, 7823268, 16, false},
 	["LeaderMaxRange"] = {2, 7823268, 23, false},
 	["LeaderAutoRange"] = {2, 7823268, 30, false},
 	-- data for soldier stats; CSoldierBehaviorProps
@@ -902,10 +903,13 @@ Log: "26 25"				--BarrackUpgradeCategory
 Log: "28 5"					--HealingPoints
 Log: "29 3"					--HealingSecs
 > for i = 0, 30 do LuaDebugger.Log(i.." "..S5Hook.GetRawMem(9002416)[0][16][223*8+5][6][i]:GetFloat()) end
+Entry 16: AoE-Range?
 Log: "23 2300"				--MaxRange
 Log: "24 500"				--MinRange
 Log: "27 2000"				--HomeRadius
-Log: "30 2300"				--AARange ]]
+Log: "30 2300"				--AARange 
+Entry 31: Upkeep
+]]
 -- Data CSoldierBehaviorProps
 --[[
 > for i = 0, 40 do LuaDebugger.Log(i.." "..p[4][i]:GetFloat()) end

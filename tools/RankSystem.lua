@@ -94,7 +94,7 @@ function SW.RankSystem.UpdateTeam( _team)
 	local team = XNetwork.GameInformation_GetLogicPlayerTeam
 	local repr = 0
 	for i = 1, 8 do
-		if team(i) == _team then
+		if team(i) == _team and XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i) == 1 then
 			repr = i
 			break
 		end
@@ -103,7 +103,7 @@ function SW.RankSystem.UpdateTeam( _team)
 	if SW.RankSystem.Points[_team] >= SW.RankSystem.GetNextRankThreshold( _team) then
 		SW.RankSystem.Points[_team] = SW.RankSystem.Points[_team] - SW.RankSystem.GetNextRankThreshold( _team)
 		for i = 1, 8 do
-			if team(i) == _team then
+			if team(i) == _team and XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i) == 1 then
 				SW.RankSystem.Rank[i] = SW.RankSystem.Rank[i] + 1
 				SW.RankSystem.OnRankUp( i)
 			end
