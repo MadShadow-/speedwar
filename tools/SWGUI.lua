@@ -141,10 +141,10 @@ function SW.GUI.StartGameCNetwork( _sender, _time, _sharedSpawn, _sharedRank)
 	SW.GUI.GameStarted = true
 	XGUIEng.ShowWidget("SWStartMenu", 0)
 	XGUIEng.ShowWidget("SWShowButtonContainer", 0)
-	Message("Starting speedwar with parameters")
-	Message("Time: ".._time)
-	Message("Shared Spawn: ".._sharedSpawn)
-	Message("Shared Rank: ".._sharedRank)
+	--Message("Starting speedwar with parameters")
+	--Message("Time: ".._time)
+	--Message("Shared Spawn: ".._sharedSpawn)
+	--Message("Shared Rank: ".._sharedRank)
 	SW.GUI.Rules = {}
 	SW.GUI.Rules.Time = _time
 	SW.GUI.Rules.SharedSpawn = _sharedSpawn
@@ -165,10 +165,10 @@ function SW.GUI.StartGame( _time, _sharedSpawn, _sharedRank)
 	SW.GUI.GameStarted = true
 	XGUIEng.ShowWidget("SWStartMenu", 0)
 	XGUIEng.ShowWidget("SWShowButtonContainer", 0)
-	Message("Starting speedwar with parameters")
-	Message("Time: ".._time)
-	Message("Shared Spawn: ".._sharedSpawn)
-	Message("Shared Rank: ".._sharedRank)
+	--Message("Starting speedwar with parameters")
+	--Message("Time: ".._time)
+	--Message("Shared Spawn: ".._sharedSpawn)
+	--Message("Shared Rank: ".._sharedRank)
 	SW.GUI.Rules = {}
 	SW.GUI.Rules.Time = _time
 	SW.GUI.Rules.SharedSpawn = _sharedSpawn
