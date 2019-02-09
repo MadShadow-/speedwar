@@ -280,7 +280,7 @@ function SW.Activate( _seed)
 	
 	SW.RankSystem.Init();
 	if CNetwork then
-		CNetwork.SetNetworkHandler( "GivePoints", SW_RankSystem_DEBUGHandOutPoints)
+		--CNetwork.SetNetworkHandler( "GivePoints", SW_RankSystem_DEBUGHandOutPoints)
 	end
 	SW.TankyHQ.Init()
 	SW.EnableStartingTechnologies();

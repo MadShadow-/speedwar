@@ -91,7 +91,7 @@ function SW.RandomPosForPlayer(_player)
 		sectorValid = false --invalid until proven otherwise
 		for j = 1, table.getn(sectors) do
 			if sectors[j] == sectorID then
-				LuaDebugger.Log("sector valid")
+				--LuaDebugger.Log("sector valid")
 				sectorValid = true
 				break;
 			end
