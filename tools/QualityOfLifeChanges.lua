@@ -212,7 +212,7 @@ function SW.QoL.ShowArea()
 	end
 	local distance = {}
 	SW.QoL.VisionEntities = {}
-	local maxRange = 150
+	--[[local maxRange = 150
 	for player1, pos1 in pairs(playerT) do
 		distance[player1] = maxRange*maxRange*10000
 		for player2, pos2 in pairs(playerT) do
@@ -226,10 +226,29 @@ function SW.QoL.ShowArea()
 		Logic.SetEntityExplorationRange( eId, math.floor(math.sqrt(distance[player1])/100))
 		table.insert( SW.QoL.VisionEntities, eId)
 	end
+	--]]
+	local t = {
+		Entities.XD_StonePit1,
+		Entities.XD_IronPit1,
+		Entities.XD_ClayPit1,
+		Entities.XD_SulfurPit1
+	}
+	local x,y,r, eID, pos;
+	r = 15000;
+	for playerId, position in pairs(playerT) do
+		x = position.X;
+		y = position.Y;
+		for eId in S5Hook.EntityIterator(Predicate.OfAnyType(t[1],t[2],t[3],t[4]), Predicate.InCircle(x, y, r)) do
+			pos = GetPosition(eId);
+			eID = Logic.CreateEntity( Entities.XD_ScriptEntity, pos.X, pos.Y, 0, playerId);
+			Logic.SetEntityExplorationRange( eID, 5);
+			table.insert( SW.QoL.VisionEntities, eID);
+		end
+	end
 	StartSimpleJob("SW_QoL_RemoveVision")
 end
 function SW_QoL_RemoveVision()
-	if Counter.Tick2("SW_QoL_RemoveVision",60) then
+	if Counter.Tick2("SW_QoL_RemoveVision",5) then
 		for k,v in pairs(SW.QoL.VisionEntities) do
 			DestroyEntity(v)
 		end
