@@ -709,12 +709,13 @@ function SW.GetCostOfNextOutpost( _player, _modifier)
 	if _modifier ~= nil then
 		numOutposts = numOutposts + _modifier
 	end
-	local factor = SW.GetCostFactorByNumOfOutposts(numOutposts);
+	--[[local factor = SW.GetCostFactorByNumOfOutposts(numOutposts);
 	local finalCosts = {};
 	for k,v in pairs(baseCosts) do
 		finalCosts[k] = math.floor(math.floor(v*factor + 0.5) / 50 + 0.5) * 50;
 	end
-	return finalCosts;
+	return finalCosts;]]
+	return SW.GetOutpostCosts(numOutposts);
 end
 
 function SW.EnableIncreasingOutpostCosts()
