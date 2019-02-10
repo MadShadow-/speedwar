@@ -8,19 +8,19 @@ SW.RecruitingCosts.Extra = {
 SW.RecruitingCosts.Military = { --New costs for first half of tech tree
 	-- LEADER BOW
 	[Entities.PU_LeaderBow1] = {
-		[ResourceType.Gold] = 60,
+		[ResourceType.Gold] = 40,
 		[ResourceType.Wood] = 30,
-		[ResourceType.Iron] = 20,
+		[ResourceType.Iron] = 0,
 		[ResourceType.Sulfur] = 0
 	},
 	[Entities.PU_LeaderBow2] = {
-		[ResourceType.Gold] = 60,
+		[ResourceType.Gold] = 50,
 		[ResourceType.Wood] = 30,
-		[ResourceType.Iron] = 20,
+		[ResourceType.Iron] = 00,
 		[ResourceType.Sulfur] = 0
 	},
 	[Entities.PU_LeaderBow3] = {
-		[ResourceType.Gold] = 80,
+		[ResourceType.Gold] = 70,
 		[ResourceType.Wood] = 30,
 		[ResourceType.Iron] = 60,
 		[ResourceType.Sulfur] = 0
@@ -35,19 +35,19 @@ SW.RecruitingCosts.Military = { --New costs for first half of tech tree
 	[Entities.PU_SoldierBow1] = {
 		[ResourceType.Gold] = 30,
 		[ResourceType.Wood] = 15,
-		[ResourceType.Iron] = 10,
+		[ResourceType.Iron] = 0,
 		[ResourceType.Sulfur] = 0
 	},
 	[Entities.PU_SoldierBow2] = {
-		[ResourceType.Gold] = 30,
+		[ResourceType.Gold] = 40,
 		[ResourceType.Wood] = 15,
-		[ResourceType.Iron] = 10,
+		[ResourceType.Iron] = 0,
 		[ResourceType.Sulfur] = 0
 	},
 	[Entities.PU_SoldierBow3] = {
 		[ResourceType.Gold] = 40,
 		[ResourceType.Wood] = 15,
-		[ResourceType.Iron] = 30,
+		[ResourceType.Iron] = 15,
 		[ResourceType.Sulfur] = 0
 	},
 	[Entities.PU_SoldierBow4] = {
