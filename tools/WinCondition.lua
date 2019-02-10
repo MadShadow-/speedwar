@@ -7,14 +7,14 @@ SW.WinCondition.Time = 90*60 -- this will be overwritten in SWGUI by startmenu c
 SW.WinCondition.TeamByPlayer = {}
 SW.WinCondition.ConstructionSiteTypes = {}
 --XNetwork.GameInformation_GetLogicPlayerTeam
-for i = 0, 8 do
+for i = 0, SW.MaxPlayers do
 	SW.WinCondition.TeamByPlayer[i] = 0
 end
 
 -- TODO: Players that have already lost are unable to score!
 function SW.WinCondition.Init()
 	if not SW.IsMultiplayer() then	--SP
-		for i = 1, 8 do
+		for i = 1, SW.MaxPlayers do
 			SW.WinCondition.TeamByPlayer[i] = i
 		end
 	else	--MP
@@ -63,7 +63,7 @@ function SW.WinCondition.SortByCells()
 		SW.WinCondition.CellGrid[x] = {}
 		for y = 1, SW.WinCondition.WorldSize/SW.WinCondition.CellSize+1 do
 			SW.WinCondition.CellGrid[x][y] = {}
-			for i = 0, 8 do
+			for i = 0, SW.MaxPlayers do
 				SW.WinCondition.CellGrid[x][y][i] = 0;
 			end
 		end
@@ -78,7 +78,7 @@ function SW.WinCondition.SortByCells()
 end
 function SW.WinCondition.EvaluateCells()
 	SW.WinCondition.TeamScores = {}
-	for i = 0, 8 do
+	for i = 0, SW.MaxPlayers do
 		SW.WinCondition.TeamScores[i] = 0
 	end
 	local winner
@@ -92,7 +92,7 @@ end
 function SW.WinCondition.GetCellWinner( _x, _y)
 	local winner = 0
 	local score = 0
-	for i = 1, 8 do
+	for i = 1, SW.MaxPlayers do
 		if SW.WinCondition.CellGrid[_x][_y][i] > score then
 			winner = i
 			score = SW.WinCondition.CellGrid[_x][_y][i]
@@ -101,7 +101,7 @@ function SW.WinCondition.GetCellWinner( _x, _y)
 	return winner
 end
 function SW.WinCondition.PrintScores()
-	for i = 1, 8 do
+	for i = 1, SW.MaxPlayers do
 		if SW.WinCondition.TeamScores[i] > 0 then
 			Message("Das Team "..SW.WinCondition.GetTeamMembers(i).." hat "..SW.WinCondition.TeamScores[i].." Punkte!")
 		end
@@ -127,7 +127,7 @@ function SW.WinCondition.GetWinner()
 	SW.WinCondition.PrintScores()
 	local winner = 0
 	local score = 0
-	for i = 1, 8 do
+	for i = 1, SW.MaxPlayers do
 		if SW.WinCondition.TeamScores[i] > score then
 			winner = i
 			score = SW.WinCondition.TeamScores[i]
@@ -151,7 +151,7 @@ end
 function SW.WinCondition.EndGame()
 	local winnerTeam = SW.WinCondition.GetWinner()
 	Logic.SuspendAllEntities()
-	for i = 1, 8 do
+	for i = 1, SW.MaxPlayers do
 		if SW.DefeatConditionPlayerStates[i] then
 			if SW.WinCondition.TeamByPlayer[i] ~= winnerTeam then
 				SW.DefeatConditionPlayerStates[i] = false

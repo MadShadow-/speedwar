@@ -49,7 +49,7 @@ function Sync.Init()
 	end
 	
 	Sync.Tributes = {};
-	for playerId = 1,8 do
+	for playerId = 1,SW.MaxPlayers do
 		Sync.Tributes[playerId] = {};
 		for i = 1, Sync.NumOfTributes do
 			Sync.Tributes[playerId][i] = {

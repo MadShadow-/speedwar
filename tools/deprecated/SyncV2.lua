@@ -20,7 +20,7 @@ function Sync2.Init()
 	Sync2.KeyAck_Length = string.len(Sync2.KeyAck)
 	Sync2.NumOfTributes = 100
 	Sync2.Tributes = {}
-	for playerId = 1,8 do
+	for playerId = 1,SW.MaxPlayers do
 		for i = 1, Sync2.NumOfTributes do
 			Sync2.NewTributeFor(playerId)
 		end
@@ -96,7 +96,7 @@ function Sync2.OnAckMessageArrived( _msg, _pId)
 	else
 		return
 	end
-	for i = 1, 8 do
+	for i = 1, SW.MaxPlayers do
 		if not Sync2.Tributes[tributeId].AckData[i] then
 			return
 		end
@@ -140,7 +140,7 @@ function Sync2.Call( _func, ...)
 	Sync2.Tributes[id].Used = true
 	--Prepare AckData
 	Sync2.Tributes[id].AckData = {}
-	for i = 1, 8 do
+	for i = 1, SW.MaxPlayers do
 		Sync2.Tributes[id].AckData[i] = ((XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i) ~= 1) or GUI.GetPlayerID() == i or (XNetwork.GameInformation_IsHumanPlayerThatLeftAttachedToPlayerID(i) == 1))
 	end
 	local fs = Sync2.ConvertFunctionToString( _func, unpack(arg))

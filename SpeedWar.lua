@@ -70,18 +70,11 @@ function SpeedWarOnGameStart()
 		WeatherInfo = false		--outputs a lot of data about weather if true, independent of Debug
 	};
 	
-	SW.MapSpecific.LoadConfig();
-	for i = 1, 8 do
-		for k,v in pairs(SW.MapSpecific.StartRessources) do
-			Logic.AddToPlayersGlobalResource( i, k, v)
-		end
-		--Tools.GiveResouces(i, 0, 700, 500, 0, 0, 0);
-	end
-	
 	SW.Players = {};
+	SW.MaxPlayers = XNetwork.GameInformation_GetMapMaximumNumberOfHumanPlayer();
 	SW.AttractedPlayerSlots = {};
 	if SW.IsMultiplayer() then
-		for playerId = 1,8 do
+		for playerId = 1,SW.MaxPlayers do
 			if XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(playerId) == 1 then
 				table.insert(SW.Players, playerId);
 				SW.AttractedPlayerSlots[playerId] = {GameStarted=false;};
@@ -89,13 +82,22 @@ function SpeedWarOnGameStart()
 		end
 	else
 		SW.Players = {1};
+		SW.MaxPlayers = 1;
 	end
 	SW.NrOfPlayers = table.getn(SW.Players);
+	
+	SW.MapSpecific.LoadConfig();
+	for i = 1, SW.MaxPlayers do
+		for k,v in pairs(SW.MapSpecific.StartRessources) do
+			Logic.AddToPlayersGlobalResource( i, k, v)
+		end
+		--Tools.GiveResouces(i, 0, 700, 500, 0, 0, 0);
+	end
 	
 	SW.Host = 1;
 	SW.PlayerId = GUI.GetPlayerID();
 	if SW.IsMultiplayer() then
-		for playerId = 1,8 do
+		for playerId = 1,SW.MaxPlayers do
 			if XNetwork.GameInformation_GetNetworkAddressByPlayerID(playerId)
 			== XNetwork.Host_UserInSession_GetHostNetworkAddress() then
 				SW.Host = playerId
@@ -209,7 +211,7 @@ function ActivateDebug()
 		Input.KeyBindDown(Keys.R, "DT()",2);
 	end
 	local g = 1000000;
-	for i = 1,8 do
+	for i = 1,SW.MaxPlayers do
 		Tools.GiveResouces(i, g,g,g,g,g,g);
 		if debugging.ResearchAllUniversityTechnologies then
 			ResearchAllUniversityTechnologies(i);
@@ -268,15 +270,15 @@ function SW.Activate( _seed)
 
 	SW.CallbackHacks();
 	-- leaders don't cost sold anymore
-	for playerId = 1,8 do
+	for playerId = 1,SW.MaxPlayers do
 		Logic.SetPlayerPaysLeaderFlag(playerId, 0);
 	end
 
 	-- get number of max players for map
-	SW.MaxPlayers = XNetwork.GameInformation_GetMapMaximumNumberOfHumanPlayer();
+	--[[SW.MaxPlayers = XNetwork.GameInformation_GetMapMaximumNumberOfHumanPlayer();
 	if SW.MaxPlayers == 0 then
 		SW.MaxPlayers = table.getn(SW.Players)
-	end
+	end]]
 	
 	SW.RankSystem.Init();
 	if CNetwork then
@@ -628,7 +630,7 @@ function SW.ApplyMovementspeedBuff()
 		local start2 = string.find( typeName, "CU")
 		local start3 = string.find( typeName, "PV")
 		if start ~= nil or start2 ~= nil or start3 ~= nil then
-			for i = 1, 8 do
+			for i = 1, SW.MaxPlayers do
 				local myMS = SW.GetMSByTypeAndPlayer( v, i)
 				local myEntities = SW.GetAllEntitiesOfTypeAndPlayer( v, i)
 				for k2, v2 in pairs( myEntities) do

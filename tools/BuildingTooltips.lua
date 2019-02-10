@@ -276,7 +276,7 @@ function SW.BuildingTooltipsInit()			--Has to be called via Debugger! Not starte
 	SW.BuildingTooltips.GenerateTechNames()
 	SW.BuildingTooltips.GenerateTechStrings()
 	SW.BuildingTooltips.ChangeGUI()
-	for i = 1, 8 do
+	for i = 1, SW.MaxPlayers do
 		for k,v in pairs(SW.BuildingTooltips.MData) do
 			Logic.SetTechnologyState(i, k, 0)
 		end
@@ -564,7 +564,7 @@ function SW_BuildingTooltips_WatchJob()
 	for k,v in pairs(SW.BuildingTooltips.WatchTechs) do
 		local req = SW.BuildingTooltips.BData[v] or SW.BuildingTooltips.MData[v] or SW.BuildingTooltips.RData[v] or SW.BuildingTooltips.UData[v]
 		if req ~= nil then
-			for i = 1, 8 do
+			for i = 1, SW.MaxPlayers do
 				if Logic.GetTechnologyState( i, v) == 0 then	--Technology is locked, can be unlocked
 					if SW.BuildingTooltips.IsUnlocked( i, req) then
 						--LuaDebugger.Log("Unlocking "..v.." for player "..i)

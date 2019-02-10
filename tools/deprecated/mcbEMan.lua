@@ -378,7 +378,7 @@ end
 
 function mcbEMan.Inter_QuickFakeAttack(id)
 	local p = GetPlayer(id)
-	for i=1,8 do
+	for i=1,SW.MaxPlayers do
 		if Logic.GetDiplomacyState(p, i)==Diplomacy.Hostile then
 			p = i
 			break

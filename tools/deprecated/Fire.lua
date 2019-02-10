@@ -42,7 +42,7 @@ function SW.FireMod.Init()
 	};
 	
 	SW.FireMod.BurningBuildings = {};
-	for playerId = 1,8 do
+	for playerId = 1,SW.MaxPlayers do
 		SW.FireMod.BurningBuildings[playerId] = {};
 	end
 	
@@ -263,7 +263,7 @@ end
 function SW_FireMod_ControlJob_BurnBuildings()
 	local HP;
 	if Logic.GetWeatherState() == 2 then
-		for playerId = 1,8 do
+		for playerId = 1,SW.MaxPlayers do
 			SW.FireMod.BurningBuildings[playerId] = {};
 		end
 		OSI.RemoveDrawTrigger(SW.FireMod.OSITriggerId);
@@ -271,7 +271,7 @@ function SW_FireMod_ControlJob_BurnBuildings()
 		return true;
 	end
 	local count = 0;
-	for playerId = 1,8 do
+	for playerId = 1,SW.MaxPlayers do
 		for buildingId, t in pairs(SW.FireMod.BurningBuildings[playerId]) do
 			count = count + 1;
 			HP = Logic.GetEntityHealth(buildingId)/Logic.GetEntityMaxHealth(buildingId);

@@ -28,7 +28,7 @@ function SW.EnableRandomStart()
 	if SW.IsMultiplayer() then
 		local isHuman;
 		if SW.GUI.Rules.SharedSpawn == 0 then
-			for i = 1, 8 do
+			for i = 1, SW.MaxPlayers do
 				isHuman = XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i);
 				if isHuman == 1 then
 					-- TODO remove spectators.
@@ -39,7 +39,7 @@ function SW.EnableRandomStart()
 			local team = XNetwork.GameInformation_GetLogicPlayerTeam
 			local teamData = {}
 			local teamCount = 0
-			for i = 1, 8 do
+			for i = 1, SW.MaxPlayers do
 				if XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i) == 1 then
 					local teamId = team(i)
 					if teamData[team(i)] == nil then
@@ -110,7 +110,7 @@ function SW.RandomPosForPlayer(_player)
 			table.insert(SW.RandomStartPositions,{X=ranX,Y=ranY});
 			local newEnt, oldEnt, newRanX, newRanY;
 			local rndSector = -1;
-			for i = 1, 8 do
+			for i = 1, SW.MaxPlayers do
 				oldEnt = newEnt;
 				while(rndSector ~= sectorID) do
 					newRanX = ranX+math.random(-200,200);
@@ -192,7 +192,7 @@ function SW.SpawnTeamAt( _teamId, _p)
 		if team(pId) == _teamId then
 			local newRanX, newRanY;
 			local rndSector = -1;
-			for i = 1, 8 do
+			for i = 1, SW.MaxPlayers do
 				oldEnt = newEnt;
 				while(rndSector ~= sectorID) do
 					newRanX = _p.X+math.random(-500,500);
@@ -222,7 +222,7 @@ function SW.RandomStartPlacePlayer()
 	table.insert(SW.RandomStartPositions,{X=ranX,Y=ranY});
 	local newEnt, oldEnt, newRanX, newRanY;
 	local rndSector = -1;
-	for i = 1, 8 do
+	for i = 1, SW.MaxPlayers do
 		oldEnt = newEnt;
 		while(rndSector ~= sectorID) do
 			newRanX = ranX+math.random(-200,200);
@@ -241,7 +241,7 @@ end
 function SW.DoFixedPositions()
 	if SW.IsMultiplayer() then
 		local isHuman;
-		for i = 1, 8 do
+		for i = 1, SW.MaxPlayers do
 			isHuman = XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i);
 			if isHuman == 1 then
 				-- TODO remove spectators.
@@ -277,7 +277,7 @@ function SW.CreatePlayerAtPos( _pId, _x, _y)
 	table.insert(SW.RandomStartPositions,{X=_x,Y=_y});
 	local newEnt, oldEnt, newRanX, newRanY;
 	local rndSector = -1;
-	for i = 1, 8 do
+	for i = 1, SW.MaxPlayers do
 		oldEnt = newEnt;
 		while(rndSector ~= sectorID) do
 			newRanX = _x+math.random(-200,200);

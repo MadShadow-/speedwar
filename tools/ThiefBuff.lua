@@ -24,7 +24,7 @@ function SW.ThiefBuff.OnKegExploded( _eId)
 	local pId = Logic.EntityGetPlayer( _eId)
 	local x, y = Logic.EntityGetPos( _eId)
 	local playerList  = {}
-	for i = 1, 8 do
+	for i = 1, SW.MaxPlayers do
 		if Logic.GetDiplomacyState( pId, i) == Diplomacy.Hostile then
 			table.insert( playerList, i)
 		end
