@@ -110,7 +110,8 @@ function SW.RandomPosForPlayer(_player)
 			table.insert(SW.RandomStartPositions,{X=ranX,Y=ranY});
 			local newEnt, oldEnt, newRanX, newRanY;
 			local rndSector = -1;
-			for i = 1, SW.MaxPlayers do
+			local numberOfSerfs = 8;
+			for i = 1, numberOfSerfs do
 				oldEnt = newEnt;
 				while(rndSector ~= sectorID) do
 					newRanX = ranX+math.random(-200,200);
