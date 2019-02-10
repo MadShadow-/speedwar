@@ -30,6 +30,22 @@ function SpeedWarOnGameStart()
 
 	Camera.ZoomSetFactorMax(2);
 	
+	SW.Players = {};
+	SW.MaxPlayers = XNetwork.GameInformation_GetMapMaximumNumberOfHumanPlayer();
+	SW.AttractedPlayerSlots = {};
+	if SW.IsMultiplayer() then
+		for playerId = 1,SW.MaxPlayers do
+			if XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(playerId) == 1 then
+				table.insert(SW.Players, playerId);
+				SW.AttractedPlayerSlots[playerId] = {GameStarted=false;};
+			end
+		end
+	else
+		SW.Players = {1};
+		SW.MaxPlayers = 1;
+	end
+	SW.NrOfPlayers = table.getn(SW.Players);
+	
 	Script.LoadFolder("maps\\user\\speedwar\\config");
 	Script.LoadFolder("maps\\user\\speedwar\\tools");
 	-- calculate check sum after loading scripts
@@ -69,22 +85,6 @@ function SpeedWarOnGameStart()
 		ResearchAllUniversityTechnologies = true,
 		WeatherInfo = false		--outputs a lot of data about weather if true, independent of Debug
 	};
-	
-	SW.Players = {};
-	SW.MaxPlayers = XNetwork.GameInformation_GetMapMaximumNumberOfHumanPlayer();
-	SW.AttractedPlayerSlots = {};
-	if SW.IsMultiplayer() then
-		for playerId = 1,SW.MaxPlayers do
-			if XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(playerId) == 1 then
-				table.insert(SW.Players, playerId);
-				SW.AttractedPlayerSlots[playerId] = {GameStarted=false;};
-			end
-		end
-	else
-		SW.Players = {1};
-		SW.MaxPlayers = 1;
-	end
-	SW.NrOfPlayers = table.getn(SW.Players);
 	
 	SW.MapSpecific.LoadConfig();
 	for i = 1, SW.MaxPlayers do
