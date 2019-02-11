@@ -42,7 +42,7 @@ function SW.Walls2.Init()
 			end
 		end
 	end
-	for i = 1, 8 do
+	for i = 1, SW.MaxPlayers do
 		SW.Walls2.ListOfCorners[i] = {}
 	end
 	self.InitGUIHooks()
@@ -50,7 +50,7 @@ function SW.Walls2.Init()
 	self.DestroyTriggerId = Trigger.RequestTrigger( Events.LOGIC_EVENT_ENTITY_DESTROYED, "SW_Walls2_OnDestroyed", "SW_Walls2_OnDestroyedAction", 1)
 end
 function SW.Walls2.DebugStuff()
-	for i = 1, 8 do
+	for i = 1, SW.MaxPlayers do
 		ResearchAllUniversityTechnologies(i)
 		AddStone(i, 5000)
 	end

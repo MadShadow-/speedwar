@@ -28,7 +28,7 @@ function SW.ProgressWindow.Init()
 	
 	SW.ProgressWindow.PlayerNames = {};
 	local r,g,b;
-	for playerId = 1,8 do
+	for playerId = 1,SW.MaxPlayers do
 		r,g,b = GUI.GetPlayerColor(playerId);
 		SW.ProgressWindow.PlayerNames[playerId] = "@color:"..r..","..g..","..b.. " " ..UserTool_GetPlayerName(playerId);
 	end

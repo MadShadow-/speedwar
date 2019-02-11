@@ -15,16 +15,16 @@ SW.WallGUI.PlayerLocal_WallQueue = {};
 SW.WallGUI.Costs =
 {
 	["Wall"] = {
-		[4] = 30,
+		[2] = 30,
 	},
 	["Gate"] = {
-		[4] = 50,
+		[2] = 50,
 	},
 	["EndWall"] = {
-		[4] = 30,
+		[2] = 30,
 	},
 	["NewWall"] = {
-		[4] = 30,
+		[2] = 30,
 	},
 	["Windmill"] = {
 		[1] = 200,

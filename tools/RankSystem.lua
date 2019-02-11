@@ -35,17 +35,17 @@ SW.RankSystem.CallbackOnRankUp =
 	end,
 };
 function SW.RankSystem.Init()
-	for i = 1, 8 do
+	for i = 1, SW.MaxPlayers do
 		SW.RankSystem.Points[i] = 0
 		SW.RankSystem.Rank[i] = 1
 	end
 	if SW.GUI.Rules.SharedRank == 1 then
 		SW.RankSystem.TeamSizes = {}
 		local team = XNetwork.GameInformation_GetLogicPlayerTeam
-		for i = 1, 8 do
+		for i = 1, SW.MaxPlayers do
 			SW.RankSystem.TeamSizes[i] = 0
 		end
-		for i = 1, 8 do
+		for i = 1, SW.MaxPlayers do
 			if XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i) == 1 then
 				SW.RankSystem.TeamSizes[team(i)] = SW.RankSystem.TeamSizes[team(i)]+1
 			end
@@ -93,7 +93,7 @@ end
 function SW.RankSystem.UpdateTeam( _team)
 	local team = XNetwork.GameInformation_GetLogicPlayerTeam
 	local repr = 0
-	for i = 1, 8 do
+	for i = 1, SW.MaxPlayers do
 		if team(i) == _team and XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i) == 1 then
 			repr = i
 			break
@@ -102,7 +102,7 @@ function SW.RankSystem.UpdateTeam( _team)
 	if SW.RankSystem.Rank[repr] == 4 then return end
 	if SW.RankSystem.Points[_team] >= SW.RankSystem.GetNextRankThreshold( _team) then
 		SW.RankSystem.Points[_team] = SW.RankSystem.Points[_team] - SW.RankSystem.GetNextRankThreshold( _team)
-		for i = 1, 8 do
+		for i = 1, SW.MaxPlayers do
 			if team(i) == _team and XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i) == 1 then
 				SW.RankSystem.Rank[i] = SW.RankSystem.Rank[i] + 1
 				SW.RankSystem.OnRankUp( i)
@@ -126,7 +126,7 @@ function SW.RankSystem.InitGUI()
 	-- GUIUpdate_GetTeamPoints = function() end
 	local numPlayer = SW.NrOfPlayers
 	local listPlayer = SW.Players
-	for i = 1, 8 do
+	for i = 1, SW.MaxPlayers do
 		SW.RankSystem.PlayerNames[i] = "Spieler "..i
 	end
 	for k,v in pairs(listPlayer) do
@@ -139,7 +139,7 @@ function SW.RankSystem.InitGUI()
 		listPlayer = {1,3,5,8}
 		local r,g,b = GUI.GetPlayerColor(1)
 		SW.RankSystem.PlayerNames[1] = "@color:"..r..","..g..","..b..": "..UserTool_GetPlayerName(1).." @color:255,255,255 "
-		for i = 2, 8 do
+		for i = 2, SW.MaxPlayers do
 			r,g,b = GUI.GetPlayerColor(i)
 			SW.RankSystem.PlayerNames[i] = "@color:"..r..","..g..","..b..": Peter Enis @color:255,255,255 "
 			numPlayer = 8
@@ -209,7 +209,7 @@ function SW.RankSystem.ApplyGUIChanges()
 			end
 		end
 	end
-	for i = 1, 8 do
+	for i = 1, SW.MaxPlayers do
 		local j = i
 		SW.RankSystem.CountFuncs[j] = function()
 			return SW.RankSystem.GeneralCountFunc(j)
@@ -257,7 +257,7 @@ function SW.RankSystem.GetGUIIdByPlayerId(_pId)
 			return k
 		end
 	end
-	return 8
+	return 8 -- TODO: SW.MaxPlayers?
 end
 function SW_RankSystem_DEBUGHandOutPoints( _sender, _receiver, _amount)
 	Message(_sender.." is giving away rank points for free to id ".._receiver..": ".._amount)
@@ -271,7 +271,7 @@ function SW.RankSystem.GetRankWithProgress( _pId)
 end
 function SW.RankSystem.CalculateAvgRank()
 	local vals = {}
-	for i = 1, 8 do
+	for i = 1, SW.MaxPlayers do
 		if SW.DefeatConditionPlayerStates[i] then	--player has not lost yet
 			table.insert( vals, SW.RankSystem.GetRankWithProgress(i))
 		end

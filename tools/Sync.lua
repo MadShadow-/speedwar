@@ -76,7 +76,7 @@ function Sync.Init()
 	-- numOfTributes determines actions at the same time
 	local numberOfTributes = 150;
 	Sync.Tributes = {}
-	for playerId = 1,8 do
+	for playerId = 1,SW.MaxPlayers do
 		for i = 1, numberOfTributes do
 			Sync.CreateNewTribut(playerId)
 		end
@@ -132,7 +132,7 @@ function Sync.Init()
 		end
 		Sync.Tributes[id].Used = true
 		Sync.Tributes[id].AckData = {}
-		for i = 1, 8 do
+		for i = 1, SW.MaxPlayers do
 			Sync.Tributes[id].AckData[i] = ((XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i) ~= 1) or GUI.GetPlayerID() == i or (XNetwork.GameInformation_IsHumanPlayerThatLeftAttachedToPlayerID(i) == 1))
 		end
 		local fs = Sync.CreateFunctionString( _func, unpack(arg))
@@ -192,7 +192,7 @@ function Sync.OnAcknowledgeMessageArrived(_msg, _pId)
 		return
 	end
 	Sync.Tributes[tributeId].AckData[_pId] = true;
-	for i = 1, 8 do
+	for i = 1, SW.MaxPlayers do
 		if not Sync.Tributes[tributeId].AckData[i] then
 			return
 		end

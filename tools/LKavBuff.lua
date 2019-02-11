@@ -5,7 +5,7 @@ SW.LKavBuff.FirstStrikeRecharge = 30
 SW.LKavBuff.GoldPerKill = 30
 SW.LKavBuff.MaxTimeDiff = 2
 SW.LKavBuff.Looted = {}
-for i = 1, 8 do
+for i = 1, SW.MaxPlayers do
 	SW.LKavBuff.Looted[i] = 0
 end
 SW.LKavBuff.GoodTypes = {

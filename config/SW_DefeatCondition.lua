@@ -2,7 +2,7 @@
 SW = SW or {}
 
 SW.DefeatConditionPlayerEntities = {}
-for playerId = 1,8 do
+for playerId = 1,SW.MaxPlayers do
 	SW.DefeatConditionPlayerEntities[playerId] = 0
 end
 SW.DefeatConditionEntityList = {}

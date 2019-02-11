@@ -8,7 +8,7 @@ SW.WeatherBlock.LastChange = (-1)*SW.WeatherBlock.Duration
 SW.WeatherBlock.EnergyLevels = {}
 SW.WeatherBlock.WidgetIds = { "WeatherTower_MakeRain", "WeatherTower_MakeSnow", "WeatherTower_MakeSummer"}
 function SW.WeatherBlock.Init()
-	for i = 1, 8 do
+	for i = 1, SW.MaxPlayers do
 		SW.WeatherBlock.EnergyLevels[i] = Logic.GetPlayersGlobalResource( i, ResourceType.WeatherEnergy)
 	end
 	StartSimpleJob("SW_WeatherBlock_WatchEnergy")
@@ -30,7 +30,7 @@ function SW.WeatherBlock.Init()
 	end
 end
 function SW_WeatherBlock_WatchEnergy()
-	for i = 1, 8 do
+	for i = 1, SW.MaxPlayers do
 		local currEnergy = Logic.GetPlayersGlobalResource( i, ResourceType.WeatherEnergy)
 		if currEnergy < SW.WeatherBlock.EnergyLevels[i] then	--weather change happened
 			SW.WeatherBlock.OnWeatherChange()

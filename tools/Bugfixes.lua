@@ -24,7 +24,7 @@ function SW.Bugfixes.Init()
 			SellBuildingUpvalue( _eId)
 		end
 	end
-	for i = 1, 8 do
+	for i = 1, SW.MaxPlayers do
 		SW.Bugfixes.BlessingData[i] = {}
 	end
 	SW.Bugfixes.GUIAction_BlessSettlers = GUIAction_BlessSettlers
