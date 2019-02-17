@@ -11,7 +11,9 @@ function SW.DesyncDetector.Init()
 		return
 	end
 	Trigger.RequestTrigger(Events.LOGIC_EVENT_ENTITY_CREATED, nil, "SW_DesyncDetector_OnCreated", 1)
-	
+	StartSimpleJob("SW_DesyncDetector_Job")
+end
+function SW.DesyncDetector.HookChatCallback()
 	SW.DesyncDetector.ApplicationCallback_ReceivedChatMessageRaw = ApplicationCallback_ReceivedChatMessageRaw
 	ApplicationCallback_ReceivedChatMessageRaw = function( _name, _msg, color, allied, _sender)
 		local _, endd = string.find( _msg, SW.DesyncDetector.Key)
@@ -22,7 +24,6 @@ function SW.DesyncDetector.Init()
 			return SW.DesyncDetector.ApplicationCallback_ReceivedChatMessageRaw( _name, _msg, color, allied, _sender)
 		end
 	end
-	StartSimpleJob("SW_DesyncDetector_Job")
 end
 function SW_DesyncDetector_OnCreated()
 	local eId = Event.GetEntityID()

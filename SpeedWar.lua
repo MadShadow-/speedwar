@@ -48,6 +48,7 @@ function SpeedWarOnGameStart()
 	
 	Script.LoadFolder("maps\\user\\speedwar\\config");
 	Script.LoadFolder("maps\\user\\speedwar\\tools");
+	SW.DesyncDetector.HookChatCallback()
 	-- calculate check sum after loading scripts
 	SW.VersionCheck.CalculateVersion()
 	
@@ -361,6 +362,8 @@ function SW.Activate( _seed)
 	SW.ThiefBuff.Init()
 	-- Dont show hq upgrade msg
 	ForbidTechnology(Technologies.UP2_Headquarter)
+	-- Ressources from trades are now part of the statistics
+	SW.ShowTradeInStats()
 	-- Chat commands!
 	--SW.ChatCommands.Init()
 	-- Enable map specific changes
@@ -1073,6 +1076,20 @@ function SW.PillageRewardPlayer( _eType, _pId)
 	end
 end
 
+function SW.ShowTradeInStats()
+	SW.TradeStatisticGameCallback_OnTransactionComplete = GameCallback_OnTransactionComplete
+	GameCallback_OnTransactionComplete = function(_bId, _e)
+		local _, bought, _, sold = SW.GetMarketTransaction(_bId)
+		local pId = GetPlayer(_bId)
+		if sold < bought then
+			LuaDebugger.Break()
+			local ressP = (bought-sold) * Score.ResourcePoints 
+			Score.Player[pId]["resources"] = Score.Player[pId]["resources"] + ressP
+			Score.Player[pId]["all"] = Score.Player[pId]["all"] + ressP
+		end
+		SW.TradeStatisticGameCallback_OnTransactionComplete(_bId, _e)
+	end
+end
 --		DEFEAT CONDITION
 SW.DefeatConditionPlayerStates = {}
 SW.VisionEntities = {}

@@ -59,6 +59,14 @@ function SW.GUI.Init()
 	--XGUIEng.ShowWidget("SWStartMenu", 1)
 	XGUIEng.ShowWidget("SWSBCArrow", 0)
 	XGUIEng.ShowWidget("SWShowButtonContainer", 1)
+	-- Show GUI by default
+	SW.GUI.OpenStartMenu()
+	-- Hide start menu for some time
+	if SW.IsHost then
+		XGUIEng.ShowWidget( "SWStartMenu", 0)
+		XGUIEng.ShowWidget("SWShowButtonContainer", 0)
+		StartSimpleJob("SW_GUI_OpenMenuForHost")
+	end
 	-- Teamspawn
 	XGUIEng.SetText("SWSMC1E2Button", "@center "..SW.GUI.Text[SW.GUI.Teamspawn])
 	XGUIEng.SetText("SWSMC1E3Button", "@center "..SW.GUI.Text[SW.GUI.Teamrank])
@@ -78,24 +86,6 @@ function SW.GUI.Init()
 	if not SW.IsHost then
 		SW.GUI.ButtonTooltips.Startgame = "@color:255,125,0 Schließt dieses Fenster."
 	end
-	--[[ old by Mad
-	S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml");
-	SW.GUI.SuddendeathCTI = CTI.New({Widget="SWSMC1E1Button", Before = "@center ", Callback=SW.GUI.SuddendeathChanged, NumbersOnly=true, MaxLength=3});
-	XGUIEng.SetText("SWSMC1E2Button", "@center " .. SW.GUI.Text[SW.GUI.Teamspawn]);
-	XGUIEng.SetText("SWSMC1E3Button", "@center " .. SW.GUI.Text[SW.GUI.Anonym]);
-	SW.GUI.ButtonTooltips["HostOnly"] = "@color:255,0,0 Nur der Host kann das Menü bedienen. Host ist " .. UserTool_GetPlayerName(SW.Host);
-	
-	if CNetwork then --is this on simi server?
-		SW.IsHost = (CNetwork.GameInformation_GetHost()==XNetwork.GameInformation_GetLogicPlayerUserName( GUI.GetPlayerID()))
-	else
-		Sync.AddCall("SW.GUI.StartGame");
-		Sync.AddCall("SW.GUI.ToggleTeamSpawn");
-		Sync.AddCall("SW.GUI.ToggleAnonym");
-		Sync.AddCall("SW.GUI.SetFinal");
-	end
-	SW.GUI.RemoveArrowCounter = 3;
-	StartSimpleJob("SW_GUI_RemoveArrowCounterJob");
-	]]
 end
 function SW.GUI.Button(_name)
 	if _name == "OpenStartMenu" then
@@ -207,7 +197,13 @@ function SW.GUI.OpenStartMenu()
 		XGUIEng.SetText("SWSMC1E1Button", "@center "..SW.GUI.Suddendeath)
 	end
 end
-
+function SW_GUI_OpenMenuForHost()
+	if Counter.Tick2("OpenHostMenu", 3) then
+		XGUIEng.ShowWidget( "SWStartMenu", 1)
+		XGUIEng.ShowWidget("SWShowButtonContainer", 1)
+		return true
+	end
+end
 
 
 -- OLD STUFF

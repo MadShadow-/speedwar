@@ -223,7 +223,7 @@ function SW.RandomStartPlacePlayer()
 	table.insert(SW.RandomStartPositions,{X=ranX,Y=ranY});
 	local newEnt, oldEnt, newRanX, newRanY;
 	local rndSector = -1;
-	for i = 1, SW.MaxPlayers do
+	for i = 1, 8 do
 		oldEnt = newEnt;
 		while(rndSector ~= sectorID) do
 			newRanX = ranX+math.random(-200,200);
