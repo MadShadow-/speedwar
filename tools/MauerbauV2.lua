@@ -15,7 +15,7 @@ SW.Walls2.SnapDistance = 1700
 SW.Walls2.WallType = Entities.XD_WallStraight
 SW.Walls2.WorldSize = Logic.WorldGetSize()	--Used for checking if position is good
 SW.Walls2.ListOfCorners = {}	--Values: [pId] = list of {X, Y, eId, numNeighbours}
-SW.Walls2.GateOffsets = {}	--Values: {secondX, secondY, gateX, gateY}
+SW.Walls2.GateOffsets = {}	--Values: {secondX, secondY, gateX, gateY, angle}
 SW.Walls2.WallOffsets = {}	--Values: {secondX, secondY, wallX, wallY, angle}
 function SW.Walls2.Init()
 	local self = SW.Walls2
@@ -48,12 +48,6 @@ function SW.Walls2.Init()
 	self.InitGUIHooks()
 	self.WorldSize = Logic.WorldGetSize()
 	self.DestroyTriggerId = Trigger.RequestTrigger( Events.LOGIC_EVENT_ENTITY_DESTROYED, "SW_Walls2_OnDestroyed", "SW_Walls2_OnDestroyedAction", 1)
-end
-function SW.Walls2.DebugStuff()
-	for i = 1, SW.MaxPlayers do
-		ResearchAllUniversityTechnologies(i)
-		AddStone(i, 5000)
-	end
 end
 function SW_Walls2_OnDestroyed()
 	-- Interesting events:
@@ -222,6 +216,7 @@ function SW.Walls2.PlaceNormalWall( _pos, _pId, _angle)
 		end
 	end
 	if cornerKey == nil then	-- No corner found? Create new wall
+		_angle = SW.Walls2.SearchGoodWallAngle( _angle+90)
 		SW.Walls2.PlaceStartWall( _pos, _pId, _angle)
 		--SW.Walls2.CreateWall( _pId, _pos, 90, {X = _pos.X, Y = _pos.Y+200}, {X = _pos.X, Y = _pos.Y-200})
 	else	-- Corner found? Place wall next to it!
@@ -260,6 +255,7 @@ function SW.Walls2.PlaceGate( _pos, _pId, _angle)
 		end
 	end
 	if cornerKey == nil then	-- No corner found? Create new gate
+		_angle = SW.Walls2.SearchGoodGateAngle( _angle)
 		SW.Walls2.PlaceStartGate( _pos, _pId, _angle)
 		--SW.Walls2.CreateGate( _pId, _pos, 90, {X = _pos.X, Y = _pos.Y+300}, {X = _pos.X, Y = _pos.Y-300})
 	else	-- Corner found? Place wall next to it!
@@ -288,6 +284,9 @@ end
 function SW.Walls2.PlaceStartWall( _pos, _pId, _angle)
 	if not _angle then
 		_angle = 90
+	else
+		_angle = _angle - 90
+		_angle = SW.Walls2.SearchGoodWallAngle(_angle)
 	end
 	local offSize = 200
 	local offX = math.cos(math.rad(_angle))*offSize
@@ -297,6 +296,9 @@ end
 function SW.Walls2.PlaceStartGate( _pos, _pId, _angle)
 	if not _angle then
 		_angle = 90
+	else
+		_angle = _angle - 90
+		_angle = SW.Walls2.SearchGoodGateAngle(_angle)
 	end
 	local offSize = 300
 	local offX = math.cos(math.rad(_angle))*offSize
@@ -466,6 +468,35 @@ end
 function SW.Walls2.GetAngleDiff( _a1, _a2)
 	return math.mod( _a1-_a2 + 360, 360)
 end
+function SW.Walls2.SearchGoodGateAngle(_a)
+	local minDist = 1000
+	local bestIndex = 0
+	local dis
+	for k,v in pairs(SW.Walls2.GateOffsets) do
+		dis = SW.Walls2.GetAngleDiff(_a, v[5])
+		if dis < minDist then
+			minDist = dis
+			bestIndex = k
+		end
+	end
+	if bestIndex == 0 then return 0 end
+	return SW.Walls2.GateOffsets[bestIndex][5]
+end
+function SW.Walls2.SearchGoodWallAngle(_a)
+	local minDist = 1000
+	local bestIndex = 0
+	local dis
+	for k,v in pairs(SW.Walls2.WallOffsets) do
+		dis = SW.Walls2.GetAngleDiff(_a, v[5])
+		if dis < minDist then
+			minDist = dis
+			bestIndex = k
+		end
+	end
+	if bestIndex == 0 then return 0 end
+	return SW.Walls2.WallOffsets[bestIndex][5]
+end
+
 -- the additional arguments are positions for wall corners that have to be placed
 function SW.Walls2.CreateWall( _pId, _pos, _angle, ...)
 	if not SW.Walls2.IsPosValid( _pos) then return end
