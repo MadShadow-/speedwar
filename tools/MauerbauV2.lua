@@ -216,7 +216,6 @@ function SW.Walls2.PlaceNormalWall( _pos, _pId, _angle)
 		end
 	end
 	if cornerKey == nil then	-- No corner found? Create new wall
-		_angle = SW.Walls2.SearchGoodWallAngle( _angle+90)
 		SW.Walls2.PlaceStartWall( _pos, _pId, _angle)
 		--SW.Walls2.CreateWall( _pId, _pos, 90, {X = _pos.X, Y = _pos.Y+200}, {X = _pos.X, Y = _pos.Y-200})
 	else	-- Corner found? Place wall next to it!
@@ -255,7 +254,6 @@ function SW.Walls2.PlaceGate( _pos, _pId, _angle)
 		end
 	end
 	if cornerKey == nil then	-- No corner found? Create new gate
-		_angle = SW.Walls2.SearchGoodGateAngle( _angle)
 		SW.Walls2.PlaceStartGate( _pos, _pId, _angle)
 		--SW.Walls2.CreateGate( _pId, _pos, 90, {X = _pos.X, Y = _pos.Y+300}, {X = _pos.X, Y = _pos.Y-300})
 	else	-- Corner found? Place wall next to it!
@@ -285,25 +283,26 @@ function SW.Walls2.PlaceStartWall( _pos, _pId, _angle)
 	if not _angle then
 		_angle = 90
 	else
-		_angle = _angle - 90
-		_angle = SW.Walls2.SearchGoodWallAngle(_angle)
+		_angle = SW.Walls2.SearchGoodWallAngle(_angle+90)
 	end
 	local offSize = 200
-	local offX = math.cos(math.rad(_angle))*offSize
-	local offY = math.sin(math.rad(_angle))*offSize
+	local offX = SW.Walls2.properRound( math.cos(math.rad(_angle))*offSize, 100)
+	local offY = SW.Walls2.properRound( math.sin(math.rad(_angle))*offSize, 100)
 	SW.Walls2.CreateWall( _pId, _pos, _angle, {X = _pos.X+offX, Y = _pos.Y+offY}, {X = _pos.X-offX, Y = _pos.Y-offY})
 end
 function SW.Walls2.PlaceStartGate( _pos, _pId, _angle)
 	if not _angle then
 		_angle = 90
 	else
-		_angle = _angle - 90
-		_angle = SW.Walls2.SearchGoodGateAngle(_angle)
+		_angle = SW.Walls2.SearchGoodGateAngle(_angle+90)
 	end
 	local offSize = 300
-	local offX = math.cos(math.rad(_angle))*offSize
-	local offY = math.sin(math.rad(_angle))*offSize
+	local offX = SW.Walls2.properRound( math.cos(math.rad(_angle))*offSize, 100)
+	local offY = SW.Walls2.properRound( math.sin(math.rad(_angle))*offSize, 100)
 	SW.Walls2.CreateGate( _pId, _pos, _angle, {X = _pos.X+offX, Y = _pos.Y+offY}, {X = _pos.X-offX, Y = _pos.Y-offY})
+end
+function SW.Walls2.properRound(_x, _s)
+	return math.floor( _x/_s + 0.5)*_s
 end
 -- rotation logic:
 -- 	rotation of 90 degrees equals corners at x, y \pm 200
@@ -466,7 +465,7 @@ function SW.Walls2.GetAngle( x, y)
 end
 -- Calcutes x = |_a1 - _a2| with 0 <= x < 360 
 function SW.Walls2.GetAngleDiff( _a1, _a2)
-	return math.mod( _a1-_a2 + 360, 360)
+	return math.mod( _a1-_a2 + 3600, 360)
 end
 function SW.Walls2.SearchGoodGateAngle(_a)
 	local minDist = 1000
