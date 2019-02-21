@@ -79,7 +79,7 @@ function SpeedWarOnGameStart()
 	-- to disable/enable debug options, only use this table
 	log = function() end;
 	debugging = {
-		Debug = false,
+		Debug = true,
 		LevelUpToMaxRank = true,
 		ErrorLogging = true,
 		TroopSpawnKeys = false,

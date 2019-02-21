@@ -10,6 +10,28 @@ SW.Bugfixes.BlessingCooldown = 90	--Cooldown for 90 seconds
 SW.Bugfixes.ListOfSoldBuildings = {}
 SW.Bugfixes.BlessingData = {}
 SW.Bugfixes.ToWipe = {}
+--[[
+BlessSettlers1
+	Calls: GUIAction_BlessSettlers(BlessCategories.Construction)
+	Calls: GUITooltip_BlessSettlers("MenuMonastery/BlessSettlers_disabled","AOMenuMonastery/BlessSettlers1_normal","AOMenuMonastery/BlessSettlers1_researched","KeyBindings/BlessSettlers1")
+	Calls: GUIUpdate_BuildingButtons("BlessSettlers1", Technologies.T_BlessSettlers1)
+BlessSettlers2
+	Calls: GUIAction_BlessSettlers(BlessCategories.Research)
+	Calls: GUITooltip_BlessSettlers("MenuMonastery/BlessSettlers_disabled","AOMenuMonastery/BlessSettlers2_normal","AOMenuMonastery/BlessSettlers2_researched","KeyBindings/BlessSettlers2")
+	Calls: GUIUpdate_BuildingButtons("BlessSettlers2", Technologies.T_BlessSettlers2)
+BlessSettlers3
+	Calls: GUIAction_BlessSettlers(BlessCategories.Weapons)
+	Calls: GUITooltip_BlessSettlers("AOMenuMonastery/BlessSettlers3_disabled","AOMenuMonastery/BlessSettlers3_normal","AOMenuMonastery/BlessSettlers3_researched","KeyBindings/BlessSettlers3")
+	Calls: GUIUpdate_GlobalTechnologiesButtons("BlessSettlers3", Technologies.T_BlessSettlers3,Entities.PB_Monastery2)
+BlessSettlers4
+	Calls: GUIAction_BlessSettlers(BlessCategories.Financial)
+	Calls: GUITooltip_BlessSettlers("AOMenuMonastery/BlessSettlers4_disabled","AOMenuMonastery/BlessSettlers4_normal","AOMenuMonastery/BlessSettlers4_researched","KeyBindings/BlessSettlers4")
+	Calls: GUIUpdate_GlobalTechnologiesButtons("BlessSettlers4", Technologies.T_BlessSettlers4,Entities.PB_Monastery2)
+BlessSettlers5
+	Calls: GUIAction_BlessSettlers(BlessCategories.Canonisation)
+	Calls: GUITooltip_BlessSettlers("AOMenuMonastery/BlessSettlers5_disabled","AOMenuMonastery/BlessSettlers5_normal","AOMenuMonastery/BlessSettlers5_researched","KeyBindings/BlessSettlers5")
+	Calls: GUIUpdate_GlobalTechnologiesButtons("BlessSettlers5", Technologies.T_BlessSettlers5,Entities.PB_Monastery3)
+]]
 function SW.Bugfixes.Init()
 	local SellBuildingUpvalue = GUI.SellBuilding
 	local ListOfSoldBuildingsUpvalue = {}
@@ -48,7 +70,56 @@ function SW.Bugfixes.Init()
 		end
 		SW.Bugfixes.GUIAction_BlessSettlers(_blessCategory)
 		SW.Bugfixes.BlessingData[player][_blessCategory] = timee
+		XGUIEng.DisableButton(XGUIEng.GetCurrentWidgetID(), 1)
 	end
+	SW.Bugfixes.BlessCategoriesByWidgetId = {
+		[XGUIEng.GetWidgetID("BlessSettlers1")] = BlessCategories.Construction,
+		[XGUIEng.GetWidgetID("BlessSettlers2")] = BlessCategories.Research,
+		[XGUIEng.GetWidgetID("BlessSettlers3")] = BlessCategories.Weapons,
+		[XGUIEng.GetWidgetID("BlessSettlers4")] = BlessCategories.Financial,
+		[XGUIEng.GetWidgetID("BlessSettlers5")] = BlessCategories.Canonisation
+	}
+	SW.Bugfixes.BlessCategoriesByTechId = {
+		[Technologies.T_BlessSettlers1] = BlessCategories.Construction,
+		[Technologies.T_BlessSettlers2] = BlessCategories.Research,
+		[Technologies.T_BlessSettlers3] = BlessCategories.Weapons,
+		[Technologies.T_BlessSettlers4] = BlessCategories.Financial,
+		[Technologies.T_BlessSettlers5] = BlessCategories.Canonisation
+	}
+	SW.Bugfixes.GUITooltip_BlessSettlers = GUITooltip_BlessSettlers
+	GUITooltip_BlessSettlers = function(_a, _b, _c, _d)
+		SW.Bugfixes.GUITooltip_BlessSettlers(_a, _b, _c, _d)
+		local timeString = ""
+		local bCat = SW.Bugfixes.BlessCategoriesByWidgetId[XGUIEng.GetCurrentWidgetID()]
+		local pId = GUI.GetPlayerID()
+		if SW.Bugfixes.BlessingData[pId][bCat] == nil then
+			SW.Bugfixes.BlessingData[pId][bCat] = -10000
+		end
+		local timee = Logic.GetTime()
+		local diff = SW.Bugfixes.BlessingData[pId][bCat] + SW.Bugfixes.BlessingCooldown - timee
+		if  diff > 0 then
+			timeString = "@color:255,0,0 "..math.ceil(diff)
+		end
+		XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomCosts, timeString)
+	end
+	SW.Bugfixes.GUIUpdate_BuildingButtons = GUIUpdate_BuildingButtons
+	GUIUpdate_BuildingButtons = function( _s, _t, _x)
+		SW.Bugfixes.GUIUpdate_BuildingButtons(_s, _t, _b)
+		local bCat = SW.Bugfixes.BlessCategoriesByTechId[_t]
+		if bCat == nil then return end
+		local pId = GUI.GetPlayerID()
+		if SW.Bugfixes.BlessingData[pId][bCat] == nil then
+			SW.Bugfixes.BlessingData[pId][bCat] = -10000
+		end
+		local timee = Logic.GetTime()
+		local diff = SW.Bugfixes.BlessingData[pId][bCat] + SW.Bugfixes.BlessingCooldown - timee
+		if  diff > 0 then
+			XGUIEng.DisableButton(_s, 1)
+		end
+	end
+	
+	--GUITooltip_BlessSettlers(_a,_b,_c,_d)
+    --GUIUpdate_BuildingButtons
 	SW.Bugfixes.FixBattleSerfBug()
 	SW.Bugfixes.FixInvisSerfBug()
 end
