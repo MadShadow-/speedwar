@@ -70,6 +70,12 @@ function SW.Bugfixes.Init()
 		end
 		SW.Bugfixes.GUIAction_BlessSettlers(_blessCategory)
 		SW.Bugfixes.BlessingData[player][_blessCategory] = timee
+		-- all nice and done? disable corresponding button
+		for wId,bCat in pairs(SW.Bugfixes.BlessCategoriesByWidgetId) do
+			if bCat == _blessCategory then
+				XGUIEng.DisableButton(wId, 1)
+			end
+		end
 		XGUIEng.DisableButton(XGUIEng.GetCurrentWidgetID(), 1)
 	end
 	SW.Bugfixes.BlessCategoriesByWidgetId = {
@@ -88,7 +94,18 @@ function SW.Bugfixes.Init()
 	}
 	SW.Bugfixes.GUITooltip_BlessSettlers = GUITooltip_BlessSettlers
 	GUITooltip_BlessSettlers = function(_a, _b, _c, _d)
-		SW.Bugfixes.GUITooltip_BlessSettlers(_a, _b, _c, _d)
+		local CurrentWidgetID = XGUIEng.GetCurrentWidgetID()
+		local ShortCutToolTip = " "
+		if XGUIEng.IsButtonDisabled(CurrentWidgetID) == 1 then		
+			TooltipText =  _a
+		elseif XGUIEng.IsButtonDisabled(CurrentWidgetID) == 0 then		
+			TooltipText = _b
+		end
+		if _d ~= nil then
+			ShortCutToolTip = XGUIEng.GetStringTableText("MenuGeneric/Key_name") .. ": [" .. XGUIEng.GetStringTableText(_d) .. "]"
+		end
+		XGUIEng.SetTextKeyName(gvGUI_WidgetID.TooltipBottomText, TooltipText)
+		XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomShortCut, ShortCutToolTip)
 		local timeString = ""
 		local bCat = SW.Bugfixes.BlessCategoriesByWidgetId[XGUIEng.GetCurrentWidgetID()]
 		local pId = GUI.GetPlayerID()
@@ -98,7 +115,7 @@ function SW.Bugfixes.Init()
 		local timee = Logic.GetTime()
 		local diff = SW.Bugfixes.BlessingData[pId][bCat] + SW.Bugfixes.BlessingCooldown - timee
 		if  diff > 0 then
-			timeString = "@color:255,0,0 "..math.ceil(diff)
+			timeString = "@color:255,0,0 "..math.ceil(diff).." @color:255,255,255 "
 		end
 		XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomCosts, timeString)
 	end
