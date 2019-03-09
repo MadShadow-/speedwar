@@ -75,11 +75,11 @@ function SW.XMLChanges.DoChanges()
 	SW.SetKegFactor( Entities.XD_WallStraightGate, 2)
 	SW.SetKegFactor( Entities.XD_WallStraightGate_Closed, 2)
 	-- LKAV BUFFS
-	local lvl1Dmg = 12
-	local lvl1Bonus = 2
+	local lvl1Dmg = 10
+	local lvl1Bonus = 0
 	local lvl1Range = 2800
-	local lvl2Dmg = 24
-	local lvl2Bonus = 2
+	local lvl2Dmg = 18
+	local lvl2Bonus = 0
 	local lvl2Range = 3200
 	-- Lvl1 leader
 	SW.SetLeaderDamage( Entities.PU_LeaderCavalry1, lvl1Dmg)

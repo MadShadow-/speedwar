@@ -17,7 +17,7 @@ SW = SW or {}
 SW.TankyHQ = {}
 -- Keep configs here for development
 SW.TankyHQ.Range = 5000 --Buildings in this range will add to the defense of the HQ
-SW.TankyHQ.Threshold = 0.6	--Buildings can be damaged until 60% maxHP is left
+SW.TankyHQ.Threshold = 0.4	--Buildings can be damaged until 60% maxHP is left
 SW.TankyHQ.DissipationSpeed = 0.2	--20% of damage on HQ will be spread out every second
 SW.TankyHQ.PenaltyFactor = 10		--1 point of HQ damage converts to 2 points of non-HQ-damage
 									--Village during testing had summed up 40600 MaxHP
