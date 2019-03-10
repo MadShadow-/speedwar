@@ -104,6 +104,9 @@ function SW.Bugfixes.Init()
 		if _d ~= nil then
 			ShortCutToolTip = XGUIEng.GetStringTableText("MenuGeneric/Key_name") .. ": [" .. XGUIEng.GetStringTableText(_d) .. "]"
 		end
+		if TooltipText == "MenuMonastery/BlessSettlers_disabled" or TooltipText == "MenuMonastery/BlessSettlers_disabled" then
+			TooltipText = _b
+		end
 		XGUIEng.SetTextKeyName(gvGUI_WidgetID.TooltipBottomText, TooltipText)
 		XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomShortCut, ShortCutToolTip)
 		local timeString = ""
@@ -139,6 +142,7 @@ function SW.Bugfixes.Init()
     --GUIUpdate_BuildingButtons
 	SW.Bugfixes.FixBattleSerfBug()
 	SW.Bugfixes.FixInvisSerfBug()
+	SW.Bugfixes.FixSoldGUI()
 end
 SW.Bugfixes.FormationETypes = {
 	[Entities.PU_LeaderBow1] = true,
@@ -200,6 +204,24 @@ function SW_BugfixesDestroyJob()
 	end
 	return true
 end
+function SW.Bugfixes.FixSoldGUI()
+	GUIUpdate_TaxLeaderCosts = function()
+		local currWidget = XGUIEng.GetCurrentWidgetID()
+		XGUIEng.SetText( currWidget, 0)
+	end
+end
+--[[
+function
+GUIUpdate_TaxLeaderCosts()
+	local CurrentWidgetID = XGUIEng.GetCurrentWidgetID()
+	local PlayerID = GUI.GetPlayerID()
+	
+	local LeaderCosts = -(Logic.GetPlayerPaydayLeaderCosts(PlayerID))
+	
+	XGUIEng.SetText(CurrentWidgetID, LeaderCosts)	
+	
+end
+]]
 
 --[[
 	SW.Bugfixes.SellBuilding_Orig = SW.Bugfixes.SellBuilding

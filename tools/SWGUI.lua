@@ -10,7 +10,7 @@ SW.GUI = {
 	GameStarted = false,
 	
 	Teamspawn = 0,
-	Teamrank = 0,
+	Teamrank = 1,
 	Suddendeath = 90,
 	
 	Text = {
@@ -199,8 +199,9 @@ function SW.GUI.OpenStartMenu()
 end
 function SW_GUI_OpenMenuForHost()
 	if Counter.Tick2("OpenHostMenu", 3) then
-		XGUIEng.ShowWidget( "SWStartMenu", 1)
+		--XGUIEng.ShowWidget( "SWStartMenu", 1)
 		XGUIEng.ShowWidget("SWShowButtonContainer", 1)
+		SW.GUI.OpenStartMenu()
 		return true
 	end
 end

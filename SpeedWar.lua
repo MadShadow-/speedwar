@@ -109,6 +109,11 @@ function SpeedWarOnGameStart()
 	SW.IsHost = (SW.Host == SW.PlayerId);
 	if CNetwork then
 		SW.IsHost = (CNetwork.GameInformation_GetHost()==XNetwork.GameInformation_GetLogicPlayerUserName( GUI.GetPlayerID()))
+		for _,v in pairs(SW.Players) do
+			Display.SetPlayerColorMapping( v, XNetwork.GameInformation_GetLogicPlayerColor(v))
+			local r,g,b = GUI.GetPlayerColor( v)
+			Logic.PlayerSetPlayerColor( v, r, g, b)
+		end
 	end
 	SW.SetupMPLogic();
 	Sync.Init();
