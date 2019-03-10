@@ -116,7 +116,15 @@ function SW.XMLChanges.DoChanges()
 	SW.SetGlobalMarketSpeed( 10)
 	-- Make cannons worse against units and better against buildings
 	SW.SetLeaderAoERange(Entities.PV_Cannon3, 150)
-	SW.SetLeaderAoERange(Entities.PV_Cannon3, 200)
+	SW.SetLeaderAoERange(Entities.PV_Cannon4, 200)
+	-- universtiy technology speed changed
+	local time;
+	for name, id in pairs(Technologies) do
+		if string.find(name, "GT_", 1, true) then
+			time = SW.GetTechnologyTimeToResearch(id) * 0.5;
+			SW.SetTechnologyTimeToResearch( id, time);
+		end
+	end
 end
 --Refinery Push
 --[[
