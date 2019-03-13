@@ -248,19 +248,19 @@ function SW.RankSystem.OnRankUp( _pId)	--Gets called every time a player reaches
 	else
 		XGUIEng.SetProgressBarValues("VCMP_Team"..SW.RankSystem.GetGUIIdByPlayerId(_pId).."Progress", 0, 1)
 	end
-	if GUI.GetPlayerID() == 17 then
-		local key = 0
-		for i = 1, table.getn(SW.RankSystem.ListOfAllyIds) do
-			if SW.RankSystem.ListOfAllyIds[i] == _pId then
-				key = i
-				break
-			end
-		end
-		if key ~= 0 then
-			local rank = SW.RankSystem.Rank[_pId]
-			QuestController.Data[key].desc = SW.RankSystem.RankNames[rank].." "..SW.RankSystem.PlayerNames[_pId].." @color:255,255,255"
+	--if GUI.GetPlayerID() == 17 then
+	local key = 0
+	for i = 1, table.getn(SW.RankSystem.ListOfAllyIds) do
+		if SW.RankSystem.ListOfAllyIds[i] == _pId then
+			key = i
+			break
 		end
 	end
+	if key ~= 0 then
+		local rank = SW.RankSystem.Rank[_pId]
+		QuestController.Data[key].desc = SW.RankSystem.RankNames[rank].." "..SW.RankSystem.PlayerNames[_pId].." @color:255,255,255"
+	end
+	--end
 end
 function SW.RankSystem.GetGUIIdByPlayerId(_pId)
 	for k,v in pairs(SW.RankSystem.ListOfAllyIds) do
