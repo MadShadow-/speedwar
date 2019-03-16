@@ -28,10 +28,10 @@ SW.Reconnect = {
 		
 		[5] = function()
 			XNetworkUbiCom.Lobby_Group_Enter(NETWORK_GAME_LOBBY);
-			--if XNetworkUbiCom.Lobby_Group_GetIndexOfCurrent() == -1 then
-				--SW.Reconnect.GameNotOpenAnymore = true;
-				--return 1;
-			--end
+			if XNetworkUbiCom.Lobby_Group_GetIndexOfCurrent() == -1 then
+				SW.Reconnect.GameNotOpenAnymore = true;
+				return 1;
+			end
 			XNetwork.Chat_SendMessageToAll(".join"); return 1;
 		end,
 		
