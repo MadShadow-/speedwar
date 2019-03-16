@@ -271,6 +271,7 @@ function SW.Activate( _seed)
 	math.randomseed( _seed)
 	-- create all SV related functions
 	SW.SV.Init()
+	
 	-- village centers shall be removed and replaced by outposts
 	SW.EnableOutpostVCs();
 
@@ -301,6 +302,8 @@ function SW.Activate( _seed)
 	SW.EnableGeneticDisposition()
 	-- Dying entities leaves remains
 	SW.EnableMortalRemains()
+	-- XML Changes
+	SW.XMLChanges.DoChanges()
 	-- Jeder mag Plünderer :D
 	SW.EnablePillage()
 	
@@ -362,7 +365,6 @@ function SW.Activate( _seed)
 		end
 	end
 	StartSimpleJob("SW_RessCheck_VersionJob")
-	SW.XMLChanges.DoChanges()
 	-- and buff thieves against walls
 	SW.ThiefBuff.Init()
 	-- Dont show hq upgrade msg
