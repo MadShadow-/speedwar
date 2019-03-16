@@ -133,6 +133,7 @@ function SW.SetConstructionCosts( _eType, _costTable)
 	}
 	local resourceTypes = {
 		[ResourceType.Gold] = 57,
+		[ResourceType.Silver] = 59,
 		[ResourceType.Clay] = 67,
 		[ResourceType.Wood] = 69,
 		[ResourceType.Stone] = 61,

@@ -1,0 +1,25 @@
+- ReconnectTool angefangen
+- Handelsgewinne werden in Statistik angezeigt
+- RegelGUI wird dem Host erst nach 3 Sekunden angezeigt
+- LKav Nerf:
+	Level1-Schaden: 		10 -> 10
+	Level1-RndBonusSchaden: 4 -> 0
+	Level2-Schaden: 		18 -> 18
+	Level1-RndBonusSchaden: 8 -> 0
+- Mauern übernehmen die Rotation von der Baustelle, falls Rotation nicht durch andere Bedingungen festgelegt wurde
+- TeamRank sollte jetzt richtig funktionieren
+- Abschlussmauern sollten jetzt deutlich seltener dämliche Tore setzen
+- In der Kirche wird der Cooldown jetzt im Tooltip angezeigt
+- Außenposten leecht HP bis umgebende Gebäude 40% MaxHealth haben(vorher: 60%)
+- Außenposten sind billiger.
+- Es gibt einen Bug mit dem S5Hook und Simis Server, bei dem beim ersten Starten des Hooks in einer Map die Farben resettet wurden. In speedwar wurden 
+	die Farben zwar wieder gesetzt, aber erst, wenn das Spiel auch wirklich startet. Jetzt werden die Farben sofort nach dem Starten des Hooks gesetzt.
+- Belagerungskanonen haben jetzt wirklich 200 AoE-Range statt 400.
+- Universitätstechnologien sind jetzt doppelt so schnell erforschbar.
+- Lvl3 Speeris brauchen jetzt nur ein Lvl1-Sägewerk.
+- Lvl3 Bogis brauchen jetzt nur ein Lvl1-Sägewerk.
+- Lvl3 Schwertis brauchen jetzt nur eine Grobschmiede.
+- Der Sold im HQ zeigt jetzt auch 0 an.
+- Spawnalgorithmus überarbeitet.
+- Die Ziergebäude, die ab Feldherr bzw. Eroberer verfügbar sind, kosten jetzt das Fünffache und geben die fünffache Motivation.
+- Anzeigefehler in der Regelgui gefixt.

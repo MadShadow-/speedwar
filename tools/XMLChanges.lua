@@ -125,6 +125,24 @@ function SW.XMLChanges.DoChanges()
 			SW.SetTechnologyTimeToResearch( id, time);
 		end
 	end
+	local beautificationList = {
+		Entities.PB_Beautification03,
+		Entities.PB_Beautification05,
+		Entities.PB_Beautification07,
+		Entities.PB_Beautification08,
+		Entities.PB_Beautification10,
+		Entities.PB_Beautification11
+	}
+	local beautificationFactor = 5
+	for k,v in pairs(beautificationList) do
+		local cost = SW.GetConstructionCosts(v)
+		local motiBoost = SW.GetMotivationProvided(v)
+		SW.SetMotivationProvided( v, motiBoost*beautificationFactor)
+		for k2, v2 in pairs(cost) do
+			cost[k2] = v2 * beautificationFactor
+		end
+		SW.SetConstructionCosts( v, cost)
+	end
 end
 --Refinery Push
 --[[

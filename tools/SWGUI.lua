@@ -60,7 +60,7 @@ function SW.GUI.Init()
 	XGUIEng.ShowWidget("SWSBCArrow", 0)
 	XGUIEng.ShowWidget("SWShowButtonContainer", 1)
 	-- Show GUI by default
-	SW.GUI.OpenStartMenu()
+	--SW.GUI.OpenStartMenu()
 	-- Hide start menu for some time
 	if SW.IsHost then
 		XGUIEng.ShowWidget( "SWStartMenu", 0)
