@@ -301,7 +301,7 @@ function SW.Activate( _seed)
 	-- Genetische Dispositionen für alle! :D
 	SW.EnableGeneticDisposition()
 	-- Dying entities leaves remains
-	SW.EnableMortalRemains()
+	-- SW.EnableMortalRemains()
 	-- XML Changes
 	SW.XMLChanges.DoChanges()
 	-- Jeder mag Plünderer :D
@@ -737,6 +737,15 @@ function SW.EnableIncreasingOutpostCosts()
 	GUITooltip_ConstructBuilding = function( _a, _b, _c, _d, _e)
 		if _a == UpgradeCategories.Outpost then
 			local pId = GUI.GetPlayerID()
+			local nHQ = SW.GetNumberOfOutpostsOfPlayer(pId)
+			if SW.GUI.Rules.MaxHQ ~= 0 then
+				if nHQ >= SW.GUI.Rules.MaxHQ then 
+					XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomCosts, "")
+					XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomText, "@color:180,180,180,255  Außenposten  @cr @color:255,255,255,255 Maximale Anzahl an Aussenposten erreicht.")		
+					XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomShortCut, " ")
+					return 
+				end
+			end
 			local costString = InterfaceTool_CreateCostString( SW.GetCostOfNextOutpost( pId) )
 			XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomCosts, costString)
 			XGUIEng.SetTextKeyName(gvGUI_WidgetID.TooltipBottomText, "MenuSerf/outpost_normal")		
@@ -750,6 +759,14 @@ function SW.EnableIncreasingOutpostCosts()
 		if _uc == UpgradeCategories.Outpost then
 			--check ressources
 			local pId = GUI.GetPlayerID()
+			local nHQ = SW.GetNumberOfOutpostsOfPlayer(pId)
+			if SW.GUI.Rules.MaxHQ ~= 0 then
+				if nHQ >= SW.GUI.Rules.MaxHQ then 
+					Message("Maximale Anzahl an Aussenposten erreicht!")
+					Sound.PlayGUISound( Sounds.VoicesSerf_SERF_No_rnd_03, 0)
+					return 
+				end
+			end
 			local costTable = SW.GetCostOfNextOutpost( pId)
 			local currWidget = XGUIEng.GetCurrentWidgetID()
 			if InterfaceTool_HasPlayerEnoughResources_Feedback( costTable) == 1 then
@@ -793,7 +810,18 @@ function SW_OnEntityCreatedOutpost()
 			enoughRess = false
 		end
 	end
-	if not enoughRess then --Not enough ressources?
+	
+	local outpostAllowed = true
+	local nHQ = SW.GetNumberOfOutpostsOfPlayer(pId)
+	if SW.GUI.Rules.MaxHQ ~= 0 then
+		if nHQ > SW.GUI.Rules.MaxHQ then 
+			Message("Maximale Anzahl an Aussenposten erreicht!")
+			Sound.PlayGUISound( Sounds.VoicesSerf_SERF_No_rnd_03, 0)
+			outpostAllowed = false 
+		end
+	end
+	
+	if (not enoughRess) or (not outpostAllowed) then --Not enough ressources?
 		--DEMOLISH!!!1!11cos(0)
 		SW_DestroySafe( eId)
 		--Play message for controlling players

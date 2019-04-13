@@ -62,6 +62,7 @@ SW.Reconnect = {
 };
 
 function SW.Reconnect.UpdateEveryFrame()
+	if CNetwork == nil then return end
 	if not SW.Reconnect.Started then
 		if table.getn(GetIngamePlayers()) > 0 then
 			return;
