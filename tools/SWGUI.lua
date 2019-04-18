@@ -58,9 +58,9 @@ SW.GUI = {
 	
 	ButtonTooltips = {
 		["Suddendeath"] = "Gibt die Anzahl an Spielminuten an, nach denen der Sieger ermittelt wird. "
-						  .. "Sieger ist das Team, welches nach Ablauf der Zeit das größte Gebiet hält.",
-						  
-		["Teamspawn"]   = "Ermöglicht es Spielern aus dem gleichen Team an einem Ort auf der Karte zusammen zu starten.",
+			.. "Sieger ist das Team, welches nach Ablauf der Zeit das größte Gebiet hält.",			  
+		["Teamspawn"]   = "Ermöglicht es Spielern aus dem gleichen Team an einem Ort auf der Karte zusammen zu starten. Teamspawn hat keinen Effekt, "
+			.."wenn die Karte fixe Startpositionen hat.",
 		["Anonym"]      = "Jeder Fortschritt zum nächsten Rang wird unter allen Teammitgliedern aufgeteilt.",
 		["Startgame"]   = "@color:255,125,0 Startet das Spiel mit den aktuell eingestellten Regeln.",
 		["MaxHQ"]		= "Gibt an, wie viele Aussenposten maximal gebaut werden dürfen. Inf steht für unendlich viele."

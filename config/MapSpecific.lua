@@ -5,8 +5,11 @@ function SW.MapSpecific.LoadConfig()
 	local MapName = tostring(Framework.GetCurrentMapName());
 	Script.Load("maps\\user\\speedwar\\mapscripts\\"..MapName..".lua");
 	if not SpeedwarConfig then
-		SW.MapSpecific.NoConfigFound = true;
-		SpeedwarConfig = {};
+		Script.Load("Data\\Maps\\ExternalMap\\config.lua")
+		if not SpeedwarConfig then
+			SW.MapSpecific.NoConfigFound = true;
+			SpeedwarConfig = {};
+		end
 	end
 	
 	-- start ressources

@@ -59,6 +59,30 @@ SpeedwarConfig = {
 			end
 			Logic.SetResourceDoodadGoodAmount( eId, amount[ty])
 		end
+		local treeTable = {
+			Entities.XD_Tree1,
+			Entities.XD_Tree2,
+			Entities.XD_Tree3,
+			Entities.XD_Tree4,
+			Entities.XD_Tree5,
+			Entities.XD_Tree6,
+			Entities.XD_Tree7,
+			Entities.XD_Fir1,
+			Entities.XD_Fir2,
+			Entities.XD_OrangeTree1,
+			Entities.XD_OrangeTree2,
+			Entities.XD_AppleTree1,
+			Entities.XD_AppleTree2,
+			Entities.XD_Tree1_small,
+			Entities.XD_Tree2_small,
+			Entities.XD_Tree3_small,
+			Entities.XD_Fir1_small,
+			Entities.XD_Fir2_small,
+			Entities.XD_Willow1
+		}
+		for k,v in pairs(treeTable) do
+			SW.SetTreeRessAmount(v, 25)
+		end
 	end,
 	
 	PlayerStartSectors = {
