@@ -4,7 +4,29 @@ function SW.GetCostFactorByNumOfOutposts(x)
 	return 100/(math.exp(-x+6) + 1)
 end
 function SW.GetOutpostCosts(_index)
-	return SW.OutpostCosts[_index] or SW.OutpostCosts[8];
+	local base = {
+		[ResourceType.Gold] = 350,
+		[ResourceType.Clay] = 0,
+		[ResourceType.Wood] = 300,
+		[ResourceType.Stone] = 450,
+		[ResourceType.Iron] = 0,
+		[ResourceType.Sulfur] = 0,
+		[ResourceType.Silver] = 0
+	}
+	local factor = 1
+	if _index == 0 then
+		factor = 0
+	elseif _index <= 6 then
+		factor = math.floor(math.exp( (_index-1)*0.694))
+	else
+		-- index = 6 => factor = 32
+		factor = 2*(_index-2)*(_index-2)
+	end
+	local retTable = {}
+	for k,v in pairs(base) do
+		retTable[k] = v*factor
+	end
+	return retTable
 end
 SW.OutpostCosts = {
 	[0] = {

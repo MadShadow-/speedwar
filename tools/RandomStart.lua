@@ -355,7 +355,10 @@ function SW.DoFixedPositions()
 	for i = 1, SW.MaxPlayers do
 		isHuman = XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i);
 		if isHuman == 1 then
-			p = GetPosition(SpeedwarConfig.PlayerStartPos[i])
+			p = SpeedwarConfig.PlayerStartPos[i]
+			if type(p) ~= "table" then
+				p = GetPosition(p)
+			end
 			SW.SpawnPlayerMarker( i, p)
 			SW.SpawnPlayerAt( i, p)
 		end
