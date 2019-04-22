@@ -147,10 +147,15 @@ function SW.GUI.StartGameCNetwork( _sender, _time, _sharedSpawn, _sharedRank, _m
 	SW.GUI.GameStarted = true
 	XGUIEng.ShowWidget("SWStartMenu", 0)
 	XGUIEng.ShowWidget("SWShowButtonContainer", 0)
-	--Message("Starting speedwar with parameters")
-	--Message("Time: ".._time)
-	--Message("Shared Spawn: ".._sharedSpawn)
-	--Message("Shared Rank: ".._sharedRank)
+	Message("Starting speedwar with parameters")
+	Message("Sudden Death: ".._time)
+	Message("Shared Spawn: ".._sharedSpawn)
+	Message("Shared Rank: ".._sharedRank)
+	if _maxHQ == 0 then
+		Message("Max HQ: INF")
+	else
+		Message("Max HQ: ".._maxHQ)
+	end
 	SW.GUI.Rules = {}
 	SW.GUI.Rules.Time = _time
 	SW.GUI.Rules.SharedSpawn = _sharedSpawn
@@ -172,10 +177,15 @@ function SW.GUI.StartGame( _time, _sharedSpawn, _sharedRank, _maxHQ)
 	SW.GUI.GameStarted = true
 	XGUIEng.ShowWidget("SWStartMenu", 0)
 	XGUIEng.ShowWidget("SWShowButtonContainer", 0)
-	--Message("Starting speedwar with parameters")
-	--Message("Time: ".._time)
-	--Message("Shared Spawn: ".._sharedSpawn)
-	--Message("Shared Rank: ".._sharedRank)
+	Message("Starting speedwar with parameters")
+	Message("Sudden Death: ".._time)
+	Message("Shared Spawn: ".._sharedSpawn)
+	Message("Shared Rank: ".._sharedRank)
+	if _maxHQ == 0 then
+		Message("Max HQ: INF")
+	else
+		Message("Max HQ: ".._maxHQ)
+	end
 	SW.GUI.Rules = {}
 	SW.GUI.Rules.Time = _time
 	SW.GUI.Rules.SharedSpawn = _sharedSpawn

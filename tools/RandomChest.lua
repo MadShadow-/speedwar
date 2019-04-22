@@ -177,10 +177,11 @@ function SW.RandomChest.Action.Stone( _pId, _x, _y)
 end
 function SW.RandomChest.Action.Sonic( _pId, _x, _y)
 	if GUI.GetPlayerID() == _pId then
-		Message("Darin war Sonic!")
+		Message("Darin war der Fenriswolf!")
 	end
 	local eId = Logic.CreateEntity( Entities.CU_AggressiveWolf, _x, _y, 0, _pId)
-	SW.SetMovementspeed( eId, 1600)
+	SW.SetMovementspeed( eId, 350)
+	S5Hook.GetEntityMem( eId)[25]:SetFloat(5)
 end
 function SW.RandomChest.Action.Tree( _pId, _x, _y)
 	if GUI.GetPlayerID() == _pId then
@@ -292,7 +293,7 @@ function SW.RandomChest.Action.WildMan( _pId, _x, _y)
 	end
 	local eId = Logic.CreateEntity(Entities.CU_Evil_LeaderBearman1, _x, _y, 0, _pId)
 	S5Hook.GetEntityMem( eId)[25]:SetFloat(2)
-	SW.SetMovementspeed( eId, 900)
+	SW.SetMovementspeed( eId, 350)
 end
 SW.RandomChest.GoetheText = {
 	"Habe nun, ach! Philosophie,",
