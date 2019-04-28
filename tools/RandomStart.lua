@@ -1,37 +1,71 @@
 SW = SW or {}
-SW.RandomStartWeights = {
-	[Entities.XD_Clay1]		= 500, 
-	[Entities.XD_ClayPit1]	= 4000,
-	[Entities.XD_Iron1]		= 300,
-	[Entities.XD_IronPit1]	= 2000,
-	[Entities.XD_Stone1]	= 700,
-	[Entities.XD_StonePit1]	= 5000,
-	[Entities.XD_Sulfur1]	= 1000,
-	[Entities.XD_SulfurPit1]= 4000
-}
---SW.RandomStartAllyWeight = 5000
---SW.RandomStartEnemyWeight = 15000
-SW.RandomStartPlayerWeight = 24000
-SW.RandomStartEntropyWeight = 5000
-SW.RandomStartRessources = {} --list of all things that increase spawn chance
-SW.RandomStartEntropyPos = {}
-SW.RandomStartUseNewAlgorithm = false
+SW.RandomStart = {}
 SW.RandomStartTeamSpawns = {}; -- i use this to let teams spawn together
 function SW.EnableRandomStart()
 	SW.RandomStartPositions = {};
-	SW.RandomStartValidSectors = {}
-	local sector
-	for i = 1,table.getn(SW.MapSpecific.PlayerStartSectors) do
-		_, _, sector = S5Hook.GetTerrainInfo(SW.MapSpecific.PlayerStartSectors[i].X, SW.MapSpecific.PlayerStartSectors[i].Y);
-		table.insert(SW.RandomStartValidSectors, sector)
-	end;
+	-- find all valid sectors
+	SW.RandomStart.UpdateValidSectors()
+	-- how many spawn positions have to be generated?
+	local numOfSpawns = 0
+	local idList = {}	-- list of player/team ids for which spawn positions have to be generated
+	if SW.IsMultiplayer() then
+		if SW.GUI.Rules.SharedSpawn == 0 then
+			local isHuman
+			for i = 1, SW.MaxPlayers do
+				isHuman = XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i);
+				if isHuman == 1 then
+					numOfSpawns = numOfSpawns + 1
+					table.insert( idList, i)
+				end
+			end
+		else
+			local team = XNetwork.GameInformation_GetLogicPlayerTeam
+			local teamData = {}
+			for i = 1, SW.MaxPlayers do
+				if XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i) == 1 then
+					local teamId = team(i)
+					if teamData[team(i)] == nil then
+						teamData[team(i)] = true
+						numOfSpawns = numOfSpawns + 1
+						table.insert( idList, team(i))
+					end
+				end
+			end
+		end
+	else
+		SW.GUI.Rules.SharedSpawn = 0
+		numOfSpawns = 1
+		idList = {1}
+	end
+	-- DEBUG
+	if false then
+		numOfSpawns = 2
+		idList = {}
+		for i = 1, numOfSpawns do
+			idList[i] = i
+		end
+		SW.GUI.Rules.SharedSpawn = 0
+	end
+	-- END DEBUG
+	-- now we have a list of ids for which spawn positions have to be generated
+	local positions = SW.RandomStart.GetRandomPositions( numOfSpawns)
+	if SW.GUI.Rules.SharedSpawn == 0 then
+		for k,v in pairs(idList) do
+			SW.SpawnPlayerAt( v, positions[k])
+			SW.SpawnPlayerMarker( v, positions[k])
+		end
+	else
+		for k,v in pairs(idList) do
+			SW.SpawnTeamAt( v, positions[k])
+		end
+	end
+	if true then return end
 	if SW.IsMultiplayer() then
 		local isHuman;
 		if SW.GUI.Rules.SharedSpawn == 0 then
 			for i = 1, SW.MaxPlayers do
 				isHuman = XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i);
 				if isHuman == 1 then
-					-- TODO remove spectators.
 					SW.RandomPosForPlayer(i);
 				end;
 			end;
@@ -59,7 +93,16 @@ function SW.EnableRandomStart()
 		SW.RandomPosForPlayer(1);
 	end;
 end
+function SW.RandomStart.UpdateValidSectors()
+	SW.RandomStartValidSectors = {}
+	local sector
+	for i = 1,table.getn(SW.MapSpecific.PlayerStartSectors) do
+		_, _, sector = S5Hook.GetTerrainInfo(SW.MapSpecific.PlayerStartSectors[i].X, SW.MapSpecific.PlayerStartSectors[i].Y);
+		table.insert(SW.RandomStartValidSectors, sector)
+	end;
+end
 
+-- some mad stuff
 function SW.RandomPosForPlayer(_player)
 	local div = math.min(table.getn(SW.Players), 4);
 	div = math.max(2,div); -- be > 1
@@ -108,25 +151,12 @@ function SW.RandomPosForPlayer(_player)
 				end
 			end
 			table.insert(SW.RandomStartPositions,{X=ranX,Y=ranY});
-			local newEnt, oldEnt, newRanX, newRanY;
-			local rndSector = -1;
-			local numberOfSerfs = 8;
-			for i = 1, numberOfSerfs do
-				oldEnt = newEnt;
-				while(rndSector ~= sectorID) do
-					newRanX = ranX+math.random(-200,200);
-					newRanY = ranY+math.random(-200,200);
-					_, _, rndSector = S5Hook.GetTerrainInfo(ranX, ranY);
-				end
-				newEnt = AI.Entity_CreateFormation(_player, Entities.PU_Serf, 0, 0, newRanX, newRanY, 0, ranX, ranY, 0)
-				Logic.EntityLookAt(newEnt, oldEnt);
-				if GUI.GetPlayerID() == _player then
-					Camera.ScrollSetLookAt(ranX,ranY);
-				end
-			end
+			SW.SpawnPlayerAt( _player, {X=ranX,Y=ranY})
 		end 
 	end
 end
+
+-- returns _numOfSpawns spawns for players
 function SW.GetRandomPositions(_numOfSpawns)
 	local div = math.min(_numOfSpawns, 4);
 	div = math.max(2,div); -- be > 1
@@ -180,6 +210,7 @@ function SW.GetRandomPositions(_numOfSpawns)
 	end
 	return retTable
 end
+-- spawns a team at given position; CREATES MARKERS
 function SW.SpawnTeamAt( _teamId, _p)
 	local team = XNetwork.GameInformation_GetLogicPlayerTeam
 	if team(GUI.GetPlayerID()) == _teamId then
@@ -187,117 +218,133 @@ function SW.SpawnTeamAt( _teamId, _p)
 	else
 		GUI.CreateMinimapMarker( _p.X, _p.Y,3);
 	end
-	local _,_,sectorID = S5Hook.GetTerrainInfo( _p.X, _p.Y)
 	for k = 1, table.getn(SW.Players) do
 		local pId = SW.Players[k]
 		if team(pId) == _teamId then
-			local newRanX, newRanY;
-			local rndSector = -1;
-			for i = 1, SW.MaxPlayers do
-				oldEnt = newEnt;
-				while(rndSector ~= sectorID) do
-					newRanX = _p.X+math.random(-500,500);
-					newRanY = _p.Y+math.random(-500,500);
-					_, _, rndSector = S5Hook.GetTerrainInfo(newRanX, newRanY);
-				end
-				AI.Entity_CreateFormation( pId, Entities.PU_Serf, 0, 0, newRanX, newRanY, 0, _p.X, _p.Y, 0)
-			end
-			if GUI.GetPlayerID() == pId then
-				Camera.ScrollSetLookAt( _p.X, _p.Y);
-			end
+			SW.SpawnPlayerAt( pId, _p)
 		end
 	end
 end
-
--- TODO
-function SW.RandomStartPlacePlayer()
-	if GUI.GetPlayerID() == _player then
-		GUI.CreateMinimapMarker(ranX,ranY,0);
-	else
-		if Logic.GetDiplomacyState(GUI.GetPlayerID(),_player) == Diplomacy.Hostile then
-			GUI.CreateMinimapMarker(ranX,ranY,3);
-		else
-			GUI.CreateMinimapMarker(ranX,ranY,0);
-		end
+-- spawns a player at a given position, optional arg '_serfCount'; DOES NOT CREATE MARKERS
+function SW.SpawnPlayerAt( _pId, _p, _serfCount)
+	if _serfCount == nil then 
+		_serfCount = 16 
 	end
-	table.insert(SW.RandomStartPositions,{X=ranX,Y=ranY});
-	local newEnt, oldEnt, newRanX, newRanY;
+	local _,_,sectorID = S5Hook.GetTerrainInfo( _p.X, _p.Y)
+	local newRanX, newRanY;
 	local rndSector = -1;
-	for i = 1, SW.MaxPlayers do
+	local newEnt, oldEnt
+	for i = 1, _serfCount do
 		oldEnt = newEnt;
 		while(rndSector ~= sectorID) do
-			newRanX = ranX+math.random(-200,200);
-			newRanY = ranY+math.random(-200,200);
-			_, _, rndSector = S5Hook.GetTerrainInfo(ranX, ranY);
+			newRanX = _p.X+math.random(-500,500);
+			newRanY = _p.Y+math.random(-500,500);
+			_, _, rndSector = S5Hook.GetTerrainInfo(newRanX, newRanY);
 		end
-		newEnt = AI.Entity_CreateFormation(_player, Entities.PU_Serf, 0, 0, newRanX, newRanY, 0, ranX, ranY, 0)
-		Logic.EntityLookAt(newEnt, oldEnt);
-		if GUI.GetPlayerID() == _player then
-			Camera.ScrollSetLookAt(ranX,ranY);
-		end
-	end
-end
-
---Fixed starts
-function SW.DoFixedPositions()
-	if SW.IsMultiplayer() then
-		local isHuman;
-		for i = 1, SW.MaxPlayers do
-			isHuman = XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i);
-			if isHuman == 1 then
-				-- TODO remove spectators.
-				SW.FixedPosForPlayer(i);
-			end;
-		end;
-	else
-		SW.FixedPosForPlayer(1);
-	end;
-end
-function SW.FixedPosForPlayer( _pId)
-	local data = SpeedwarConfig.PlayerStartPos[_pId]
-	if type(data) ~= "table" then
-		data = GetPosition(data)
-	end
-	SW.CreatePlayerAtPos( _pId, data.X, data.Y)
-end
-function SW.CreatePlayerAtPos( _pId, _x, _y)
-	if SW.IsMultiplayer() and SW.GUI.Teamspawn == 1 then
-		if SW.GetTeamSpawn(_pId, _x, _y) then
-			_x, _y = SW.GetTeamSpawn(_pId);
-		end
+		newEnt = AI.Entity_CreateFormation( _pId, Entities.PU_Serf, 0, 0, newRanX, newRanY, 0, _p.X, _p.Y, 0)
+		Logic.EntityLookAt(newEnt, oldEnt)
 	end
 	if GUI.GetPlayerID() == _pId then
-		GUI.CreateMinimapMarker( _x, _y, 0);
+		Camera.ScrollSetLookAt( _p.X, _p.Y);
+	end
+end
+-- creates a marker at given position, color depending on diplomacy to _pId
+function SW.SpawnPlayerMarker( _pId, _p)
+	if GUI.GetPlayerID() == _pId then
+		GUI.CreateMinimapMarker( _p.X, _p.Y, 0);
 	else
-		if Logic.GetDiplomacyState(GUI.GetPlayerID(), _pId) == Diplomacy.Hostile then
-			GUI.CreateMinimapMarker(_x,_y,3);
+		if Logic.GetDiplomacyState( GUI.GetPlayerID(), _pId) == Diplomacy.Hostile then
+			GUI.CreateMinimapMarker( _p.X, _p.Y, 3);
 		else
-			GUI.CreateMinimapMarker(_x,_y,0);
-		end
-	end
-	table.insert(SW.RandomStartPositions,{X=_x,Y=_y});
-	local newEnt, oldEnt, newRanX, newRanY;
-	local rndSector = -1;
-	for i = 1, SW.MaxPlayers do
-		oldEnt = newEnt;
-		while(rndSector ~= sectorID) do
-			newRanX = _x+math.random(-200,200);
-			newRanY = _y+math.random(-200,200);
-			_, _, rndSector = S5Hook.GetTerrainInfo(_x, _y);
-		end
-		newEnt = AI.Entity_CreateFormation(_pId, Entities.PU_Serf, 0, 0, newRanX, newRanY, 0, _x, _y, 0)
-		Logic.EntityLookAt(newEnt, oldEnt);
-		if GUI.GetPlayerID() == _pId then
-			Camera.ScrollSetLookAt(_x,_y);
+			GUI.CreateMinimapMarker( _p.X, _p.Y, 0);
 		end
 	end
 end
 
-function SW.GetTeamSpawn(_playerId, _x, _y)
-	local team = XNetwork.GameInformation_GetPlayerTeam(_playerId);
-	if SW.RandomStartTeamSpawns[team] then
-		return SW.RandomStartTeamSpawns[team].X, SW.RandomStartTeamSpawns[team].Y;
+-- new spawn algo
+function SW.RandomStart.GetRandomPositions( _n)
+	local t1 = XGUIEng.GetSystemTime()
+	local tries = 25*_n
+	local posList, bestPos, score
+	local bestScore = -1
+	local x,y
+	for i = 1, tries do
+		-- Get some nice positions
+		posList = {}
+		for j = 1, _n do
+			x, y = SW.RandomStart.GetPosition()
+			table.insert( posList, { X = x, Y = y})
+		end
+		score = SW.RandomStart.RateList( posList)
+		if score > bestScore then
+			bestScore = score
+			bestPos = {}
+			for k,v in pairs(posList) do
+				bestPos[k] = {X = v.X, Y = v.Y}
+			end
+		end
 	end
-	SW.RandomStartTeamSpawns[team] = {X=_x,Y=_y};
+	LuaDebugger.Log("StartAlgTime: "..(XGUIEng.GetSystemTime() - t1))
+	return bestPos
 end
-
+-- rates a list of spawns, high score is good
+function SW.RandomStart.RateList( _list)
+	-- following assumptions to rate a list:
+	-- the world border is bad -> points near the border will be rated badly
+	-- points close to each other are bad -> will be rated badly aswell
+	
+	-- calculate a sum of penalties, return 1/sum
+	-- some config stuff
+	local borderPenalty = 1		-- how bad is spawning near border? penalty = borderPenalty*weight(dis)
+	local posPenalty = 1		-- how bad is spawning near someone else? penalty = posPenalty*weight(dis)
+	
+	-- actual code
+	local worldSize = Logic.WorldGetSize()
+	local disToCenter, disToBorder, disToPlayer
+	local points = 0
+	local n = table.getn(_list)
+	for i = 1, n do
+		-- get distance to world border
+		disToCenter = SW.RandomStart.GetDistance( _list[i], {X = worldSize/2, Y = worldSize/2})
+		disToBorder = worldSize/2 - disToCenter
+		points = points + borderPenalty*SW.RandomStart.Weight(disToBorder)
+		for j = i+1, n do
+			disToPlayer = SW.RandomStart.GetDistance( _list[i], _list[j])
+			points = points + posPenalty*SW.RandomStart.Weight( disToPlayer)
+		end
+	end
+	return 1/points
+end
+-- gives a given distance a weight. Small distances should have a high weight
+function SW.RandomStart.Weight( _v)
+	-- weight = 2^(-v / dis)
+	local dis = 5000
+	return math.exp( - _v/5000 * 0.6931)
+end
+function SW.RandomStart.GetDistance(_p1, _p2)
+	return math.sqrt( (_p1.X - _p2.X)*(_p1.X - _p2.X) + (_p1.Y - _p2.Y)*(_p1.Y - _p2.Y))
+end
+-- returns a position in a valid sector
+function SW.RandomStart.GetPosition()
+	local x,y,sectorID,sectorValid
+	local sectorList = SW.RandomStartValidSectors
+	local sectorListN = table.getn(sectorList)
+	local worldSize = Logic.WorldGetSize()
+	--LuaDebugger.Break()
+	for i = 1, 50 do
+		x = math.random()*worldSize
+		y = math.random()*worldSize
+		_, _, sectorID = S5Hook.GetTerrainInfo( x, y)
+		sectorValid = false
+		for i = 1, sectorListN do
+			if sectorID == sectorList[i] then
+				sectorValid = true
+				break
+			end
+		end
+		if sectorValid then
+			return x,y
+		end
+	end
+	return worldSize/2, worldSize/2
+end

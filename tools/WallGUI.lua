@@ -428,10 +428,10 @@ function SW_WallGUI_OnEntityDestroyed()
 			SW.CustomNames[Logic.GetEntityName(relatedBuilding[1])] = nil;
 			SW_DestroySafe( relatedBuilding[1] );
 		end
-		SW.WallGUI.CreateEntity(SW.WallGUI.ReplaceEntities[ relatedBuilding[2] ], pos, player, relatedBuilding[2], relatedBuilding[3]);
+		SW.WallGUI.CreateEntity(SW.WallGUI.ReplaceEntities[ relatedBuilding[2] ], pos, player, relatedBuilding[2], relatedBuilding[3], Logic.GetEntityOrientation(entityId));
 end
 
-function SW.WallGUI.CreateEntity(_entityType, _position, _playerId, _wallTypeString, _isNewWall)
+function SW.WallGUI.CreateEntity(_entityType, _position, _playerId, _wallTypeString, _isNewWall, _orientation)
 	-- not part of the GUI anymore
 	-- this is the logic part
 	-- to be continued by napo
@@ -450,15 +450,15 @@ function SW.WallGUI.CreateEntity(_entityType, _position, _playerId, _wallTypeStr
 		--local dummyId = Logic.CreateEntity(Entities.XD_ScriptEntity, _position.X, _position.Y, 0, _playerId);
 		if _entityType == Entities.XD_WallStraight then
 			if not _isNewWall then
-				newEntityId = SW.Walls.PlaceNormalWall( _position, _playerId);
+				newEntityId = SW.Walls.PlaceNormalWall( _position, _playerId, _orientation);
 			else -- NewWall
-				newEntityId = SW.Walls.PlaceStartWall(_position, _playerId);
+				newEntityId = SW.Walls.PlaceStartWall(_position, _playerId, _orientation);
 			end
 		elseif _entityType == Entities.XD_WallStraightGate then
 			if not _isNewWall then
-				newEntityId = SW.Walls.PlaceGate(_position, _playerId);
+				newEntityId = SW.Walls.PlaceGate(_position, _playerId, _orientation);
 			else -- New Gate
-				newEntityId = SW.Walls.PlaceStartGate(_position, _playerId);
+				newEntityId = SW.Walls.PlaceStartGate(_position, _playerId, _orientation);
 			end
 		elseif _entityType == Entities.XD_WallDistorted then
 			newEntityId = SW.Walls.PlaceClosingWall(_position, _playerId);

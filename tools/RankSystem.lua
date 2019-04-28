@@ -92,16 +92,10 @@ function SW.RankSystem.UpdatePlayer( _pId)	--Gets called every time the score of
 end
 function SW.RankSystem.UpdateTeam( _team)
 	local team = XNetwork.GameInformation_GetLogicPlayerTeam
-	local repr = 0
-	for i = 1, SW.MaxPlayers do
-		if team(i) == _team and XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i) == 1 then
-			repr = i
-			break
-		end
-	end
+	local repr = SW.RankSystem.GetReprForTeam( _team)
 	if SW.RankSystem.Rank[repr] == 4 then return end
-	if SW.RankSystem.Points[_team] >= SW.RankSystem.GetNextRankThreshold( _team) then
-		SW.RankSystem.Points[_team] = SW.RankSystem.Points[_team] - SW.RankSystem.GetNextRankThreshold( _team)
+	if SW.RankSystem.Points[_team] >= SW.RankSystem.GetNextRankThresholdByTeam( _team) then
+		SW.RankSystem.Points[_team] = SW.RankSystem.Points[_team] - SW.RankSystem.GetNextRankThresholdByTeam( _team)
 		for i = 1, SW.MaxPlayers do
 			if team(i) == _team and XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i) == 1 then
 				SW.RankSystem.Rank[i] = SW.RankSystem.Rank[i] + 1
@@ -201,7 +195,7 @@ function SW.RankSystem.ApplyGUIChanges()
 		end
 	end
 	if SW.GUI.Rules.SharedRank == 1 then
-	SW.RankSystem.GeneralCountFunc = function( j)
+		SW.RankSystem.GeneralCountFunc = function( j)
 			if SW.RankSystem.Rank[j] < 4 then
 				return math.floor(100*SW.RankSystem.Points[team(j)]/SW.RankSystem.GetNextRankThreshold( j));
 			else
@@ -226,6 +220,23 @@ function SW.RankSystem.ApplyGUIChanges()
 		--XGUIEng.SetText("VCMP_Team"..i.."Name", SW.RankSystem.PlayerNames[SW.RankSystem.ListOfAllyIds[i]])
 	end
 end
+function SW.RankSystem.GetNextRankThresholdByTeam( _teamId)
+	local repr = SW.RankSystem.GetReprForTeam( _teamId)
+	return SW.RankSystem.RankThresholds[SW.RankSystem.Rank[repr]]*SW.RankSystem.TeamSizes[_teamId]
+end
+-- returns a playerId that is part of this team and has a player attached to it
+function SW.RankSystem.GetReprForTeam( _teamId)
+	local team = XNetwork.GameInformation_GetLogicPlayerTeam
+	for i = 1, SW.MaxPlayers do
+		if team(i) == _teamId and XNetwork.GameInformation_IsHumanPlayerAttachedToPlayerID(i) == 1 then
+			return i
+		end
+	end
+	-- pls never reach this point.
+	LuaDebugger.Log('WARNING: THERE IS NO REPR FOR TEAM ID '.._teamId)
+	Message('WARNING: THERE IS NO REPR FOR TEAM ID '.._teamId)
+	return 1
+end
 function SW.RankSystem.OnRankUp( _pId)	--Gets called every time a player reaches a new rank; Currently empty
 	Message("Spieler "..SW.RankSystem.PlayerNames[_pId].." hat den Rang "..SW.RankSystem.RankNames[SW.RankSystem.Rank[_pId]].." @color:255,255,255 erreicht!")
 	-- calling callbacks
@@ -237,19 +248,19 @@ function SW.RankSystem.OnRankUp( _pId)	--Gets called every time a player reaches
 	else
 		XGUIEng.SetProgressBarValues("VCMP_Team"..SW.RankSystem.GetGUIIdByPlayerId(_pId).."Progress", 0, 1)
 	end
-	if GUI.GetPlayerID() == 17 then
-		local key = 0
-		for i = 1, table.getn(SW.RankSystem.ListOfAllyIds) do
-			if SW.RankSystem.ListOfAllyIds[i] == _pId then
-				key = i
-				break
-			end
-		end
-		if key ~= 0 then
-			local rank = SW.RankSystem.Rank[_pId]
-			QuestController.Data[key].desc = SW.RankSystem.RankNames[rank].." "..SW.RankSystem.PlayerNames[_pId].." @color:255,255,255"
+	--if GUI.GetPlayerID() == 17 then
+	local key = 0
+	for i = 1, table.getn(SW.RankSystem.ListOfAllyIds) do
+		if SW.RankSystem.ListOfAllyIds[i] == _pId then
+			key = i
+			break
 		end
 	end
+	if key ~= 0 then
+		local rank = SW.RankSystem.Rank[_pId]
+		QuestController.Data[key].desc = SW.RankSystem.RankNames[rank].." "..SW.RankSystem.PlayerNames[_pId].." @color:255,255,255"
+	end
+	--end
 end
 function SW.RankSystem.GetGUIIdByPlayerId(_pId)
 	for k,v in pairs(SW.RankSystem.ListOfAllyIds) do
@@ -257,7 +268,7 @@ function SW.RankSystem.GetGUIIdByPlayerId(_pId)
 			return k
 		end
 	end
-	return 8 -- TODO: SW.MaxPlayers?
+	return 8 -- TODO: SW.MaxPlayers? Nope, 8 ist die maximale Balkenzahl.
 end
 function SW_RankSystem_DEBUGHandOutPoints( _sender, _receiver, _amount)
 	Message(_sender.." is giving away rank points for free to id ".._receiver..": ".._amount)

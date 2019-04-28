@@ -48,6 +48,7 @@ function SpeedWarOnGameStart()
 	
 	Script.LoadFolder("maps\\user\\speedwar\\config");
 	Script.LoadFolder("maps\\user\\speedwar\\tools");
+	SW.DesyncDetector.HookChatCallback()
 	-- calculate check sum after loading scripts
 	SW.VersionCheck.CalculateVersion()
 	
@@ -108,6 +109,11 @@ function SpeedWarOnGameStart()
 	SW.IsHost = (SW.Host == SW.PlayerId);
 	if CNetwork then
 		SW.IsHost = (CNetwork.GameInformation_GetHost()==XNetwork.GameInformation_GetLogicPlayerUserName( GUI.GetPlayerID()))
+		for _,v in pairs(SW.Players) do
+			Display.SetPlayerColorMapping( v, XNetwork.GameInformation_GetLogicPlayerColor(v))
+			local r,g,b = GUI.GetPlayerColor( v)
+			Logic.PlayerSetPlayerColor( v, r, g, b)
+		end
 	end
 	SW.SetupMPLogic();
 	Sync.Init();
@@ -265,6 +271,7 @@ function SW.Activate( _seed)
 	math.randomseed( _seed)
 	-- create all SV related functions
 	SW.SV.Init()
+	
 	-- village centers shall be removed and replaced by outposts
 	SW.EnableOutpostVCs();
 
@@ -294,7 +301,9 @@ function SW.Activate( _seed)
 	-- Genetische Dispositionen für alle! :D
 	SW.EnableGeneticDisposition()
 	-- Dying entities leaves remains
-	SW.EnableMortalRemains()
+	-- SW.EnableMortalRemains()
+	-- XML Changes
+	SW.XMLChanges.DoChanges()
 	-- Jeder mag Plünderer :D
 	SW.EnablePillage()
 	
@@ -356,11 +365,12 @@ function SW.Activate( _seed)
 		end
 	end
 	StartSimpleJob("SW_RessCheck_VersionJob")
-	SW.XMLChanges.DoChanges()
 	-- and buff thieves against walls
 	SW.ThiefBuff.Init()
 	-- Dont show hq upgrade msg
 	ForbidTechnology(Technologies.UP2_Headquarter)
+	-- Ressources from trades are now part of the statistics
+	SW.ShowTradeInStats()
 	-- Chat commands!
 	--SW.ChatCommands.Init()
 	-- Enable map specific changes
@@ -727,6 +737,15 @@ function SW.EnableIncreasingOutpostCosts()
 	GUITooltip_ConstructBuilding = function( _a, _b, _c, _d, _e)
 		if _a == UpgradeCategories.Outpost then
 			local pId = GUI.GetPlayerID()
+			local nHQ = SW.GetNumberOfOutpostsOfPlayer(pId)
+			if SW.GUI.Rules.MaxHQ ~= 0 then
+				if nHQ >= SW.GUI.Rules.MaxHQ then 
+					XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomCosts, "")
+					XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomText, "@color:180,180,180,255  Außenposten  @cr @color:255,255,255,255 Maximale Anzahl an Aussenposten erreicht.")		
+					XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomShortCut, " ")
+					return 
+				end
+			end
 			local costString = InterfaceTool_CreateCostString( SW.GetCostOfNextOutpost( pId) )
 			XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomCosts, costString)
 			XGUIEng.SetTextKeyName(gvGUI_WidgetID.TooltipBottomText, "MenuSerf/outpost_normal")		
@@ -740,6 +759,14 @@ function SW.EnableIncreasingOutpostCosts()
 		if _uc == UpgradeCategories.Outpost then
 			--check ressources
 			local pId = GUI.GetPlayerID()
+			local nHQ = SW.GetNumberOfOutpostsOfPlayer(pId)
+			if SW.GUI.Rules.MaxHQ ~= 0 then
+				if nHQ >= SW.GUI.Rules.MaxHQ then 
+					Message("Maximale Anzahl an Aussenposten erreicht!")
+					Sound.PlayGUISound( Sounds.VoicesSerf_SERF_No_rnd_03, 0)
+					return 
+				end
+			end
 			local costTable = SW.GetCostOfNextOutpost( pId)
 			local currWidget = XGUIEng.GetCurrentWidgetID()
 			if InterfaceTool_HasPlayerEnoughResources_Feedback( costTable) == 1 then
@@ -783,7 +810,18 @@ function SW_OnEntityCreatedOutpost()
 			enoughRess = false
 		end
 	end
-	if not enoughRess then --Not enough ressources?
+	
+	local outpostAllowed = true
+	local nHQ = SW.GetNumberOfOutpostsOfPlayer(pId)
+	if SW.GUI.Rules.MaxHQ ~= 0 then
+		if nHQ > SW.GUI.Rules.MaxHQ then 
+			Message("Maximale Anzahl an Aussenposten erreicht!")
+			Sound.PlayGUISound( Sounds.VoicesSerf_SERF_No_rnd_03, 0)
+			outpostAllowed = false 
+		end
+	end
+	
+	if (not enoughRess) or (not outpostAllowed) then --Not enough ressources?
 		--DEMOLISH!!!1!11cos(0)
 		SW_DestroySafe( eId)
 		--Play message for controlling players
@@ -1073,6 +1111,20 @@ function SW.PillageRewardPlayer( _eType, _pId)
 	end
 end
 
+function SW.ShowTradeInStats()
+	SW.TradeStatisticGameCallback_OnTransactionComplete = GameCallback_OnTransactionComplete
+	GameCallback_OnTransactionComplete = function(_bId, _e)
+		local _, bought, _, sold = SW.GetMarketTransaction(_bId)
+		local pId = GetPlayer(_bId)
+		if sold < bought then
+			LuaDebugger.Break()
+			local ressP = (bought-sold) * Score.ResourcePoints 
+			Score.Player[pId]["resources"] = Score.Player[pId]["resources"] + ressP
+			Score.Player[pId]["all"] = Score.Player[pId]["all"] + ressP
+		end
+		SW.TradeStatisticGameCallback_OnTransactionComplete(_bId, _e)
+	end
+end
 --		DEFEAT CONDITION
 SW.DefeatConditionPlayerStates = {}
 SW.VisionEntities = {}

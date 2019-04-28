@@ -13,9 +13,16 @@ SW.Bugfixes.ToWipe = {}
 function SW.Bugfixes.Init()
 	local SellBuildingUpvalue = GUI.SellBuilding
 	local ListOfSoldBuildingsUpvalue = {}
+	SW.Bugfixes.OnAttackCDs = {}
+	Trigger.RequestTrigger( Events.LOGIC_EVENT_ENTITY_HURT_ENTITY, "SW_Bugfixes_IsBuilding", "SW_Bugfixes_OnHit", 1)
 	GUI.SellBuilding = function( _eId)
 		if _eId == nil then return end
 		eId = math.mod( _eId, 65536)
+		if (SW.Bugfixes.OnAttackCDs[eId] or 0) + 15000 > Logic.GetTimeMs() then
+			Message("Das Gebäude wird angegriffen!")
+			Sound.PlayGUISound( Sounds.VoicesMentor_MP_TauntFunny05, 0)
+			return
+		end
 		if ListOfSoldBuildingsUpvalue[eId] == nil then
 			ListOfSoldBuildingsUpvalue[eId] = Logic.GetTime()
 			SellBuildingUpvalue( _eId)
@@ -48,9 +55,79 @@ function SW.Bugfixes.Init()
 		end
 		SW.Bugfixes.GUIAction_BlessSettlers(_blessCategory)
 		SW.Bugfixes.BlessingData[player][_blessCategory] = timee
+		-- all nice and done? disable corresponding button
+		for wId,bCat in pairs(SW.Bugfixes.BlessCategoriesByWidgetId) do
+			if bCat == _blessCategory then
+				XGUIEng.DisableButton(wId, 1)
+			end
+		end
+		XGUIEng.DisableButton(XGUIEng.GetCurrentWidgetID(), 1)
 	end
+	SW.Bugfixes.BlessCategoriesByWidgetId = {
+		[XGUIEng.GetWidgetID("BlessSettlers1")] = BlessCategories.Construction,
+		[XGUIEng.GetWidgetID("BlessSettlers2")] = BlessCategories.Research,
+		[XGUIEng.GetWidgetID("BlessSettlers3")] = BlessCategories.Weapons,
+		[XGUIEng.GetWidgetID("BlessSettlers4")] = BlessCategories.Financial,
+		[XGUIEng.GetWidgetID("BlessSettlers5")] = BlessCategories.Canonisation
+	}
+	SW.Bugfixes.BlessCategoriesByTechId = {
+		[Technologies.T_BlessSettlers1] = BlessCategories.Construction,
+		[Technologies.T_BlessSettlers2] = BlessCategories.Research,
+		[Technologies.T_BlessSettlers3] = BlessCategories.Weapons,
+		[Technologies.T_BlessSettlers4] = BlessCategories.Financial,
+		[Technologies.T_BlessSettlers5] = BlessCategories.Canonisation
+	}
+	SW.Bugfixes.GUITooltip_BlessSettlers = GUITooltip_BlessSettlers
+	GUITooltip_BlessSettlers = function(_a, _b, _c, _d)
+		local CurrentWidgetID = XGUIEng.GetCurrentWidgetID()
+		local ShortCutToolTip = " "
+		if XGUIEng.IsButtonDisabled(CurrentWidgetID) == 1 then		
+			TooltipText =  _a
+		elseif XGUIEng.IsButtonDisabled(CurrentWidgetID) == 0 then		
+			TooltipText = _b
+		end
+		if _d ~= nil then
+			ShortCutToolTip = XGUIEng.GetStringTableText("MenuGeneric/Key_name") .. ": [" .. XGUIEng.GetStringTableText(_d) .. "]"
+		end
+		if TooltipText == "MenuMonastery/BlessSettlers_disabled" or TooltipText == "MenuMonastery/BlessSettlers_disabled" then
+			TooltipText = _b
+		end
+		XGUIEng.SetTextKeyName(gvGUI_WidgetID.TooltipBottomText, TooltipText)
+		XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomShortCut, ShortCutToolTip)
+		local timeString = ""
+		local bCat = SW.Bugfixes.BlessCategoriesByWidgetId[XGUIEng.GetCurrentWidgetID()]
+		local pId = GUI.GetPlayerID()
+		if SW.Bugfixes.BlessingData[pId][bCat] == nil then
+			SW.Bugfixes.BlessingData[pId][bCat] = -10000
+		end
+		local timee = Logic.GetTime()
+		local diff = SW.Bugfixes.BlessingData[pId][bCat] + SW.Bugfixes.BlessingCooldown - timee
+		if  diff > 0 then
+			timeString = "@color:255,0,0 "..math.ceil(diff).." @color:255,255,255 "
+		end
+		XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomCosts, timeString)
+	end
+	SW.Bugfixes.GUIUpdate_BuildingButtons = GUIUpdate_BuildingButtons
+	GUIUpdate_BuildingButtons = function( _s, _t, _x)
+		SW.Bugfixes.GUIUpdate_BuildingButtons(_s, _t, _b)
+		local bCat = SW.Bugfixes.BlessCategoriesByTechId[_t]
+		if bCat == nil then return end
+		local pId = GUI.GetPlayerID()
+		if SW.Bugfixes.BlessingData[pId][bCat] == nil then
+			SW.Bugfixes.BlessingData[pId][bCat] = -10000
+		end
+		local timee = Logic.GetTime()
+		local diff = SW.Bugfixes.BlessingData[pId][bCat] + SW.Bugfixes.BlessingCooldown - timee
+		if  diff > 0 then
+			XGUIEng.DisableButton(_s, 1)
+		end
+	end
+	
+	--GUITooltip_BlessSettlers(_a,_b,_c,_d)
+    --GUIUpdate_BuildingButtons
 	SW.Bugfixes.FixBattleSerfBug()
 	SW.Bugfixes.FixInvisSerfBug()
+	SW.Bugfixes.FixSoldGUI()
 end
 SW.Bugfixes.FormationETypes = {
 	[Entities.PU_LeaderBow1] = true,
@@ -112,17 +189,15 @@ function SW_BugfixesDestroyJob()
 	end
 	return true
 end
-
---[[
-	SW.Bugfixes.SellBuilding_Orig = SW.Bugfixes.SellBuilding
-	SW.Bugfixes.SellBuilding = function( _eId, _para)
-		SW.Bugfixes.SellBuilding_Orig( _eId)
-		if _para ~= 1 and XNetwork.Manager_DoesExist() == 1 then
-			local pId = GUI.GetPlayerID()
-			local name = XNetwork.GameInformation_GetLogicPlayerUserName( pId )
-			local r,g,b = GUI.GetPlayerColor( pId )
-			local Message = "@color:"..r..","..g..","..b.." "..name.." @color:255,255,255 > Ich benutze den Abreissbug und bin stolz."
-			XNetwork.Chat_SendMessageToAll( Message)
-		end
+function SW.Bugfixes.FixSoldGUI()
+	GUIUpdate_TaxLeaderCosts = function()
+		local currWidget = XGUIEng.GetCurrentWidgetID()
+		XGUIEng.SetText( currWidget, 0)
 	end
-]]
+end
+function SW_Bugfixes_IsBuilding()
+	return Logic.IsBuilding(Event.GetEntityID2()) == 1
+end
+function SW_Bugfixes_OnHit()
+	SW.Bugfixes.OnAttackCDs[math.mod( Event.GetEntityID2(), 65536)] = Logic.GetTimeMs()
+end

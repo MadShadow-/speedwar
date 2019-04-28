@@ -155,7 +155,7 @@ SW.BuildingTooltips.RData = { --Data for research tooltips
 	},
 	[Technologies.T_UpgradeBow2] = {
 		Tier = 3,
-		Buildings = {{Entities.PB_Sawmill2, Technologies.UP1_Sawmill}},
+		Buildings = {{Entities.PB_Sawmill1, Technologies.B_Sawmill}},
 		currBuilding = {Entities.PB_Archery2, Technologies.UP1_Archery}
 	},
 	[Technologies.T_UpgradeBow3] = {
@@ -169,12 +169,12 @@ SW.BuildingTooltips.RData = { --Data for research tooltips
 	},
 	[Technologies.T_UpgradeSpear2] = {
 		Tier = 3,
-		Buildings = {{Entities.PB_Sawmill2, Technologies.UP1_Sawmill}},
+		Buildings = {{Entities.PB_Sawmill1, Technologies.B_Sawmill}},
 		currBuilding = {Entities.PB_Barracks2, Technologies.UP1_Barracks}
 	},
 	[Technologies.T_UpgradeSpear3] = {
 		Tier = 4,
-		Buildings = {{Entities.PB_Sawmill1, Technologies.UP1_Sawmill}},
+		Buildings = {{Entities.PB_Sawmill2, Technologies.UP1_Sawmill}},
 		currBuilding = {Entities.PB_Barracks2, Technologies.UP1_Barracks}
 	},
 	[Technologies.T_UpgradeSword1] = {
@@ -183,7 +183,7 @@ SW.BuildingTooltips.RData = { --Data for research tooltips
 	},
 	[Technologies.T_UpgradeSword2] = {
 		Tier = 3,
-		Buildings = {{Entities.PB_Blacksmith3, Technologies.UP2_Blacksmith}},
+		Buildings = {{Entities.PB_Blacksmith2, Technologies.UP1_Blacksmith}},
 		currBuilding = {Entities.PB_Barracks2, Technologies.UP1_Barracks}
 	},
 	[Technologies.T_UpgradeSword3] = {

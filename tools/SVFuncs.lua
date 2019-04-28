@@ -95,10 +95,10 @@ function SW.GetKegTimer( _eId)
 end
 
 --some stuff regarding markets
--- returns type and amount of ressource to buy
+-- returns type and amount of ressource to buy, type and amount to sell
 function SW.GetMarketTransaction( _eId)
 	local p = S5Hook.GetEntityMem( _eId)[31][1]
-	return p[6]:GetInt(), p[7]:GetFloat()
+	return p[6]:GetInt(), p[7]:GetFloat(), p[5]:GetInt(), p[8]:GetFloat()
 end
 function SW.SetMarketTransaction( _eId, _toBuyType, _toBuyAmount)
 	local p = S5Hook.GetEntityMem( _eId)[31][1]
@@ -133,6 +133,7 @@ function SW.SetConstructionCosts( _eType, _costTable)
 	}
 	local resourceTypes = {
 		[ResourceType.Gold] = 57,
+		[ResourceType.Silver] = 59,
 		[ResourceType.Clay] = 67,
 		[ResourceType.Wood] = 69,
 		[ResourceType.Stone] = 61,

@@ -347,6 +347,39 @@ function SW.RandomChest.Action.Statue( _pId, _x, _y)
 	Logic.SetModelAndAnimSet( eId, Models.PB_Beautification01)
 	S5Hook.GetEntityMem( eId)[25]:SetFloat(2.5)
 end
+function SW.RandomChest.Action.Walls( _pId, _x, _y)
+	if GUI.GetPlayerID() == _pId then
+		Message("Stein um Stein mauer ich dich ein")
+		Message("Stein um Stein")
+		Message("Ich werde immer bei dir sein")
+	end
+	_x = math.floor(_x/100)*100
+	_y = math.floor(_y/100)*100
+	local toCreate = {
+		-- type, offX, offY, rot
+		{Models.XD_WallStraight, 600, 0, 0},
+		{Models.XD_WallStraight, 0, 600, 90},
+		{Models.XD_WallStraight, -600, 0, 0},
+		{Models.XD_WallStraight, 0, -600, 90},
+		{Models.XD_WallDistorted, 400, 400, 0},
+		{Models.XD_WallDistorted, 400, -400, 90},
+		{Models.XD_WallDistorted, -400, 400, 90},
+		{Models.XD_WallDistorted, -400, -400, 0},
+		{Models.XD_WallCorner, 600, 200, 0},
+		{Models.XD_WallCorner, 600, -200, 0},
+		{Models.XD_WallCorner, -600, 200, 0},
+		{Models.XD_WallCorner, -600, -200, 0},
+		{Models.XD_WallCorner, 200, 600, 0},
+		{Models.XD_WallCorner, 200, -600, 0},
+		{Models.XD_WallCorner, -200, 600, 0},
+		{Models.XD_WallCorner, -200, -600, 0}
+	}
+	local eId
+	for k,v in pairs(toCreate) do
+		eId = NapoCreateEntity( Entities.XD_Rock1, _x + v[2], _y + v[3], v[4])
+		Logic.SetModelAndAnimSet( eId, v[1])
+	end
+end
 SW.RandomChest.EffectOverloadCount = 0
 function SW.RandomChest.Action.EffectOverload( _pId, _x, _y)
 	if GUI.GetPlayerID() == _pId then
@@ -521,11 +554,12 @@ function NapoCreateEffect( _effId, _x, _y, _pId)
 	if _x >= worldSize or _y >= worldSize then return end
 	Logic.CreateEffect(_effId, _x, _y, _pId)
 end
-function NapoCreateEntity( _eType, _x, _y)
+function NapoCreateEntity( _eType, _x, _y, _rot)
+	if _rot == nil then _rot = 0 end
 	if _x <= 0 or _y <= 0 then return 0 end
 	local worldSize = Logic.WorldGetSize()
 	if _x >= worldSize or _y >= worldSize then return 0 end
-	return Logic.CreateEntity( _eType, _x, _y, 0, 0)
+	return Logic.CreateEntity( _eType, _x, _y, _rot, 0)
 end
 function SW.RandomChest.Test()
 	local pos = GetPosition(GUI.GetSelectedEntity())

@@ -37,8 +37,25 @@ SW = SW or {};
 
 SpeedwarConfig = {
 	OnGameStartCallback = function()
-		-- if there is anything you'd like to do ..
-		-- this is called when serfs get spawned
+		local t = {
+			Entities.XD_StonePit1,
+			Entities.XD_IronPit1,
+			Entities.XD_ClayPit1,
+			Entities.XD_SulfurPit1
+		}
+		local amount = {
+			[Entities.XD_StonePit1] = 60000,
+			[Entities.XD_IronPit1] = 60000,
+			[Entities.XD_ClayPit1] = 60000,
+			[Entities.XD_SulfurPit1] = 60000
+		}
+		for eId in S5Hook.EntityIterator(Predicate.OfAnyType(t[1],t[2],t[3],t[4])) do
+			local ty = Logic.GetEntityType(eId)
+			if Logic.GetResourceDoodadGoodAmount(eId) ~= amount[ty] then
+				--LuaDebugger.Log("Changing size of "..eId.." from "..Logic.GetResourceDoodadGoodAmount(eId).." to "..amount[ty])
+			end
+			Logic.SetResourceDoodadGoodAmount( eId, amount[ty])
+		end
 	end,
 	EverySecond = function()
 		-- stuff that is called every second, return true does not end job

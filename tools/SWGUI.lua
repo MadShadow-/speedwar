@@ -10,8 +10,9 @@ SW.GUI = {
 	GameStarted = false,
 	
 	Teamspawn = 0,
-	Teamrank = 0,
+	Teamrank = 1,
 	Suddendeath = 90,
+	MaxHQ = 0,
 	
 	Text = {
 		[0] = "Nein",
@@ -40,6 +41,18 @@ SW.GUI = {
 		["TimeMinus"] = function()
 			SW.GUI.Suddendeath = math.max(SW.GUI.Suddendeath - 5, 5)
 			XGUIEng.SetText("SWSMC1E1Button", "@center "..SW.GUI.Suddendeath)
+		end,
+		["HQPlus"] = function()
+			SW.GUI.MaxHQ = SW.GUI.MaxHQ + 1
+			XGUIEng.SetText("SWSMC1E4Button", "@center "..SW.GUI.MaxHQ)
+		end,
+		["HQMinus"] = function()
+			SW.GUI.MaxHQ = math.max(SW.GUI.MaxHQ - 1, 0)
+			if SW.GUI.MaxHQ == 0 then
+				XGUIEng.SetText("SWSMC1E4Button", "@center Inf")
+			else
+				XGUIEng.SetText("SWSMC1E4Button", "@center "..SW.GUI.MaxHQ)
+			end
 		end
 	},
 	
@@ -50,6 +63,7 @@ SW.GUI = {
 		["Teamspawn"]   = "Ermöglicht es Spielern aus dem gleichen Team an einem Ort auf der Karte zusammen zu starten.",
 		["Anonym"]      = "Jeder Fortschritt zum nächsten Rang wird unter allen Teammitgliedern aufgeteilt.",
 		["Startgame"]   = "@color:255,125,0 Startet das Spiel mit den aktuell eingestellten Regeln.",
+		["MaxHQ"]		= "Gibt an, wie viele Aussenposten maximal gebaut werden dürfen. Inf steht für unendlich viele."
 	},
 	
 };
@@ -59,6 +73,14 @@ function SW.GUI.Init()
 	--XGUIEng.ShowWidget("SWStartMenu", 1)
 	XGUIEng.ShowWidget("SWSBCArrow", 0)
 	XGUIEng.ShowWidget("SWShowButtonContainer", 1)
+	-- Show GUI by default
+	--SW.GUI.OpenStartMenu()
+	-- Hide start menu for some time
+	if SW.IsHost then
+		XGUIEng.ShowWidget( "SWStartMenu", 0)
+		XGUIEng.ShowWidget("SWShowButtonContainer", 0)
+		StartSimpleJob("SW_GUI_OpenMenuForHost")
+	end
 	-- Teamspawn
 	XGUIEng.SetText("SWSMC1E2Button", "@center "..SW.GUI.Text[SW.GUI.Teamspawn])
 	XGUIEng.SetText("SWSMC1E3Button", "@center "..SW.GUI.Text[SW.GUI.Teamrank])
@@ -73,29 +95,13 @@ function SW.GUI.Init()
 		Sync.AddCall("SW.GUI.ButtonCallbacks.Anonym")
 		Sync.AddCall("SW.GUI.ButtonCallbacks.TimePlus")
 		Sync.AddCall("SW.GUI.ButtonCallbacks.TimeMinus")
+		Sync.AddCall("SW.GUI.ButtonCallbacks.HQPlus")
+		Sync.AddCall("SW.GUI.ButtonCallbacks.HQMinus")
 		Sync.AddCall("SW.GUI.StartGame")
 	end
 	if not SW.IsHost then
 		SW.GUI.ButtonTooltips.Startgame = "@color:255,125,0 Schließt dieses Fenster."
 	end
-	--[[ old by Mad
-	S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml");
-	SW.GUI.SuddendeathCTI = CTI.New({Widget="SWSMC1E1Button", Before = "@center ", Callback=SW.GUI.SuddendeathChanged, NumbersOnly=true, MaxLength=3});
-	XGUIEng.SetText("SWSMC1E2Button", "@center " .. SW.GUI.Text[SW.GUI.Teamspawn]);
-	XGUIEng.SetText("SWSMC1E3Button", "@center " .. SW.GUI.Text[SW.GUI.Anonym]);
-	SW.GUI.ButtonTooltips["HostOnly"] = "@color:255,0,0 Nur der Host kann das Menü bedienen. Host ist " .. UserTool_GetPlayerName(SW.Host);
-	
-	if CNetwork then --is this on simi server?
-		SW.IsHost = (CNetwork.GameInformation_GetHost()==XNetwork.GameInformation_GetLogicPlayerUserName( GUI.GetPlayerID()))
-	else
-		Sync.AddCall("SW.GUI.StartGame");
-		Sync.AddCall("SW.GUI.ToggleTeamSpawn");
-		Sync.AddCall("SW.GUI.ToggleAnonym");
-		Sync.AddCall("SW.GUI.SetFinal");
-	end
-	SW.GUI.RemoveArrowCounter = 3;
-	StartSimpleJob("SW_GUI_RemoveArrowCounterJob");
-	]]
 end
 function SW.GUI.Button(_name)
 	if _name == "OpenStartMenu" then
@@ -114,9 +120,9 @@ function SW.GUI.Button(_name)
 	end
 	if _name == "Startgame" then
 		if CNetwork then
-			CNetwork.send_command("SW.GUI.StartGameCNetwork", SW.GUI.Suddendeath, SW.GUI.Teamspawn, SW.GUI.Teamrank)
+			CNetwork.send_command("SW.GUI.StartGameCNetwork", SW.GUI.Suddendeath, SW.GUI.Teamspawn, SW.GUI.Teamrank, SW.GUI.MaxHQ)
 		else
-			Sync.Call("SW.GUI.StartGame", SW.GUI.Suddendeath, SW.GUI.Teamspawn, SW.GUI.Teamrank)
+			Sync.Call("SW.GUI.StartGame", SW.GUI.Suddendeath, SW.GUI.Teamspawn, SW.GUI.Teamrank, SW.GUI.MaxHQ)
 		end
 		-- protect host from himself
 		XGUIEng.ShowWidget("SWStartMenu", 0)
@@ -130,7 +136,7 @@ function SW.GUI.Button(_name)
 		end
 	end
 end
-function SW.GUI.StartGameCNetwork( _sender, _time, _sharedSpawn, _sharedRank)
+function SW.GUI.StartGameCNetwork( _sender, _time, _sharedSpawn, _sharedRank, _maxHQ)
 	if SW.GUI.GameStarted then
 		return;
 	end
@@ -149,6 +155,7 @@ function SW.GUI.StartGameCNetwork( _sender, _time, _sharedSpawn, _sharedRank)
 	SW.GUI.Rules.Time = _time
 	SW.GUI.Rules.SharedSpawn = _sharedSpawn
 	SW.GUI.Rules.SharedRank = _sharedRank
+	SW.GUI.Rules.MaxHQ = _maxHQ
 	-- actual game start
 	-- reinstall colors
 	for _,v in pairs(SW.Players) do
@@ -158,7 +165,7 @@ function SW.GUI.StartGameCNetwork( _sender, _time, _sharedSpawn, _sharedRank)
 	end
 	SW.Activate(CXNetwork.GameInformation_GetRandomseed())
 end
-function SW.GUI.StartGame( _time, _sharedSpawn, _sharedRank)
+function SW.GUI.StartGame( _time, _sharedSpawn, _sharedRank, _maxHQ)
 	if SW.GUI.GameStarted then
 		return;
 	end
@@ -173,6 +180,7 @@ function SW.GUI.StartGame( _time, _sharedSpawn, _sharedRank)
 	SW.GUI.Rules.Time = _time
 	SW.GUI.Rules.SharedSpawn = _sharedSpawn
 	SW.GUI.Rules.SharedRank = _sharedRank
+	SW.GUI.Rules.MaxHQ = _maxHQ
 	-- actual game start
 	SpeedwarStarter = function()
 		if Counter.Tick2("test",2) then
@@ -207,7 +215,14 @@ function SW.GUI.OpenStartMenu()
 		XGUIEng.SetText("SWSMC1E1Button", "@center "..SW.GUI.Suddendeath)
 	end
 end
-
+function SW_GUI_OpenMenuForHost()
+	if Counter.Tick2("OpenHostMenu", 3) then
+		--XGUIEng.ShowWidget( "SWStartMenu", 1)
+		XGUIEng.ShowWidget("SWShowButtonContainer", 1)
+		SW.GUI.OpenStartMenu()
+		return true
+	end
+end
 
 
 -- OLD STUFF

@@ -76,10 +76,10 @@ function SW.XMLChanges.DoChanges()
 	SW.SetKegFactor( Entities.XD_WallStraightGate_Closed, 2)
 	-- LKAV BUFFS
 	local lvl1Dmg = 10
-	local lvl1Bonus = 4
+	local lvl1Bonus = 0
 	local lvl1Range = 2800
 	local lvl2Dmg = 18
-	local lvl2Bonus = 8
+	local lvl2Bonus = 0
 	local lvl2Range = 3200
 	-- Lvl1 leader
 	SW.SetLeaderDamage( Entities.PU_LeaderCavalry1, lvl1Dmg)
@@ -116,7 +116,33 @@ function SW.XMLChanges.DoChanges()
 	SW.SetGlobalMarketSpeed( 10)
 	-- Make cannons worse against units and better against buildings
 	SW.SetLeaderAoERange(Entities.PV_Cannon3, 150)
-	SW.SetLeaderAoERange(Entities.PV_Cannon3, 200)
+	SW.SetLeaderAoERange(Entities.PV_Cannon4, 200)
+	-- universtiy technology speed changed
+	local time;
+	for name, id in pairs(Technologies) do
+		if string.find(name, "GT_", 1, true) then
+			time = SW.GetTechnologyTimeToResearch(id) * 0.5;
+			SW.SetTechnologyTimeToResearch( id, time);
+		end
+	end
+	local beautificationList = {
+		Entities.PB_Beautification03,
+		Entities.PB_Beautification05,
+		Entities.PB_Beautification07,
+		Entities.PB_Beautification08,
+		Entities.PB_Beautification10,
+		Entities.PB_Beautification11
+	}
+	local beautificationFactor = 5
+	for k,v in pairs(beautificationList) do
+		local cost = SW.GetConstructionCosts(v)
+		local motiBoost = SW.GetMotivationProvided(v)
+		SW.SetMotivationProvided( v, motiBoost*beautificationFactor)
+		for k2, v2 in pairs(cost) do
+			cost[k2] = v2 * beautificationFactor
+		end
+		SW.SetConstructionCosts( v, cost)
+	end
 end
 --Refinery Push
 --[[
