@@ -29,7 +29,7 @@ SW.RankSystem.RankThresholds = {
 SW.RankSystem.UseCatchUp = true
 SW.RankSystem.KillPoints = 5		-- Points per settler killed
 SW.RankSystem.LosePoints = 1		-- Points per settler lost
-SW.RankSystem.BuildingPoints = 75	-- Points per building destroyed
+SW.RankSystem.BuildingPoints = 15	-- Points per building destroyed
 SW.BuildingTooltips.BData = { --Data for new building tooltips in serf menu
 	[Technologies.B_Barracks] = {	--Barracks are allowed frome the start
 		Tier = 1,
@@ -80,10 +80,10 @@ SW.BuildingTooltips.RData = { --Data for research tooltips
 		Tier = 4,
 	},
 	--Library path
-	[Technologies.GT_Trading] = {
-		Techs = {Technologies.GT_Literacy},
-		Tier = 2,
-	},
+	--[Technologies.GT_Trading] = {
+	--	Techs = {Technologies.GT_Literacy},
+	--	Tier = 1,
+	--},
 	[Technologies.GT_Printing] = {
 		currBuilding = {Entities.PB_University2, Technologies.UP1_University},
 		Techs = {Technologies.GT_Trading},

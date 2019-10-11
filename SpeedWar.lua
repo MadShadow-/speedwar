@@ -1117,7 +1117,6 @@ function SW.ShowTradeInStats()
 		local _, bought, _, sold = SW.GetMarketTransaction(_bId)
 		local pId = GetPlayer(_bId)
 		if sold < bought then
-			LuaDebugger.Break()
 			local ressP = (bought-sold) * Score.ResourcePoints 
 			Score.Player[pId]["resources"] = Score.Player[pId]["resources"] + ressP
 			Score.Player[pId]["all"] = Score.Player[pId]["all"] + ressP
