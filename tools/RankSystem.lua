@@ -35,6 +35,15 @@ SW.RankSystem.CallbackOnRankUp =
 	end,
 };
 function SW.RankSystem.Init()
+	SW.GameInformation_GetLogicPlayerTeam = XNetwork.GameInformation_GetLogicPlayerTeam;
+	XNetwork.GameInformation_GetLogicPlayerTeam = function(_pId)
+		if SW.IsMultiplayer() then
+			return SW.XNetwork.GameInformation_GetLogicPlayerTeam(_pId);
+		else
+			-- for the rank system to work in SP
+			return 1;
+		end
+	end
 	for i = 1, SW.MaxPlayers do
 		SW.RankSystem.Points[i] = 0
 		SW.RankSystem.Rank[i] = 1
