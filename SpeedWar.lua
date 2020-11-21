@@ -108,7 +108,7 @@ function SpeedWarOnGameStart()
 	end
 	SW.IsHost = (SW.Host == SW.PlayerId);
 	if CNetwork then
-		SW.IsHost = (CNetwork.GameInformation_GetHost()==XNetwork.GameInformation_GetLogicPlayerUserName( GUI.GetPlayerID()))
+		SW.IsHost = (XNetwork.EXTENDED_GameInformation_GetHost() ==XNetwork.GameInformation_GetLogicPlayerUserName( GUI.GetPlayerID()))
 		for _,v in pairs(SW.Players) do
 			Display.SetPlayerColorMapping( v, XNetwork.GameInformation_GetLogicPlayerColor(v))
 			local r,g,b = GUI.GetPlayerColor( v)
@@ -132,7 +132,7 @@ function SpeedWarOnGameStart()
 	if CNetwork then
 		CNetwork_SpeedwarStarter = function()
 			S5Hook.LoadGUI("maps\\user\\speedwar\\swgui.xml")
-			SW.Activate(CXNetwork.GameInformation_GetRandomseed())
+			SW.Activate(XNetwork.EXTENDED_GameInformation_GetRandomseed())
 			return true
 		end
 		-- reinstall colors

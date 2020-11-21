@@ -13,7 +13,7 @@ Sync = {
 Sync.CNetworkCalls = {
 	["SW.Bastille.TrackGroup"] = function( _sender, _bId, ...) 
 		local bPId = Logic.EntityGetPlayer( _bId)
-		if not CNetwork.isAllowedToManipulatePlayer( _sender, bPId) then
+		if not CNetwork.IsAllowedToManipulatePlayer( _sender, bPId) then
 			return
 		end
 		for i = 1, arg.n do
@@ -24,27 +24,27 @@ Sync.CNetworkCalls = {
 		SW.Bastille.TrackGroup( arg, _bId)
 	end,
 	["SW.Bastille.SyncedReleaseAllUnits"] = function( _sender, _bId)
-		if CNetwork.isAllowedToManipulatePlayer( _sender, Logic.EntityGetPlayer( _bId)) then
+		if CNetwork.IsAllowedToManipulatePlayer( _sender, Logic.EntityGetPlayer( _bId)) then
 			SW.Bastille.SyncedReleaseAllUnits( _bId)
 		end
 	end,
 	["SW.Bastille.ReleaseOneUnitSynced"] = function( _sender, _bId, _slotId)
-		if CNetwork.isAllowedToManipulatePlayer( _sender, Logic.EntityGetPlayer( _bId)) then
+		if CNetwork.IsAllowedToManipulatePlayer( _sender, Logic.EntityGetPlayer( _bId)) then
 			SW.Bastille.ReleaseOneUnitSynced( _bId, _slotId)
 		end
 	end,
 	["SW.Walls2.SellWall"] = function( _sender, _eId) 
-		if CNetwork.isAllowedToManipulatePlayer( _sender, Logic.EntityGetPlayer( _eId)) then
+		if CNetwork.IsAllowedToManipulatePlayer( _sender, Logic.EntityGetPlayer( _eId)) then
 			SW.Walls2.SellWall( _eId)
 		end
 	end,
 	["SW.Walls2.ToggleGate"] = function( _sender, _eId) 
-		if CNetwork.isAllowedToManipulatePlayer( _sender, Logic.EntityGetPlayer( _eId)) then
+		if CNetwork.IsAllowedToManipulatePlayer( _sender, Logic.EntityGetPlayer( _eId)) then
 			SW.Walls2.ToggleGate( _eId)
 		end
 	end,
 	["SW.WallGUI.AddWallInConstructionToQueue"] = function( _sender, _eId, _wall, _isNewWall)
-		if CNetwork.isAllowedToManipulatePlayer( _sender, Logic.EntityGetPlayer( _eId)) then
+		if CNetwork.IsAllowedToManipulatePlayer( _sender, Logic.EntityGetPlayer( _eId)) then
 			SW.WallGUI.AddWallInConstructionToQueue( _eId, _wall, _isNewWall)
 		end
 	end
@@ -149,12 +149,12 @@ function Sync.CNetworkInit()
 	end
 	Sync.Call = function( _s, ...)
 		if _s == "SW.Bastille.TrackGroup" then
-			CNetwork.send_command( _s, arg[2], unpack(arg[1]))
+			CNetwork.SendCommand( _s, arg[2], unpack(arg[1]))
 			return
 		end
 		if Sync.CNetworkCalls[_s] then
 			arg.n = nil
-			CNetwork.send_command( _s, unpack(arg))
+			CNetwork.SendCommand( _s, unpack(arg))
 		else
 			Message("Unknown command send to sync: ".._s)
 		end

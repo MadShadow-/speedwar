@@ -120,7 +120,7 @@ function SW.GUI.Button(_name)
 	end
 	if _name == "Startgame" then
 		if CNetwork then
-			CNetwork.send_command("SW.GUI.StartGameCNetwork", SW.GUI.Suddendeath, SW.GUI.Teamspawn, SW.GUI.Teamrank, SW.GUI.MaxHQ)
+			CNetwork.SendCommand("SW.GUI.StartGameCNetwork", SW.GUI.Suddendeath, SW.GUI.Teamspawn, SW.GUI.Teamrank, SW.GUI.MaxHQ)
 		else
 			Sync.Call("SW.GUI.StartGame", SW.GUI.Suddendeath, SW.GUI.Teamspawn, SW.GUI.Teamrank, SW.GUI.MaxHQ)
 		end
@@ -130,7 +130,7 @@ function SW.GUI.Button(_name)
 	end
 	if SW.GUI.ButtonCallbacks[_name] then
 		if CNetwork then
-			CNetwork.send_command("SW.GUI.ButtonCallbacks.".._name)
+			CNetwork.SendCommand("SW.GUI.ButtonCallbacks.".._name)
 		else
 			Sync.Call("SW.GUI.ButtonCallbacks.".._name)
 		end
@@ -140,7 +140,7 @@ function SW.GUI.StartGameCNetwork( _sender, _time, _sharedSpawn, _sharedRank, _m
 	if SW.GUI.GameStarted then
 		return;
 	end
-	if _sender ~= CNetwork.GameInformation_GetHost() then
+	if _sender ~= XNetwork.EXTENDED_GameInformation_GetHost() then
 		Message(_sender.." wollte das Spiel starten!")
 		return
 	end
@@ -163,7 +163,7 @@ function SW.GUI.StartGameCNetwork( _sender, _time, _sharedSpawn, _sharedRank, _m
 		local r,g,b = GUI.GetPlayerColor( v)
 		Logic.PlayerSetPlayerColor( v, r, g, b)
 	end
-	SW.Activate(CXNetwork.GameInformation_GetRandomseed())
+	SW.Activate(XNetwork.EXTENDED_GameInformation_GetRandomseed())
 end
 function SW.GUI.StartGame( _time, _sharedSpawn, _sharedRank, _maxHQ)
 	if SW.GUI.GameStarted then
@@ -251,7 +251,7 @@ end
 
 function SW_GUI_OnButtonPressedCNetwork( _senderName, _buttonName)
 	-- wrong caller? Do nothing
-	if _senderName ~= CNetwork.GameInformation_GetHost() then return end
+	if _senderName ~= XNetwork.EXTENDED_GameInformation_GetHost() then return end
 	-- correct caller may change rules
 	if _buttonName == "Teamspawn" then
 		SW.GUI.ToggleTeamSpawn()
@@ -259,7 +259,7 @@ function SW_GUI_OnButtonPressedCNetwork( _senderName, _buttonName)
 		Message("AnonFeature not implemented.")
 	elseif _buttonName == "Startgame" then
 		if SW.IsHost then
-			CNetwork.send_command("SW_GUI_StartGameCNetwork", SW.GUI.Suddendeath, SW.GUI.Teamspawn, SW.GUI.Anonym)
+			CNetwork.SendCommand("SW_GUI_StartGameCNetwork", SW.GUI.Suddendeath, SW.GUI.Teamspawn, SW.GUI.Anonym)
 		end
 	end
 end
@@ -293,7 +293,7 @@ function SW_GUI_StartGameCounterJob()
 	XGUIEng.SetText("SWCounter", "@center " .. SW.GUI.StartGameCounter);
 	if SW.GUI.StartGameCounter <= 0 then
 		if CNetwork then
-			SW.Activate(CXNetwork.GameInformation_GetRandomseed())
+			SW.Activate(XNetwork.EXTENDED_GameInformation_GetRandomseed())
 		else
 			SW.Activate();
 			if SW.GUI.Anonym == 1 then
@@ -318,7 +318,7 @@ function SW.GUI.AnonymizePlayers()
 end
 
 function SW_GUI_StartGameCNetwork( _senderName, _suddendeathMin, _teamSpawn, _anon)
-	if _senderName ~= CNetwork.GameInformation_GetHost() then return end
+	if _senderName ~= XNetwork.EXTENDED_GameInformation_GetHost() then return end
 	SW.GUI.Suddendeath = _suddendeathMin;
 	SW.GUI.Teamspawn = _teamSpawn;
 	SW.GUI.Anonym = _anon;
