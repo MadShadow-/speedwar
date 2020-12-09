@@ -69,7 +69,23 @@ SpeedwarConfig = {
 		[6] = "Start_P6", --Spieler 6 spawnt auf Skriptentity mit Namen Start_P6
 		[7] = "Start_P7", --Spieler 7 spawnt auf Skriptentity mit Namen Start_P7
 		[8] = "Start_P8", --Spieler 8 spawnt auf Skriptentity mit Namen Start_P8
-	}
+	},
+	
+	-- If an entry here is true the corresponding rule cannot be changed in the rule selection
+	FixedRules = {
+		ChangeTime = false,
+		ChangeHQLimit = false,
+		TeamSpawn = false,
+		TeamRank = false
+	},
+	
+	-- Default rules for the map
+	InitialRules = {
+		Teamspawn = 1, -- no team spawn
+		Teamrank = 1, -- no team rank
+		Suddendeath = 90, -- 90 min play time
+		MaxHQ = 0, -- no limit for HQs
+	},
 	
 	--[[
 	-- WeatherConfiguration

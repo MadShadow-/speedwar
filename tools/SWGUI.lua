@@ -60,7 +60,8 @@ SW.GUI = {
 		["Suddendeath"] = "Gibt die Anzahl an Spielminuten an, nach denen der Sieger ermittelt wird. "
 						  .. "Sieger ist das Team, welches nach Ablauf der Zeit das größte Gebiet hält.",
 						  
-		["Teamspawn"]   = "Ermöglicht es Spielern aus dem gleichen Team an einem Ort auf der Karte zusammen zu starten.",
+		["Teamspawn"]   = "Ermöglicht es Spielern aus dem gleichen Team an einem Ort auf der Karte zusammen zu starten. Teamspawn hat keinen Effekt, "
+			.."wenn die Karte fixe Startpositionen hat.",
 		["Anonym"]      = "Jeder Fortschritt zum nächsten Rang wird unter allen Teammitgliedern aufgeteilt.",
 		["Startgame"]   = "@color:255,125,0 Startet das Spiel mit den aktuell eingestellten Regeln.",
 		["MaxHQ"]		= "Gibt an, wie viele Aussenposten maximal gebaut werden dürfen. Inf steht für unendlich viele."
@@ -73,6 +74,17 @@ function SW.GUI.Init()
 	--XGUIEng.ShowWidget("SWStartMenu", 1)
 	XGUIEng.ShowWidget("SWSBCArrow", 0)
 	XGUIEng.ShowWidget("SWShowButtonContainer", 1)
+	
+	-- Apply default rules if possible
+	if SpeedwarConfig ~= nil then
+		if SpeedwarConfig.InitialRules ~= nil then
+			SW.GUI.Teamspawn = SpeedwarConfig.InitialRules.Teamspawn
+			SW.GUI.Teamrank = SpeedwarConfig.InitialRules.Teamrank
+			SW.GUI.Suddendeath = SpeedwarConfig.InitialRules.Suddendeath
+			SW.GUI.MaxHQ = SpeedwarConfig.InitialRules.MaxHQ
+		end
+	end	
+	
 	-- Show GUI by default
 	--SW.GUI.OpenStartMenu()
 	-- Hide start menu for some time
@@ -85,6 +97,29 @@ function SW.GUI.Init()
 	XGUIEng.SetText("SWSMC1E2Button", "@center "..SW.GUI.Text[SW.GUI.Teamspawn])
 	XGUIEng.SetText("SWSMC1E3Button", "@center "..SW.GUI.Text[SW.GUI.Teamrank])
 	XGUIEng.SetText("SWSMC1E1Button", "@center "..SW.GUI.Suddendeath)
+	
+	-- Check if mapper decided to disable some rule selections
+	if SpeedwarConfig ~= nil then
+		if SpeedwarConfig.FixedRules ~= nil then
+			local rTable = SpeedwarConfig.FixedRules
+			if rTable.ChangeTime then
+				SW.GUI.ButtonCallbacks.TimePlus = nil
+				SW.GUI.ButtonCallbacks.TimeMinus = nil
+			end
+			if rTable.ChangeHQLimit then
+				SW.GUI.ButtonCallbacks.HQPlus = nil
+				SW.GUI.ButtonCallbacks.HQMinus = nil
+			end
+			if rTable.TeamSpawn then
+				SW.GUI.ButtonCallbacks.Teamspawn = nil
+			end
+			if rTable.TeamRank then
+				SW.GUI.ButtonCallbacks.Anonym = nil
+			end
+		end
+	end
+	
+	
 	if CNetwork then
 		for k,v in pairs(SW.GUI.ButtonCallbacks) do
 			CNetwork.SetNetworkHandler( "SW.GUI.ButtonCallbacks."..k, v)
