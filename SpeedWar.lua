@@ -689,9 +689,27 @@ end
 
 --			OUTPOSTS
 --HelperFunc: Get number of current outposts( finished & in construction)
-function SW.GetNumberOfOutpostsOfPlayer( _player)
-	--LuaDebugger.Log("".._player)
-	return Logic.GetNumberOfEntitiesOfTypeOfPlayer( _player, Entities.PB_Outpost1)
+SW.MaxOutpostsBuilt = {}
+for playerId = 1,16 do
+	SW.MaxOutpostsBuilt[playerId] = 0;
+end
+
+function SW.GetNumberOfOutpostsOfPlayer( _player, _modifier)
+	_modifier = _modifier or 0;
+	local curNumOutposts = Logic.GetNumberOfEntitiesOfTypeOfPlayer( _player, Entities.PB_Outpost1);
+	-- let player only pay the costs of outpost 5
+	SW.MaxOutpostsBuilt[_player] = math.max(SW.MaxOutpostsBuilt[_player], curNumOutposts);
+	local maxCompare = SW.MaxOutpostsBuilt[_player];
+	if _modifier == -1 then
+		-- if modifier == -1 then function is called after outpost was placed to calculate costs.
+		-- increase max outpost built , so that if last built outpost == max outpost built, you pay reduced cost
+		-- I know its shitty code, deal with it :p
+		maxCompare = maxCompare + 1;
+	end
+	if curNumOutposts < maxCompare then
+		return math.min(curNumOutposts, 5);
+	end
+	return curNumOutposts + _modifier;
 	--Unstable cause of unknown reasons?
 	--local x = 0;
 	--for eID in S5Hook.EntityIterator(Predicate.OfPlayer(_player), Predicate.OfType(Entities.PB_Outpost1)) do
@@ -703,10 +721,7 @@ end
 --optional: _modifier, reduces num of outposts used in calculation
 function SW.GetCostOfNextOutpost( _player, _modifier)
 	local baseCosts = SW.OutpostCosts
-	local numOutposts = SW.GetNumberOfOutpostsOfPlayer(_player);
-	if _modifier ~= nil then
-		numOutposts = numOutposts + _modifier
-	end
+	local numOutposts = SW.GetNumberOfOutpostsOfPlayer(_player, _modifier);
 	--[[local factor = SW.GetCostFactorByNumOfOutposts(numOutposts);
 	local finalCosts = {};
 	for k,v in pairs(baseCosts) do
@@ -736,7 +751,7 @@ function SW.EnableIncreasingOutpostCosts()
 					return 
 				end
 			end
-			local costString = InterfaceTool_CreateCostString( SW.GetCostOfNextOutpost( pId) )
+			local costString = InterfaceTool_CreateCostString( SW.GetCostOfNextOutpost(pId) )
 			XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomCosts, costString)
 			XGUIEng.SetTextKeyName(gvGUI_WidgetID.TooltipBottomText, "MenuSerf/outpost_normal")		
 			XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomShortCut, " ")
@@ -784,6 +799,7 @@ function SW_OnEntityCreatedOutpost()
 	local pId = GetPlayer(eId);
 	
 	local currCostTable = SW.GetCostOfNextOutpost( pId, -1);
+	--LuaDebugger.Break();
 	-- Has player enough ressources?
 	local enoughRess = true --Yes until proven otherwise
 	local playerRess = {
