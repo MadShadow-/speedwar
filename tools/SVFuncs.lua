@@ -536,6 +536,8 @@ SW.SV.Data = {
 	["Exploration"] = {1, 7793784, 19, false},
 	["ConstructionTime"] = {1, 7793784, 55, true},
 	["BuildingMaxHealth"] = {1, 7793784, 13, true},
+	["MaxWorkers"] = {1, 7793784, 42, true},
+	["InitialWorkers"] = {1, 7793784, 43, true},
 	-- Logic for entities, GGL::CGLSettlerProps == 7791768
 	["AttractionPlaceNeeded"] = {1, 7791768, 136, true},
 	["SettlerExploration"] = {1, 7791768, 19, false},

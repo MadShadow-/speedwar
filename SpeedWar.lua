@@ -723,6 +723,10 @@ function SW.EnableIncreasingOutpostCosts()
 	GUITooltip_ConstructBuilding = function( _a, _b, _c, _d, _e)
 		if _a == UpgradeCategories.Outpost then
 			local pId = GUI.GetPlayerID()
+			if pId == 17 then
+				pId = Logic.EntityGetPlayer(GUI.GetSelectedEntity());
+				if pId == 0 then return end
+			end
 			local nHQ = SW.GetNumberOfOutpostsOfPlayer(pId)
 			if SW.GUI.Rules.MaxHQ ~= 0 then
 				if nHQ >= SW.GUI.Rules.MaxHQ then 
@@ -872,7 +876,12 @@ function SW.CallbackHacks()
 				XGUIEng.ShowWidget("Upgrade_Headquarter2", 0)
 				XGUIEng.ShowWidget("Research_Tracking", 0)
 				-- Show tax menu if adjustable taxes are researched
-				if Logic.GetTechnologyState( GUI.GetPlayerID(), Technologies.GT_Literacy) == 4 then
+				local pId = GUI.GetPlayerID();
+				if pId == 17 then
+					pId = Logic.EntityGetPlayer(GUI.GetSelectedEntity());
+					if pId == 0 then return end
+				end
+				if Logic.GetTechnologyState( pId, Technologies.GT_Literacy) == 4 then
 					XGUIEng.ShowWidget( "HQTaxes", 1)
 				end
 				XGUIEng.SetText("TaxLeaderSumOfPay", 0)		--Correct sum.
