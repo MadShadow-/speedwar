@@ -155,23 +155,7 @@ function SpeedWarOnGameStart()
 	end
 	
 	SW.IsActivated = false;
-	--[[
-	if SW.NrOfPlayers == 1 then
-		-- playing alone - no sync needed
-		SW.Activate(XGUIEng.GetSystemTime());
-	else
-		if SW.IsHost then
-			ActivateSpeedwar = function()
-				if Counter.Tick2("ActivateSpeedwar", 3) then
-					Sync.Call("SW.Activate", XGUIEng.GetSystemTime());
-				end
-				if SW.IsActivated then
-					return true;
-				end
-			end
-			StartSimpleJob("ActivateSpeedwar");
-		end
-	end]]
+	
 	-- Pause on desync
 	SW.MPGame_ApplicationCallback_SyncChanged = MPGame_ApplicationCallback_SyncChanged;
 	MPGame_ApplicationCallback_SyncChanged = function(_Message, _SyncMode)
@@ -382,6 +366,8 @@ function SW.Activate( _seed)
 		StartSimpleJob("SW_MapSpecificJob")
 	end
 	SW.DesyncDetector.Init()
+	
+	SW.DisableMilitaryCommandButtonsAndBattleSerf()
 end
 
 function SW.EnableStartingTechnologies()
@@ -1305,43 +1291,7 @@ end
 
 xXPussySlayer69Xx = LuaDebugger;
 
---[[
-	Mad[01.07.17 12:31]: causes crashes at restart, seems to happen if troops attacked a building -> disabled
-	Napo[21.10.17]: reenabled to test stuff
 
-if not Framework.RestartMap_Orig then
-	Framework.RestartMap_Orig = Framework.RestartMap;
-	Framework.RestartMap = function()
-		--S5Hook.RemoveArchive();
-		S5Hook.ReloadEntities();
-		SW.ResetScriptingValueChanges();
-		Trigger.DisableTriggerSystem( 1)
-		Framework.RestartMap_Orig();
-	end
-end
-if not SW.QuitGame then
-	SW.QuitGame = QuitGame
-	QuitGame = function()	
-		SW.GameClosed = true;
-		SW.QuitGame()
-	end
-end
-
-if not Framework.CloseGame_Orig then
-	Framework.CloseGame_Orig = Framework.CloseGame;
-	Framework.CloseGame = function()
-		--S5Hook.RemoveArchive(); --Archive already removed in SW.EnableOutpostVCs()
-		SW.GameClosed = true;
-		S5Hook.ReloadEntities();
-		SW.ResetScriptingValueChanges();
-		--LuaDebugger.Break();
-		--
-		S5Hook.AddArchive("extra2/shr/maps/user/speedwar/backtotheroots.bba");
-		Trigger.DisableTriggerSystem( 1)
-		Framework.CloseGame_Orig();
-	end
-end
- -- ]]
  
  if not Framework.CloseGame_Orig then
 	Framework.CloseGame_Orig = Framework.CloseGame;
@@ -1422,6 +1372,37 @@ function CreateLovelyEvening(_id)
     Display.GfxSetSetRainEffectStatus(_id, 0.0, 1.0, 0)
     Display.GfxSetSetFogParams(_id, 0.0, 1.0, 1, 150,150,170, 3000,33000)
 	Display.GfxSetSetLightParams(_id, 0.0, 1.0, -120,120,-70, 130,80,80, 255,70,50)
+end
 
+function SW.DisableMilitaryCommandButtonsAndBattleSerf()
+	GUIAction_ChangeIntoBattleSerf = function() end
+	function GUIAction_Command(_CommandType)
+		local SelectedEntityIDs = { GUI.GetSelectedEntities() }
+		GUI.CancelState() 	
+		--Attack Move
+		if _CommandType == 2 then
+			for i=1, 20, 1 do
+				local SelectedEntityID = SelectedEntityIDs[ i ]
+				if SelectedEntityID ~= nil and SelectedEntityID > 0 then
+					--Stand
+					if _CommandType == 2 then
+						GUI.SettlerStand(SelectedEntityID)
+				
+					--Defend
+					elseif _CommandType == 3 then
+						GUI.SettlerDefend(SelectedEntityID)
+							--Set agressivemode (not used yet)
+					elseif _CommandType == 6 then
+						GUI.SettlerAggressive(SelectedEntityID)
+					end
+				end
+			end
+		end
+	end
+	XGUIEng.ShowWidget("Command_Attack", 0);
+	XGUIEng.ShowWidget("Command_Defend", 0);
+	XGUIEng.ShowWidget("Command_Patrol", 0);
+	XGUIEng.ShowWidget("Command_Guard", 0);
+	XGUIEng.ShowWidget("ChangeIntoBattleSerf", 0);
 end
 
