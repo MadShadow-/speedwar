@@ -525,6 +525,9 @@ SW.SV.Data = {
 	["WorkTimeMaxChangeResidence"] = {2, 7809936, 22, true},
 	["ExhaustedWorkMotivationMalus"] = {2, 7809936, 23, false},
 	["WorkerTransportAmount"] = {2, 7809936, 24, true},
+	["WorkerResourceToRefine"] = {2, 7809936, 27, true},
+    ["WorkerTransportModel"] = {2, 7809936, 25, true},
+    ["WorkerTransportAnim"] = {2, 7809936, 24, true},
 	-- some other stuff
 	["RecruitingTime"] = {2, 7834420, 9, false},
 	["RefinedPerTick"] = {2, 7818276, 5, false},
