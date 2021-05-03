@@ -37,6 +37,10 @@ function SW.Bugfixes.Init()
 	SW.Bugfixes.GUIAction_BlessSettlers = GUIAction_BlessSettlers
 	GUIAction_BlessSettlers = function( _blessCategory)
 		local player = GUI.GetPlayerID()
+		if player == 17 then
+			player = Logic.EntityGetPlayer(GUI.GetSelectedEntity())
+			if player == 0 then return end
+		end
 		local currFaith = Logic.GetPlayersGlobalResource( player, ResourceType.Faith )	
 		local costs = Logic.GetBlessCostByBlessCategory( _blessCategory)
 		if currFaith < costs then
@@ -97,6 +101,10 @@ function SW.Bugfixes.Init()
 		local timeString = ""
 		local bCat = SW.Bugfixes.BlessCategoriesByWidgetId[XGUIEng.GetCurrentWidgetID()]
 		local pId = GUI.GetPlayerID()
+		if pId == 17 then
+			pId = Logic.EntityGetPlayer(GUI.GetSelectedEntity())
+			if pId == 0 then return end
+		end
 		if SW.Bugfixes.BlessingData[pId][bCat] == nil then
 			SW.Bugfixes.BlessingData[pId][bCat] = -10000
 		end
@@ -113,6 +121,10 @@ function SW.Bugfixes.Init()
 		local bCat = SW.Bugfixes.BlessCategoriesByTechId[_t]
 		if bCat == nil then return end
 		local pId = GUI.GetPlayerID()
+		if pId == 17 then
+			pId = Logic.EntityGetPlayer(GUI.GetSelectedEntity())
+			if pId == 0 then return end
+		end
 		if SW.Bugfixes.BlessingData[pId][bCat] == nil then
 			SW.Bugfixes.BlessingData[pId][bCat] = -10000
 		end

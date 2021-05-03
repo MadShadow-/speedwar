@@ -414,7 +414,12 @@ function SW.BuildingTooltips.ChangeGUI()
 			SW.BuildingTooltips.GUITooltip_ConstructBuilding( _uc, _tooltipStringNormal, _tooltipStringDisabled, _tech, _keyBindingString)
 			return
 		end
-		if Logic.GetTechnologyState(GUI.GetPlayerID(), _tech) == 4 then --Already teched, use original function
+		local pId = GUI.GetPlayerID();
+		if pId == 17 then
+			pId = Logic.EntityGetPlayer(GUI.GetSelectedEntity());
+			if pId == 0 then return end
+		end
+		if Logic.GetTechnologyState(pId, _tech) == 4 then --Already teched, use original function
 			SW.BuildingTooltips.GUITooltip_ConstructBuilding( _uc, _tooltipStringNormal, _tooltipStringDisabled, _tech, _keyBindingString)
 			return
 		end	
@@ -426,7 +431,7 @@ function SW.BuildingTooltips.ChangeGUI()
 		--Use original func first to set things like hotkey
 		SW.BuildingTooltips.GUITooltip_ConstructBuilding( _uc, _tooltipStringNormal, _tooltipStringDisabled, _tech, _keyBindingString)
 		--Now build custom tooltip
-		Logic.FillBuildingCostsTable( Logic.GetBuildingTypeByUpgradeCategory( _uc, GUI.GetPlayerID()), InterfaceGlobals.CostTable )
+		Logic.FillBuildingCostsTable( Logic.GetBuildingTypeByUpgradeCategory( _uc, pId), InterfaceGlobals.CostTable )
 		local CostString = InterfaceTool_CreateCostString( InterfaceGlobals.CostTable )
 		XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomCosts, CostString)
 		XGUIEng.SetText( gvGUI_WidgetID.TooltipBottomText, SW.BuildingTooltips.ConstructTooltipB(_tech))
@@ -614,8 +619,13 @@ function SW.BuildingTooltips.FixMilitaryUpgradeButtons()	--Fix for vanishing Res
 	GUIUpdate_SettlersUpgradeButtons = function( _button, _tech)
 		--critical are sword, spear and bow as there are multiple upgrade buttons for this type
 		--light cav, heavy cav and rifles are easier as there is only one button
+		local pId = GUI.GetPlayerID();
+		if pId == 17 then
+			pId = Logic.EntityGetPlayer(GUI.GetSelectedEntity());
+			if pId == 0 then return end
+		end
 		if _tech == Technologies.T_UpgradeHeavyCavalry1 or Technologies.T_UpgradeLightCavalry1 == _tech or _tech == Technologies.T_UpgradeRifle1 then
-			local techState = Logic.GetTechnologyState( GUI.GetPlayerID(), _tech)
+			local techState = Logic.GetTechnologyState( pId, _tech)
 			if techState == 4 then	--Technology researched - hide button
 				XGUIEng.ShowWidget( _button, 0)
 			elseif techState == 2 or techState == 3 then --Technology not researched but researchable - show and enable button
@@ -635,7 +645,7 @@ function SW.BuildingTooltips.FixMilitaryUpgradeButtons()	--Fix for vanishing Res
 			return
 		end
 		--possible state: forbidden(not all requirements fulfilled), allowed, researched
-		local techState = Logic.GetTechnologyState( GUI.GetPlayerID(), _tech)
+		local techState = Logic.GetTechnologyState( pId, _tech)
 		if techState == 4 then	--Already researched - hide button
 			XGUIEng.ShowWidget( _button, 0)
 		elseif techState == 2 or techState == 3 then	--Researchable, show & enable button
@@ -659,7 +669,12 @@ function SW.BuildingTooltips.IsLowerTechResearched(_tech)
 	if lowerTechs[_tech] == nil then
 		return true --return true as there is no lower tech that might be not researched
 	end
-	if Logic.GetTechnologyState( GUI.GetPlayerID(), lowerTechs[_tech]) == 4 then
+	local pId = GUI.GetPlayerID();
+	if pId == 17 then
+		pId = Logic.EntityGetPlayer(GUI.GetSelectedEntity());
+		if pId == 0 then return end
+	end
+	if Logic.GetTechnologyState( pId, lowerTechs[_tech]) == 4 then
 		return true
 	end
 	return false
@@ -676,17 +691,22 @@ function SW.BuildingTooltips.FixNeededBuilding()			--Used to give the currBuildi
 	GUIUpdate_TechnologyButtons = function( _button, _tech, _eType)
 		SW.BuildingTooltips.GUIUpdate_TechnologyButtons( _button, _tech, _eType) --call original
 		-- already researched techs have no need to be changed
-		if Logic.GetTechnologyState( GUI.GetPlayerID(), _tech) == 4 then
+		local pId = GUI.GetPlayerID();
+		if pId == 17 then
+			pId = Logic.EntityGetPlayer(GUI.GetSelectedEntity());
+			if pId == 0 then return end
+		end
+		if Logic.GetTechnologyState( pId, _tech) == 4 then
 			return
 		end
 		-- if currently in research disable button
-		if Logic.GetTechnologyState( GUI.GetPlayerID(), _tech) == 3 then
+		if Logic.GetTechnologyState( pId, _tech) == 3 then
 			XGUIEng.DisableButton( _button, 1)
 			return
 		end
 		-- is technology modded? then enable buttons once requirements are met
 		if SW.BuildingTooltips.RData[_tech] then
-			if SW.BuildingTooltips.IsUnlocked( GUI.GetPlayerID(), SW.BuildingTooltips.RData[_tech]) then
+			if SW.BuildingTooltips.IsUnlocked( pId, SW.BuildingTooltips.RData[_tech]) then
 				XGUIEng.DisableButton( _button, 0)
 			else
 				XGUIEng.DisableButton( _button, 1)
@@ -729,7 +749,11 @@ function SW.BuildingTooltips.DoesBuildingMatchTech( _sel, _currBul)
 end
 function SW.BuildingTooltips.FixBuyMilitary()
 	GUIUpdate_BuyMilitaryUnitButtons = function(_Button, _Technology, _UpgradeCategory)
-		local PlayerID = GUI.GetPlayerID()	
+		local PlayerID = GUI.GetPlayerID()
+		if PlayerID == 17 then
+			PlayerID = Logic.EntityGetPlayer(GUI.GetSelectedEntity());
+			if PlayerID == 0 then return end
+		end
 		local SettlerType = Logic.GetSettlerTypeByUpgradeCategory( _UpgradeCategory, PlayerID )
 		local TechState = Logic.GetTechnologyState(PlayerID, _Technology)
 		--Unit type is interdicted
