@@ -107,8 +107,8 @@ function SW.XMLChanges.DoChanges()
 	SW.SetSerfExtractionAmount(Entities.XD_ResourceTree, 3);
 	-- Change residences and farms
 	SW.SetPlacesProvided( Entities.PB_Farm1, 5)
-	SW.SetPlacesProvided( Entities.PB_Farm2, 10)
-	SW.SetPlacesProvided( Entities.PB_Farm3, 15)
+	SW.SetPlacesProvided( Entities.PB_Farm2, 9)
+	SW.SetPlacesProvided( Entities.PB_Farm3, 13)
 	SW.SetMaxWorkers(Entities.PB_Farm2, 1);
 	SW.SetMaxWorkers(Entities.PB_Farm3, 1);
 	SW.SetInitialWorkers(Entities.PB_Farm2, 1);
