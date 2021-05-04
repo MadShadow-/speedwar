@@ -700,16 +700,6 @@ function SW.GetNumberOfOutpostsOfPlayer( _player, _modifier)
 	local curNumOutposts = Logic.GetNumberOfEntitiesOfTypeOfPlayer( _player, Entities.PB_Outpost1);
 	-- let player only pay the costs of outpost 5
 	SW.MaxOutpostsBuilt[_player] = math.max(SW.MaxOutpostsBuilt[_player], curNumOutposts);
-	local maxCompare = SW.MaxOutpostsBuilt[_player];
-	if _modifier == -1 then
-		-- if modifier == -1 then function is called after outpost was placed to calculate costs.
-		-- increase max outpost built , so that if last built outpost == max outpost built, you pay reduced cost
-		-- I know its shitty code, deal with it :p
-		maxCompare = maxCompare + 1;
-	end
-	if curNumOutposts < maxCompare then
-		return math.min(curNumOutposts, 5);
-	end
 	return curNumOutposts + _modifier;
 	--Unstable cause of unknown reasons?
 	--local x = 0;
@@ -729,6 +719,9 @@ function SW.GetCostOfNextOutpost( _player, _modifier)
 		finalCosts[k] = math.floor(math.floor(v*factor + 0.5) / 50 + 0.5) * 50;
 	end
 	return finalCosts;]]
+	if numOutposts < SW.MaxOutpostsBuilt[_player] then
+		return SW.GetOutpostCosts(math.min(numOutposts,5))
+	end
 	return SW.GetOutpostCosts(numOutposts);
 end
 
