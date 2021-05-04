@@ -12,6 +12,10 @@ function SW.XMLChanges.DoChanges()
 	for k,v in pairs(SW.XMLChanges.RefPush.ConfigMines) do
 		SW.SetAmountToMine( k, v)
 	end
+	for k,v in pairs(SW.XMLChanges.RefPush.NumWorker) do
+		SW.SetMaxWorkers(k, v);
+		SW.SetInitialWorkers(k, v);
+	end
 	-- Make outposts more resilient against thieves
 	SW.SetKegFactor( Entities.PB_Outpost1, 0.1)
 	-- building costs
@@ -109,13 +113,11 @@ function SW.XMLChanges.DoChanges()
 	SW.SetPlacesProvided( Entities.PB_Farm1, 5)
 	SW.SetPlacesProvided( Entities.PB_Farm2, 9)
 	SW.SetPlacesProvided( Entities.PB_Farm3, 13)
-	SW.SetMaxWorkers(Entities.PB_Farm2, 1);
-	SW.SetMaxWorkers(Entities.PB_Farm3, 1);
-	SW.SetInitialWorkers(Entities.PB_Farm2, 1);
-	SW.SetInitialWorkers(Entities.PB_Farm3, 1);
 	SW.SetPlacesProvided( Entities.PB_Residence1, 4)
 	SW.SetPlacesProvided( Entities.PB_Residence2, 8)
 	SW.SetPlacesProvided( Entities.PB_Residence3, 12)
+
+	
 	-- Make traders faster, 100 Ress dealt with per tick( default: 45)
 	SW.SetGlobalMarketSpeed( 10)
 	-- Make cannons worse against units and better against buildings
@@ -185,7 +187,7 @@ Log: "28 0.10000000149012"	-- WorkTimeChangeCamp????
 --]]
 SW.XMLChanges.RefPush = {}
 SW.XMLChanges.RefPush.Config = {		--Sets amount of ressources generated per refinery tick
-	[Entities.PB_Blacksmith1] = 9,
+	[Entities.PB_Blacksmith1] = 8,
 	[Entities.PB_Blacksmith2] = 10,
 	[Entities.PB_Blacksmith3] = 12,
 	[Entities.PB_Brickworks1] = 6,
@@ -201,7 +203,7 @@ SW.XMLChanges.RefPush.Config = {		--Sets amount of ressources generated per refi
 }
 SW.XMLChanges.RefPush.ConfigWorker = {		--Amount of ressources worker "steals" before work
 	[Entities.PU_Alchemist] = 1,
-	[Entities.PU_BrickMaker] = 6,
+	[Entities.PU_BrickMaker] = 1,
 	[Entities.PU_Coiner] = 4,
 	[Entities.PU_Gunsmith] = 4,
 	[Entities.PU_Sawmillworker] = 8,
@@ -210,9 +212,9 @@ SW.XMLChanges.RefPush.ConfigWorker = {		--Amount of ressources worker "steals" b
 	[Entities.PU_Treasurer] = 4
 }
 SW.XMLChanges.RefPush.ConfigMines = {
-	[Entities.PB_ClayMine1] = 16,
-	[Entities.PB_ClayMine2] = 20,
-	[Entities.PB_ClayMine3] = 24,
+	[Entities.PB_ClayMine1] = 4,
+	[Entities.PB_ClayMine2] = 5,
+	[Entities.PB_ClayMine3] = 6,
 	[Entities.PB_IronMine1] = 4,
 	[Entities.PB_IronMine2] = 5,
 	[Entities.PB_IronMine3] = 6,
@@ -223,3 +225,8 @@ SW.XMLChanges.RefPush.ConfigMines = {
 	[Entities.PB_SulfurMine2] = 5,
 	[Entities.PB_SulfurMine3] = 6
 }
+SW.XMLChanges.RefPush.NumWorker = { -- Amount of workers working in the building
+	[Entities.PB_Farm2] = 1,
+	[Entities.PB_Farm3] = 1,
+	[Entities.PB_Blacksmith1] = 4,
+};

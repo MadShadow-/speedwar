@@ -122,7 +122,7 @@ function SpeedWarOnGameStart()
 	-- savegame compatability
 	Mission_InitWeatherGfxSets = function()end
 	
-	Camera.RotSetFlipBack(0);
+	--Camera.RotSetFlipBack(0);
 
 	-- für alle custom names die wir brauchen - wird von WallGUI verwendet
 	SW.CustomNames = {};
@@ -164,6 +164,7 @@ function SpeedWarOnGameStart()
 		end
 		SW.MPGame_ApplicationCallback_SyncChanged(_Message, _SyncMode);
 	end
+	
 end
 
 function SpeedWarRemoveVCAndHQ()
