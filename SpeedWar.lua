@@ -388,6 +388,9 @@ end
 --			THE WEATHER
 function SW.EnableRandomWeather()
 	-- new weather states
+	Display.GfxSetSetFogParams(3, 0.0, 1.0, 1, 152,172,182, 10000, 39000);
+	Display.GfxSetSetFogParams(2, 0.0, 1.0, 1, 152,172,182, 10000, 39000);
+	
 	CreateDarkStorm(4);
 	CreateSnowyRain(5);
 	CreateIceTime(6);
@@ -695,33 +698,23 @@ for playerId = 1,16 do
 	SW.MaxOutpostsBuilt[playerId] = 0;
 end
 
-function SW.GetNumberOfOutpostsOfPlayer( _player, _modifier)
-	_modifier = _modifier or 0;
-	local curNumOutposts = Logic.GetNumberOfEntitiesOfTypeOfPlayer( _player, Entities.PB_Outpost1);
-	-- let player only pay the costs of outpost 5
-	SW.MaxOutpostsBuilt[_player] = math.max(SW.MaxOutpostsBuilt[_player], curNumOutposts);
-	return curNumOutposts + _modifier;
-	--Unstable cause of unknown reasons?
-	--local x = 0;
-	--for eID in S5Hook.EntityIterator(Predicate.OfPlayer(_player), Predicate.OfType(Entities.PB_Outpost1)) do
-	--	x=x+1;
-	--end
-	--return x;
+function SW.GetNumberOfOutpostsOfPlayer( _player)
+	return Logic.GetNumberOfEntitiesOfTypeOfPlayer( _player, Entities.PB_Outpost1);
 end
+
 --HelperFunc: Get cost of next outpost for player
 --optional: _modifier, reduces num of outposts used in calculation
 function SW.GetCostOfNextOutpost( _player, _modifier)
-	local baseCosts = SW.OutpostCosts
+	_modifier = _modifier or 0;
 	local numOutposts = SW.GetNumberOfOutpostsOfPlayer(_player, _modifier);
-	--[[local factor = SW.GetCostFactorByNumOfOutposts(numOutposts);
-	local finalCosts = {};
-	for k,v in pairs(baseCosts) do
-		finalCosts[k] = math.floor(math.floor(v*factor + 0.5) / 50 + 0.5) * 50;
+	if _modifier == -1 then
+		numOutposts = numOutposts + _modifier;
 	end
-	return finalCosts;]]
+
 	if numOutposts < SW.MaxOutpostsBuilt[_player] then
-		return SW.GetOutpostCosts(math.min(numOutposts,5))
+		numOutposts = math.min(numOutposts,5);
 	end
+	SW.MaxOutpostsBuilt[_player] = math.max(SW.MaxOutpostsBuilt[_player], numOutposts + _modifier*(-1) );
 	return SW.GetOutpostCosts(numOutposts);
 end
 
@@ -793,7 +786,6 @@ function SW_OnEntityCreatedOutpost()
 	local pId = GetPlayer(eId);
 	
 	local currCostTable = SW.GetCostOfNextOutpost( pId, -1);
-	--LuaDebugger.Break();
 	-- Has player enough ressources?
 	local enoughRess = true --Yes until proven otherwise
 	local playerRess = {
