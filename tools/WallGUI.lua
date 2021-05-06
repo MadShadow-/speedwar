@@ -32,7 +32,7 @@ SW.WallGUI.Costs =
 	},
 	["Blacksmith"] = {
 		[2] = 200,
-		[4] = 200,
+		[3] = 200,
 	},
 	["Bastille"] = {
 		[2] = 400,
