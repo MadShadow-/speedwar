@@ -188,10 +188,10 @@ Log: "28 0.10000000149012"	-- WorkTimeChangeCamp????
 SW.XMLChanges.RefPush = {}
 SW.XMLChanges.RefPush.Config = {		--Sets amount of ressources generated per refinery tick
 	[Entities.PB_Blacksmith1] = 8,
-	[Entities.PB_Blacksmith2] = 10,
-	[Entities.PB_Blacksmith3] = 12,
-	[Entities.PB_Brickworks1] = 6,
-	[Entities.PB_Brickworks2] = 12,
+	[Entities.PB_Blacksmith2] = 12,
+	[Entities.PB_Blacksmith3] = 14,
+	[Entities.PB_Brickworks1] = 8,
+	[Entities.PB_Brickworks2] = 16,
 	[Entities.PB_Sawmill1] = 8,
 	[Entities.PB_Sawmill2] = 16,
 	[Entities.PB_Alchemist1] = 10,
@@ -212,9 +212,9 @@ SW.XMLChanges.RefPush.ConfigWorker = {		--Amount of ressources worker "steals" b
 	[Entities.PU_Treasurer] = 4
 }
 SW.XMLChanges.RefPush.ConfigMines = {
-	[Entities.PB_ClayMine1] = 4,
-	[Entities.PB_ClayMine2] = 5,
-	[Entities.PB_ClayMine3] = 6,
+	[Entities.PB_ClayMine1] = 16,
+	[Entities.PB_ClayMine2] = 20,
+	[Entities.PB_ClayMine3] = 24,
 	[Entities.PB_IronMine1] = 4,
 	[Entities.PB_IronMine2] = 5,
 	[Entities.PB_IronMine3] = 6,

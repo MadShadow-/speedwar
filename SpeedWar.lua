@@ -1391,7 +1391,7 @@ function SW.DisableMilitaryCommandButtonsAndBattleSerf()
 		local SelectedEntityIDs = { GUI.GetSelectedEntities() }
 		GUI.CancelState() 	
 		--Attack Move
-		if _CommandType == 2 then
+		if _CommandType == 2 or _CommandType == 3 then
 			for i=1, 20, 1 do
 				local SelectedEntityID = SelectedEntityIDs[ i ]
 				if SelectedEntityID ~= nil and SelectedEntityID > 0 then
@@ -1411,7 +1411,7 @@ function SW.DisableMilitaryCommandButtonsAndBattleSerf()
 		end
 	end
 	XGUIEng.ShowWidget("Command_Attack", 0);
-	XGUIEng.ShowWidget("Command_Defend", 0);
+	--XGUIEng.ShowWidget("Command_Defend", 0);
 	XGUIEng.ShowWidget("Command_Patrol", 0);
 	XGUIEng.ShowWidget("Command_Guard", 0);
 	XGUIEng.ShowWidget("ChangeIntoBattleSerf", 0);
