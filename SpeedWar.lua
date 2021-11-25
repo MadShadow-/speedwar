@@ -80,7 +80,7 @@ function SpeedWarOnGameStart()
 	log = function() end;
 	debugging = {
 		Debug = false,
-		LevelUpToMaxRank = true,
+		LevelUpToMaxRank = false,
 		ErrorLogging = true,
 		TroopSpawnKeys = false,
 		ResearchAllUniversityTechnologies = true,
@@ -589,7 +589,7 @@ function SW.GetRealMS( _eId)
 end
 function SW.GetMSByTypeAndPlayer( _eType, _player)
 	local baseMS = SW.BaseMovementspeed
-	local myBaseMS = 100
+	local myBaseMS = 400
 	for k,v in pairs( baseMS) do --Get highest possible baseMS
 		if SW.IsEntityTypeInCategory(_eType, k) == 1 then
 			if myBaseMS < v then
@@ -1224,7 +1224,7 @@ end
 function SW_Defeat_On_Entity_Created()
 	local eId = Event.GetEntityID()
 	local player = Logic.EntityGetPlayer(eId);
-	if player < 1 then
+	if SW.DefeatConditionPlayerStates[player] == nil then
 		return;
 	end
 	SW.DefeatConditionPlayerEntities[player] = SW.DefeatConditionPlayerEntities[player] + 1;

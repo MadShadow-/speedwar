@@ -61,6 +61,7 @@ function SW_Walls2_OnDestroyedAction()
 	local pId = GetPlayer( eId)
 	-- As of lack of better methods, recalculate all corners of this player
 	local t = SW.Walls2.ListOfCorners[pId]
+	if t == nil then return end
 	for i = table.getn(t), 1, -1 do
 		t[i].numNeighbours = SW.Walls2.GetNeighbourCount( t[i], pId, eId)
 		if t[i].numNeighbours == 0 then

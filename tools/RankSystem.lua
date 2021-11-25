@@ -44,6 +44,7 @@ function SW.RankSystem.Init()
 			return 1;
 		end
 	end
+	
 	for i = 1, SW.MaxPlayers do
 		SW.RankSystem.Points[i] = 0
 		SW.RankSystem.Rank[i] = 1
@@ -70,6 +71,7 @@ function SW.RankSystem.InitKillCount()
 	SW.RankSystem.GameCallback_SettlerKilled = GameCallback_SettlerKilled
 	GameCallback_SettlerKilled = function( _hurter, _hurt)
 		SW.RankSystem.GameCallback_SettlerKilled( _hurter, _hurt)
+		if _hurt > SW.MaxPlayers then return end -- no points for AI kills
 		SW.RankSystem.GivePointsToPlayer( _hurter, SW.RankSystem.KillPoints)
 		SW.RankSystem.GivePointsToPlayer( _hurt, SW.RankSystem.LosePoints)
 		--SW.RankSystem.Points[_hurter] = SW.RankSystem.Points[_hurter] + SW.RankSystem.KillPoints
@@ -80,6 +82,7 @@ function SW.RankSystem.InitKillCount()
 	SW.RankSystem.GameCallback_BuildingDestroyed = GameCallback_BuildingDestroyed
 	GameCallback_BuildingDestroyed = function( _hurter, _hurt)
 		SW.RankSystem.GameCallback_BuildingDestroyed( _hurter, _hurt)
+		if _hurt > SW.MaxPlayers then return end -- no points for AI kills
 		SW.RankSystem.GivePointsToPlayer( _hurter, SW.RankSystem.BuildingPoints)
 		--SW.RankSystem.Points[_hurter] = SW.RankSystem.Points[_hurter] + SW.RankSystem.BuildingPoints
 		--SW.RankSystem.UpdatePlayer( _hurter)
@@ -307,9 +310,11 @@ end
 function SW.RankSystem.GivePointsToPlayer( _pId, _amount)
 	if SW.GUI.Rules.SharedRank == 1 then
 		local team = XNetwork.GameInformation_GetLogicPlayerTeam( _pId)
+		if team == 0 then return end
 		SW.RankSystem.Points[team] = SW.RankSystem.Points[team] + _amount
 		SW.RankSystem.UpdateTeam(team)
 	else
+		if SW.RankSystem.Points[_pId] == nil then return end
 		SW.RankSystem.Points[_pId] = SW.RankSystem.Points[_pId] + math.floor(_amount*SW.RankSystem.Modifier( _pId))
 		SW.RankSystem.UpdatePlayer( _pId)
 	end
