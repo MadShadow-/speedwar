@@ -575,7 +575,9 @@ SW.SV.Data = {
 	["SoldierDamageClass"] = {2, 7814416, 13, true},
 	["SoldierMaxRange"] = {2, 7814416, 23, false},
 	-- CLimitedAttachmentBehaviorProperties
-	["LeaderMaxSoldiers"] = {2, 7823028, {5, 7}, true}
+	["LeaderMaxSoldiers"] = {2, 7823028, {5, 7}, true},
+	-- Trees
+	["TreeRessourceAmount"] = {1, 7827436, 39, true}
 }
 
 SW.SV.BackUps = {}
