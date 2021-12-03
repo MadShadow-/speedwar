@@ -113,7 +113,7 @@ function SW.Bastille.TrackGroup(_leaders, _bastille)
 	for i = 1, table.getn(_leaders) do
 		SW.Bastille.Tracking[_leaders[i]] = {Bastille = _bastille};
 	end
-	if JobIsRunning(SW.Bastille.ControlTrackingJobId) == 0 then
+	if JobIsRunning(SW.Bastille.ControlTrackingJobId) ~= 1 then
 		SW.Bastille.ControlTrackingJobId = StartSimpleJob("SW_Bastille_ControlTracking");
 	end
 end

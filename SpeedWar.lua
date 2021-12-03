@@ -1388,33 +1388,16 @@ end
 
 function SW.DisableMilitaryCommandButtonsAndBattleSerf()
 	GUIAction_ChangeIntoBattleSerf = function() end
+	SW.GUIAction_Command_RemoveCommandsOrig = GUIAction_Command
 	function GUIAction_Command(_CommandType)
-		local SelectedEntityIDs = { GUI.GetSelectedEntities() }
-		GUI.CancelState() 	
-		--Attack Move
-		if _CommandType == 2 or _CommandType == 3 then
-			for i=1, 20, 1 do
-				local SelectedEntityID = SelectedEntityIDs[ i ]
-				if SelectedEntityID ~= nil and SelectedEntityID > 0 then
-					--Stand
-					if _CommandType == 2 then
-						GUI.SettlerStand(SelectedEntityID)
-				
-					--Defend
-					elseif _CommandType == 3 then
-						GUI.SettlerDefend(SelectedEntityID)
-							--Set agressivemode (not used yet)
-					elseif _CommandType == 6 then
-						GUI.SettlerAggressive(SelectedEntityID)
-					end
-				end
-			end
-		end
+		-- void patrol and attack move
+		if _CommandType == 1 or _CommandType == 4 then return end
+		SW.GUIAction_Command_RemoveCommandsOrig( _CommandType)
 	end
 	XGUIEng.ShowWidget("Command_Attack", 0);
 	--XGUIEng.ShowWidget("Command_Defend", 0);
 	XGUIEng.ShowWidget("Command_Patrol", 0);
-	XGUIEng.ShowWidget("Command_Guard", 0);
+	--XGUIEng.ShowWidget("Command_Guard", 0);
 	XGUIEng.ShowWidget("ChangeIntoBattleSerf", 0);
 end
 
