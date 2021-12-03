@@ -72,8 +72,10 @@ function SW.WinCondition.SortByCells()
 	for k,v in pairs(SW.WinCondition.RelevantEntities) do
 		pos = GetPosition(v)
 		team = SW.WinCondition.TeamByPlayer[GetPlayer(v)]
-		x, y = SW.WinCondition.GetCell( pos.X, pos.Y)
-		SW.WinCondition.CellGrid[x][y][team] = SW.WinCondition.CellGrid[x][y][team]+1
+		if team ~= nil then
+			x, y = SW.WinCondition.GetCell( pos.X, pos.Y)
+			SW.WinCondition.CellGrid[x][y][team] = SW.WinCondition.CellGrid[x][y][team]+1
+		end
 	end
 end
 function SW.WinCondition.EvaluateCells()

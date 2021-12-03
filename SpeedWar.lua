@@ -252,6 +252,17 @@ function SW.Activate( _seed)
 		Message("@color:255,0,0 Warning: Tried to activate speedwar 2 times! - cancelled");
 		return;
 	end
+	if not QuitGame_ORIG then
+		QuitGame_ORIG = QuitGame;
+		QuitGame = function()
+			SW.ResetScriptingValueChanges();
+			S5Hook.AddArchive("extra2/shr/maps/user/speedwar/backtotheroots.bba");
+			S5Hook.ReloadEntities();
+			S5Hook.RemoveArchive();
+			Trigger.DisableTriggerSystem( 1)
+			QuitGame_ORIG();
+		end
+	end
 	SW.IsActivated = true;
 	math.randomseed( _seed)
 	-- create all SV related functions
@@ -1304,17 +1315,7 @@ xXPussySlayer69Xx = LuaDebugger;
 
 
  
- if not Framework.CloseGame_Orig then
-	Framework.CloseGame_Orig = Framework.CloseGame;
-	Framework.CloseGame = function()
-		SW.ResetScriptingValueChanges();
-		S5Hook.AddArchive("extra2/shr/maps/user/speedwar/backtotheroots.bba");
-		S5Hook.ReloadEntities();
-		S5Hook.RemoveArchive();
-		Trigger.DisableTriggerSystem( 1)
-		Framework.CloseGame_Orig();
-	end
-end
+
 function AddTribute( _tribute )
 		assert( type( _tribute ) == "table", "Tribut muß ein Table sein" );
 		assert( type( _tribute.text ) == "string", "Tribut.text muß ein String sein" );
