@@ -79,10 +79,10 @@ function SW.XMLChanges.DoChanges()
 	SW.SetKegFactor( Entities.XD_WallStraightGate, 2)
 	SW.SetKegFactor( Entities.XD_WallStraightGate_Closed, 2)
 	-- LKAV BUFFS
-	local lvl1Dmg = 10
+	local lvl1Dmg = 12
 	local lvl1Bonus = 0
 	local lvl1Range = 2800
-	local lvl2Dmg = 18
+	local lvl2Dmg = 16
 	local lvl2Bonus = 0
 	local lvl2Range = 3200
 	-- Lvl1 leader
@@ -91,22 +91,26 @@ function SW.XMLChanges.DoChanges()
 	SW.SetLeaderMaxRange( Entities.PU_LeaderCavalry1, lvl1Range)
 	SW.SetLeaderAutoRange( Entities.PU_LeaderCavalry1, lvl1Range)
 	SW.SetSettlerExploration( Entities.PU_LeaderCavalry1, lvl1Range/100)
+	SW.SetLeaderDamageClass( Entities.PU_LeaderCavalry1, DamageClasses.DC_Chaos)
 	-- Lvl2 leader
 	SW.SetLeaderDamage( Entities.PU_LeaderCavalry2, lvl2Dmg)
 	SW.SetLeaderRandomDamageBonus( Entities.PU_LeaderCavalry2, lvl2Bonus)
 	SW.SetLeaderMaxRange( Entities.PU_LeaderCavalry2, lvl2Range)
 	SW.SetLeaderAutoRange( Entities.PU_LeaderCavalry2, lvl2Range)
 	SW.SetSettlerExploration( Entities.PU_LeaderCavalry2, lvl2Range/100)
+	SW.SetLeaderDamageClass( Entities.PU_LeaderCavalry2, DamageClasses.DC_Chaos)
 	-- Lvl1 soldier
 	SW.SetSoldierDamage( Entities.PU_SoldierCavalry1, lvl1Dmg)
 	SW.SetSoldierRandomDamageBonus( Entities.PU_SoldierCavalry1, lvl1Bonus)
 	SW.SetSoldierMaxRange( Entities.PU_SoldierCavalry1, lvl1Range + 200)
 	SW.SetSettlerExploration( Entities.PU_SoldierCavalry1, lvl1Range/100 + 2)
+	SW.SetSoldierDamageClass( Entities.PU_SoldierCavalry1, DamageClasses.DC_Chaos)
 	-- Lvl2 soldier
 	SW.SetSoldierDamage( Entities.PU_SoldierCavalry2, lvl2Dmg)
 	SW.SetSoldierRandomDamageBonus( Entities.PU_SoldierCavalry2, lvl2Bonus)
 	SW.SetSoldierMaxRange( Entities.PU_SoldierCavalry2, lvl2Range + 200)
 	SW.SetSettlerExploration( Entities.PU_SoldierCavalry2, lvl2Range/100 + 2)
+	SW.SetSoldierDamageClass( Entities.PU_SoldierCavalry2, DamageClasses.DC_Chaos)
 	-- Make dem leibis quicker
 	SW.SetSerfExtractionAmount(Entities.XD_ResourceTree, 3);
 	-- Change residences and farms

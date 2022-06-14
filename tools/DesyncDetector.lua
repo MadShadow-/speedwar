@@ -48,7 +48,7 @@ function SW_DesyncDetector_Job()
 	end
 end
 function SW.DesyncDetector.Send( _sum, _time)
-	if XNetwork then
+	if XNetwork and GUI.GetPlayerID() ~= 17 then
 		XNetwork.Chat_SendMessageToAll(SW.DesyncDetector.Key.." C".._sum.."T".._time)
 	end
 end

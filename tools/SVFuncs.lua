@@ -576,8 +576,10 @@ SW.SV.Data = {
 	["SoldierMaxRange"] = {2, 7814416, 23, false},
 	-- CLimitedAttachmentBehaviorProperties
 	["LeaderMaxSoldiers"] = {2, 7823028, {5, 7}, true},
-	-- Trees
+	-- GGL::CEntityProperties
+	-- keep both for compability reasons
 	["TreeRessourceAmount"] = {1, 7827436, 39, true}
+	["TreeRessAmount"] = {1, 7827436, 39, true}
 }
 
 SW.SV.BackUps = {}

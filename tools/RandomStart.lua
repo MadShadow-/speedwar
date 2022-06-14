@@ -349,7 +349,6 @@ function SW.RandomStart.GetPosition()
 	return worldSize/2, worldSize/2
 end
 
-
 function SW.DoFixedPositions()
 	local isHuman
 	local p

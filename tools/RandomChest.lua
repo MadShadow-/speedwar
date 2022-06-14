@@ -175,13 +175,14 @@ function SW.RandomChest.Action.Stone( _pId, _x, _y)
 	local eId = Logic.CreateEntity(Entities.XD_Rock1, _x, _y, 0, 0)
 	S5Hook.GetEntityMem( eId)[25]:SetFloat(25)
 end
--- function SW.RandomChest.Action.Sonic( _pId, _x, _y)
-	-- if GUI.GetPlayerID() == _pId then
-		-- Message("Darin war Sonic!")
-	-- end
-	-- local eId = Logic.CreateEntity( Entities.CU_AggressiveWolf, _x, _y, 0, _pId)
-	-- SW.SetMovementspeed( eId, 1600)
--- end
+function SW.RandomChest.Action.Sonic( _pId, _x, _y)
+	if GUI.GetPlayerID() == _pId then
+		Message("Darin war der Fenriswolf!")
+	end
+	local eId = Logic.CreateEntity( Entities.CU_AggressiveWolf, _x, _y, 0, _pId)
+	SW.SetMovementspeed( eId, 350)
+	S5Hook.GetEntityMem( eId)[25]:SetFloat(5)
+end
 function SW.RandomChest.Action.Tree( _pId, _x, _y)
 	if GUI.GetPlayerID() == _pId then
 		Message("Darin war ein Baum!")
@@ -278,22 +279,22 @@ function SW.RandomChest.SolarEclipseHackGFX()
 	end
 end
 SW.RandomChest.SolarEclipseHackGFX()
--- function SW.RandomChest.Action.NobleMan( _pId, _x, _y)
-	-- if GUI.GetPlayerID() == _pId then
-		-- Message("Darin war ein mächtiger Krieger!")
-	-- end
-	-- local eId = Logic.CreateEntity(Entities.PU_LeaderPoleArm3, _x, _y, 0, _pId)
-	-- S5Hook.GetEntityMem( eId)[25]:SetFloat(1.8)
-	-- SW.AddExperiencePoints( eId, 800)
--- end
--- function SW.RandomChest.Action.WildMan( _pId, _x, _y)
-	-- if GUI.GetPlayerID() == _pId then
-		-- Message("Darin war ein Wilder!")
-	-- end
-	-- local eId = Logic.CreateEntity(Entities.CU_Evil_LeaderBearman1, _x, _y, 0, _pId)
-	-- S5Hook.GetEntityMem( eId)[25]:SetFloat(2)
-	-- SW.SetMovementspeed( eId, 900)
--- end
+function SW.RandomChest.Action.NobleMan( _pId, _x, _y)
+	if GUI.GetPlayerID() == _pId then
+		Message("Darin war ein mächtiger Krieger!")
+	end
+	local eId = Logic.CreateEntity(Entities.PU_LeaderPoleArm3, _x, _y, 0, _pId)
+	S5Hook.GetEntityMem( eId)[25]:SetFloat(1.8)
+	SW.AddExperiencePoints( eId, 800)
+end
+function SW.RandomChest.Action.WildMan( _pId, _x, _y)
+	if GUI.GetPlayerID() == _pId then
+		Message("Darin war ein Wilder!")
+	end
+	local eId = Logic.CreateEntity(Entities.CU_Evil_LeaderBearman1, _x, _y, 0, _pId)
+	S5Hook.GetEntityMem( eId)[25]:SetFloat(2)
+	SW.SetMovementspeed( eId, 350)
+end
 SW.RandomChest.GoetheText = {
 	"Habe nun, ach! Philosophie,",
 	"Juristerei und Medizin,",

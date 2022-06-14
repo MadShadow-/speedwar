@@ -412,17 +412,17 @@ function SW.EnableRandomWeather()
 	-- CONFIG PART
 	local numOfWeatherStates = 9		--How many states are there?
 	local baseChance = {}				--Doesnt need to add up to some number
-	baseChance[1] = 90					--Chance summer
-	baseChance[2] = 5					--Chance rain
-	baseChance[3] = 15					--Chance winter
-	baseChance[4] = 5					-- storm
-	baseChance[5] = 5					-- snowy rain
-	baseChance[6] = 15					-- ice time
-	baseChance[7] = 30					-- evening
-	baseChance[8] = 5					-- sour rain
-	baseChance[9] = 30					-- hot summer
-	-- Gewicht Regen: 20		10 % chance
-	-- Gewicht Winter: 30		15 % chance
+	baseChance[1] = 140					--Chance summer
+	baseChance[2] = 1					--Chance rain
+	baseChance[3] = 20					--Chance winter
+	baseChance[4] = 1					-- storm
+	baseChance[5] = 1					-- snowy rain
+	baseChance[6] = 20					-- ice time
+	baseChance[7] = 10					-- evening
+	baseChance[8] = 2					-- sour rain
+	baseChance[9] = 10					-- hot summer
+	-- Gewicht Regen: 10		10 % chance
+	-- Gewicht Winter: 40		15 % chance
 	-- Gewicht Sommer: 150		75 % chance
 	local range = {}
 	range[1] = {300, 480}				--Lower and upper limit for summer period

@@ -58,13 +58,12 @@ SW.GUI = {
 	
 	ButtonTooltips = {
 		["Suddendeath"] = "Gibt die Anzahl an Spielminuten an, nach denen der Sieger ermittelt wird. "
-						  .. "Sieger ist das Team, welches nach Ablauf der Zeit das größte Gebiet hält.",
-						  
+			.. "Sieger ist das Team, welches nach Ablauf der Zeit das größte Gebiet hält.",			  
 		["Teamspawn"]   = "Ermöglicht es Spielern aus dem gleichen Team an einem Ort auf der Karte zusammen zu starten. Teamspawn hat keinen Effekt, "
 			.."wenn die Karte fixe Startpositionen hat.",
 		["Anonym"]      = "Jeder Fortschritt zum nächsten Rang wird unter allen Teammitgliedern aufgeteilt.",
 		["Startgame"]   = "@color:255,125,0 Startet das Spiel mit den aktuell eingestellten Regeln.",
-		["MaxHQ"]		= "Gibt an, wie viele Aussenposten maximal gebaut werden dürfen. Inf steht für unendlich viele."
+		["MaxHQ"]		= "Gibt an, wie die Außenpostenkosten anwachsen. Inf = Kosten wachsen unendlich, alles andere cappt die Kosten ab dem 8. Außenposten."
 	},
 	
 };
@@ -182,10 +181,17 @@ function SW.GUI.StartGameCNetwork( _sender, _time, _sharedSpawn, _sharedRank, _m
 	SW.GUI.GameStarted = true
 	XGUIEng.ShowWidget("SWStartMenu", 0)
 	XGUIEng.ShowWidget("SWShowButtonContainer", 0)
-	--Message("Starting speedwar with parameters")
-	--Message("Time: ".._time)
-	--Message("Shared Spawn: ".._sharedSpawn)
-	--Message("Shared Rank: ".._sharedRank)
+	Message("Starting speedwar with parameters")
+	Message("Sudden Death: ".._time)
+	Message("Shared Spawn: ".._sharedSpawn)
+	Message("Shared Rank: ".._sharedRank)
+	if _maxHQ == 0 then
+		Message("Outpost cost: capped")
+		SW.FLAG_USE_FIXED_OUTPOST_COSTS = true
+	else
+		Message("Outpost cost: uncapped")
+		SW.FLAG_USE_FIXED_OUTPOST_COSTS = false
+	end
 	SW.GUI.Rules = {}
 	SW.GUI.Rules.Time = _time
 	SW.GUI.Rules.SharedSpawn = _sharedSpawn
@@ -207,10 +213,17 @@ function SW.GUI.StartGame( _time, _sharedSpawn, _sharedRank, _maxHQ)
 	SW.GUI.GameStarted = true
 	XGUIEng.ShowWidget("SWStartMenu", 0)
 	XGUIEng.ShowWidget("SWShowButtonContainer", 0)
-	--Message("Starting speedwar with parameters")
-	--Message("Time: ".._time)
-	--Message("Shared Spawn: ".._sharedSpawn)
-	--Message("Shared Rank: ".._sharedRank)
+	Message("Starting speedwar with parameters")
+	Message("Sudden Death: ".._time)
+	Message("Shared Spawn: ".._sharedSpawn)
+	Message("Shared Rank: ".._sharedRank)
+	if _maxHQ == 0 then
+		Message("Outpost cost: capped")
+		SW.FLAG_USE_FIXED_OUTPOST_COSTS = true
+	else
+		Message("Outpost cost: uncapped")
+		SW.FLAG_USE_FIXED_OUTPOST_COSTS = false
+	end
 	SW.GUI.Rules = {}
 	SW.GUI.Rules.Time = _time
 	SW.GUI.Rules.SharedSpawn = _sharedSpawn
