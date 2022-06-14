@@ -324,6 +324,7 @@ function SW.Activate( _seed)
 	SW.Bugfixes.Init()
 	-- Activate the GUI for walls
 	SW.WallGUI.Init()
+	SW.SetConstructionCosts( Entities.PB_Blacksmith1, { })
 	-- Activate Bastille Mod
 	SW.Bastille.Activate()
 	-- Enable building walls
