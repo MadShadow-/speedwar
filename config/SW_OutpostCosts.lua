@@ -5,7 +5,7 @@ function SW.GetCostFactorByNumOfOutposts(x)
 end
 SW.FLAG_USE_FIXED_OUTPOST_COSTS = true
 function SW.GetOutpostCosts(_index)
-	if FLAG_USE_FIXED_OUTPOST_COSTS then
+	if SW.FLAG_USE_FIXED_OUTPOST_COSTS then
 		return SW.OutpostCosts[_index] or SW.OutpostCosts[8]
 	end
 

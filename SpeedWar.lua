@@ -742,14 +742,14 @@ function SW.EnableIncreasingOutpostCosts()
 				if pId == 0 then return end
 			end
 			local nHQ = SW.GetNumberOfOutpostsOfPlayer(pId)
-			if SW.GUI.Rules.MaxHQ ~= 0 then
+--[[ 			if SW.GUI.Rules.MaxHQ ~= 0 then
 				if nHQ >= SW.GUI.Rules.MaxHQ then 
 					XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomCosts, "")
 					XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomText, "@color:180,180,180,255  Außenposten  @cr @color:255,255,255,255 Maximale Anzahl an Aussenposten erreicht.")		
 					XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomShortCut, " ")
 					return 
 				end
-			end
+			end ]]
 			local costString = InterfaceTool_CreateCostString( SW.GetCostOfNextOutpost(pId) )
 			XGUIEng.SetText(gvGUI_WidgetID.TooltipBottomCosts, costString)
 			XGUIEng.SetTextKeyName(gvGUI_WidgetID.TooltipBottomText, "MenuSerf/outpost_normal")		
@@ -764,13 +764,13 @@ function SW.EnableIncreasingOutpostCosts()
 			--check ressources
 			local pId = GUI.GetPlayerID()
 			local nHQ = SW.GetNumberOfOutpostsOfPlayer(pId)
-			if SW.GUI.Rules.MaxHQ ~= 0 then
+--[[ 			if SW.GUI.Rules.MaxHQ ~= 0 then
 				if nHQ >= SW.GUI.Rules.MaxHQ then 
 					Message("Maximale Anzahl an Aussenposten erreicht!")
 					Sound.PlayGUISound( Sounds.VoicesSerf_SERF_No_rnd_03, 0)
 					return 
 				end
-			end
+			end ]]
 			local costTable = SW.GetCostOfNextOutpost( pId)
 			local currWidget = XGUIEng.GetCurrentWidgetID()
 			if InterfaceTool_HasPlayerEnoughResources_Feedback( costTable) == 1 then
@@ -817,13 +817,13 @@ function SW_OnEntityCreatedOutpost()
 	
 	local outpostAllowed = true
 	local nHQ = SW.GetNumberOfOutpostsOfPlayer(pId)
-	if SW.GUI.Rules.MaxHQ ~= 0 then
+--[[ 	if SW.GUI.Rules.MaxHQ ~= 0 then
 		if nHQ > SW.GUI.Rules.MaxHQ then 
 			Message("Maximale Anzahl an Aussenposten erreicht!")
 			Sound.PlayGUISound( Sounds.VoicesSerf_SERF_No_rnd_03, 0)
 			outpostAllowed = false 
 		end
-	end
+	end ]]
 	
 	if (not enoughRess) or (not outpostAllowed) then --Not enough ressources?
 		--DEMOLISH!!!1!11cos(0)

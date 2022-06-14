@@ -12,6 +12,7 @@ SW.ScriptingValueBackup.SerfExtrAmount = SW.ScriptingValueBackup.SerfExtrAmount 
 SW.ScriptingValueBackup.SerfExtrDelay = SW.ScriptingValueBackup.SerfExtrDelay or {}
 SW.ScriptingValueBackup.DamageClass = SW.ScriptingValueBackup.DamageClass or {}
 SW.ScriptingValueBackup.MarketData = SW.ScriptingValueBackup.MarketData or {}
+SW.ScriptingValueBackup.PlayerAttraction = SW.ScriptingValueBackup.PlayerAttraction or {}
 
 function SW.ResetScriptingValueChanges()
 	for k,v in pairs(SW.ScriptingValueBackup.ConstructionCosts) do
@@ -56,6 +57,9 @@ function SW.ResetScriptingValueChanges()
 		if v.WorkAmount then
 			SW.SetMarketWorkAmount( k, v.WorkAmount)
 		end
+	end
+	for k,v in pairs(SW.ScriptingValueBackup.PlayerAttraction) do
+		SW.SV.SetPlayerAttractionBehavior( k, v)
 	end
 	SW.SV.GreatReset()
 end;
@@ -578,7 +582,7 @@ SW.SV.Data = {
 	["LeaderMaxSoldiers"] = {2, 7823028, {5, 7}, true},
 	-- GGL::CEntityProperties
 	-- keep both for compability reasons
-	["TreeRessourceAmount"] = {1, 7827436, 39, true}
+	["TreeRessourceAmount"] = {1, 7827436, 39, true},
 	["TreeRessAmount"] = {1, 7827436, 39, true}
 }
 
@@ -793,6 +797,95 @@ function SW.SV.ReplaceMarketData( _newData)
 	p2[16]:SetInt(p1:Offset(8*n):GetInt())
 	p2[17]:SetInt(p1:Offset(8*n):GetInt())
 end
+
+SW.SV.LogicIndexByName = {
+    -- name = {index, isInt}
+    MaxFaith = {103, false},
+    BlessingBonus = {55, false},
+    ResourceDoodadWarnAmount = {59, true},
+    EnergyRequiredForWeatherChange = {99, false},
+    -- VOICE FEEDBACK: 60, 61, Int
+    HeroResurrectionTime = {82, true},
+    HeroResurrectionSlippage = {83, true},
+    ExpelEffectID = {89, true},
+    
+    DefenderMSPerShot = {90, true},
+    DefenderMaxRange = {91, false},
+    DefenderProjectileDamage = {93, true},
+    DefenderMissChance ={95, true},
+    
+    BuildingUnderConstructionExplorationFactor = {22, false},
+    BuildingPlacementSnapDistance = {23, false},
+    BuildingClosedHealthFactor = {24, false},
+    
+    WeatherMissChanceChangeRain = {31, true},
+    WeatherMissChanceChangeSnow = {32, true},
+    WeatherExplorationBuildingSnowFactor = {25, false},
+    WeatherExplorationSettlerSnowFactor = {26, false},
+    WeatherMoveSpeedSnowFactor = {27, false},
+    WeatherExplorationBuildingRainFactor = {28, false},
+    WeatherExplorationSettlerRainFactor = {29, false},
+    WeatherMoveSpeedRainFactor = {30, false},
+    
+    AttackMoveRange = {33, false},
+    
+    MotivationThresholdHappy = {69, false},
+    MotivationThresholdSad = {70, false},
+    MotivationThresholdAngry = {71, false},
+    MotivationThresholdLeave = {72, false},
+    AverageMotivationVillageCenterLockThreshold = {73, false},
+    MotivationAbsoluteMaxMotivation = {80, false}
+}
+
+function SW.SV.SetLogicXMLProperty( _name, _value)
+    local data = SW.SV.LogicIndexByName[_name]
+    if data == nil then Message("SetLogicXMLProperty: ".._name.." will not be set!") return end
+    SW.SV.LogicBackUps[_name] = SW.SV.LogicBackUps[_name] or SW.SV.GetLogicXMLProperty( _name)
+    if data[2] then -- value is int
+        SW.SV.GetLogicXMLPointer()[data[1]]:SetInt( _value)
+    else
+        SW.SV.GetLogicXMLPointer()[data[1]]:SetFloat( _value)
+    end
+end
+function SW.SV.GetLogicXMLPointer()
+    return S5Hook.GetRawMem(8758240)[0]
+end
+
+
+SW.SV.PlayerAttractionData = {
+	["AttractionFrequency"] = {key = 1, isInt = true},
+	["PaydayFrequency"] = {key = 2, isInt = true},
+	["EntityTypeBanTime"] = {key = 3, isInt = true},
+	["ReAttachWorkerFrequency"] = {key = 4, isInt = true},
+	["PlayerMoneyDispo"] = {key = 5, isInt = true},
+	["MaximumDistanceWorkerToFarm"] = {key = 6, isInt = false},
+	["MaximumDistanceWorkerToResidence"] = {key = 7, isInt = false}
+}
+function SW.SV.SetPlayerAttractionBehavior( _name, _value)
+	-- first get the right pointer
+	local p = S5Hook.GetRawMem(8809088)[0]
+	local data = SW.SV.PlayerAttractionData[_name]
+	assert(data ~= nil, "SW.SV.SetPlayerAttractionBehavior: Invalid name! ".._name)
+	SW.ScriptingValueBackup.PlayerAttraction[_name] = SW.ScriptingValueBackup.PlayerAttraction[_name] or SW.SV.GetPlayerAttractionBehavior( _name)
+	if data.isInt then
+		p[data.key]:SetInt(_value)
+	else
+		p[data.key]:SetFloat(_value)
+	end
+end
+function SW.SV.GetPlayerAttractionBehavior( _name)
+	-- first get the right pointer
+	local p = S5Hook.GetRawMem(8809088)[0]
+	local data = SW.SV.PlayerAttractionData[_name]
+	assert(data ~= nil, "SW.SV.SetPlayerAttractionBehavior: Invalid name! ".._name)
+	if data.isInt then
+		return p[data.key]:GetInt()
+	else
+		return p[data.key]:GetFloat()
+	end
+end
+
+
 SVTests = {}
 function SVTests.StartWatch()
 	SVTests.eId = GUI.GetSelectedEntity()

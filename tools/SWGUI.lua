@@ -43,15 +43,19 @@ SW.GUI = {
 			XGUIEng.SetText("SWSMC1E1Button", "@center "..SW.GUI.Suddendeath)
 		end,
 		["HQPlus"] = function()
-			SW.GUI.MaxHQ = SW.GUI.MaxHQ + 1
-			XGUIEng.SetText("SWSMC1E4Button", "@center "..SW.GUI.MaxHQ)
+			SW.GUI.MaxHQ = 1 - SW.GUI.MaxHQ
+			if SW.GUI.MaxHQ == 0 then
+				XGUIEng.SetText("SWSMC1E4Button", "@center Nein")
+			else
+				XGUIEng.SetText("SWSMC1E4Button", "@center Ja")
+			end
 		end,
 		["HQMinus"] = function()
-			SW.GUI.MaxHQ = math.max(SW.GUI.MaxHQ - 1, 0)
+			SW.GUI.MaxHQ = 1 - SW.GUI.MaxHQ
 			if SW.GUI.MaxHQ == 0 then
-				XGUIEng.SetText("SWSMC1E4Button", "@center Inf")
+				XGUIEng.SetText("SWSMC1E4Button", "@center Nein")
 			else
-				XGUIEng.SetText("SWSMC1E4Button", "@center "..SW.GUI.MaxHQ)
+				XGUIEng.SetText("SWSMC1E4Button", "@center Ja")
 			end
 		end
 	},
@@ -63,7 +67,7 @@ SW.GUI = {
 			.."wenn die Karte fixe Startpositionen hat.",
 		["Anonym"]      = "Jeder Fortschritt zum nächsten Rang wird unter allen Teammitgliedern aufgeteilt.",
 		["Startgame"]   = "@color:255,125,0 Startet das Spiel mit den aktuell eingestellten Regeln.",
-		["MaxHQ"]		= "Gibt an, wie die Außenpostenkosten anwachsen. Inf = Kosten wachsen unendlich, alles andere cappt die Kosten ab dem 8. Außenposten."
+		["MaxHQ"]		= "Gibt an, ob die Kosten der Außenposten ein Limit erreichen(Ja) oder gegen unendlich gehen(Nein)."
 	},
 	
 };
@@ -96,6 +100,10 @@ function SW.GUI.Init()
 	XGUIEng.SetText("SWSMC1E2Button", "@center "..SW.GUI.Text[SW.GUI.Teamspawn])
 	XGUIEng.SetText("SWSMC1E3Button", "@center "..SW.GUI.Text[SW.GUI.Teamrank])
 	XGUIEng.SetText("SWSMC1E1Button", "@center "..SW.GUI.Suddendeath)
+	XGUIEng.SetText("SWSMC1E4Button", "@center Nein")
+
+	XGUIEng.SetText("SWSMC1E4Text", "Außenposten- @cr kostenlimit")
+	
 	
 	-- Check if mapper decided to disable some rule selections
 	if SpeedwarConfig ~= nil then
@@ -186,11 +194,11 @@ function SW.GUI.StartGameCNetwork( _sender, _time, _sharedSpawn, _sharedRank, _m
 	Message("Shared Spawn: ".._sharedSpawn)
 	Message("Shared Rank: ".._sharedRank)
 	if _maxHQ == 0 then
-		Message("Outpost cost: capped")
-		SW.FLAG_USE_FIXED_OUTPOST_COSTS = true
-	else
 		Message("Outpost cost: uncapped")
 		SW.FLAG_USE_FIXED_OUTPOST_COSTS = false
+	else
+		Message("Outpost cost: capped")
+		SW.FLAG_USE_FIXED_OUTPOST_COSTS = true
 	end
 	SW.GUI.Rules = {}
 	SW.GUI.Rules.Time = _time
@@ -218,11 +226,11 @@ function SW.GUI.StartGame( _time, _sharedSpawn, _sharedRank, _maxHQ)
 	Message("Shared Spawn: ".._sharedSpawn)
 	Message("Shared Rank: ".._sharedRank)
 	if _maxHQ == 0 then
-		Message("Outpost cost: capped")
-		SW.FLAG_USE_FIXED_OUTPOST_COSTS = true
-	else
 		Message("Outpost cost: uncapped")
 		SW.FLAG_USE_FIXED_OUTPOST_COSTS = false
+	else
+		Message("Outpost cost: capped")
+		SW.FLAG_USE_FIXED_OUTPOST_COSTS = true
 	end
 	SW.GUI.Rules = {}
 	SW.GUI.Rules.Time = _time

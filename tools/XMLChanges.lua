@@ -153,6 +153,10 @@ function SW.XMLChanges.DoChanges()
 		end
 		SW.SetConstructionCosts( v, cost)
 	end
+
+	-- Make settlers come back faster
+	SW.SV.SetPlayerAttractionBehavior( "AttractionFrequency", 1)
+
 end
 --Refinery Push
 --[[
