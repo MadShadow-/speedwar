@@ -9,6 +9,7 @@ SW.Bugfixes = {}
 SW.Bugfixes.BlessingCooldown = 90	--Cooldown for 90 seconds
 SW.Bugfixes.ListOfSoldBuildings = {}
 SW.Bugfixes.BlessingData = {}
+SW.Bugfixes.OutpostList = {}
 SW.Bugfixes.ToWipe = {}
 function SW.Bugfixes.Init()
 	local SellBuildingUpvalue = GUI.SellBuilding
@@ -179,6 +180,7 @@ function SW.Bugfixes.FixBattleSerfBug()
 	end
 end
 function SW.Bugfixes.FixInvisSerfBug()
+	Trigger.RequestTrigger(Events.LOGIC_EVENT_ENTITY_CREATED, "SW_BugfixesIsOutpost", "SW_BugfixesOnOutpostCreated", 1)
 	Trigger.RequestTrigger(Events.LOGIC_EVENT_ENTITY_DESTROYED, "SW_BugfixesIsOutpost", "SW_BugfixesOnOutpostDestroyed", 1)
 end
 function SW_BugfixesIsOutpost()
@@ -187,18 +189,26 @@ function SW_BugfixesIsOutpost()
 	end
 	return false
 end
+function SW_BugfixesOnOutpostCreated()
+	local hqId = Event.GetEntityID()
+	SW.Bugfixes.OutpostList[hqId] = GetPosition(hqId)
+end
 function SW_BugfixesOnOutpostDestroyed()
 	local hqId = Event.GetEntityID()
-	local pos = GetPosition( hqId)
-	for eId in S5Hook.EntityIterator(Predicate.OfType(Entities.PU_Serf), Predicate.InCircle( pos.X, pos.Y, 500)) do
+	--local pos = GetPosition( hqId)
+	local pos = SW.Bugfixes.OutpostList[hqId]
+	--Message("Clearing serfs at X = "..pos.X..", Y = "..pos.Y)
+	for eId in S5Hook.EntityIterator( Predicate.OfType(Entities.PU_Serf), Predicate.InCircle( pos.X, pos.Y, 800)) do
 		table.insert( SW.Bugfixes.ToWipe, eId)
 	end
+	--Message("Entities found: "..table.getn(SW.Bugfixes.ToWipe))
 	StartSimpleJob("SW_BugfixesDestroyJob")
 end
 function SW_BugfixesDestroyJob()
-	for i = table.getn(SW.Bugfixes.ToWipe), 1, -1 do
+	for i = 1, table.getn(SW.Bugfixes.ToWipe) do
 		DestroyEntity(SW.Bugfixes.ToWipe[i])
 	end
+	SW.Bugfixes.ToWipe = {}
 	return true
 end
 function SW.Bugfixes.FixSoldGUI()
